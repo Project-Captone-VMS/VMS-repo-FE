@@ -54,7 +54,7 @@ const DriverManagement = () => {
       </div>
 
       {/* Statistics Cards */}
-      <div className="stats-grid grid grid-cols-1 gap-4 2xl:grid-cols-4 mb-6b ">
+      <div className="stats-grid grid grid-cols-1 gap-4 2xl:grid-cols mb-6b ">
         {/* Total Drivers Card */}
         <Card>
           <div className="stat-card flex items-center justify-between">
@@ -261,7 +261,7 @@ const DriverManagement = () => {
               className={`page-btn rounded-md border px-3 py-1 
                 ${currentPage === pageNum 
                   ? 'border-blue-600 bg-blue-50 text-blue-600' 
-                  : 'hover:bg-gray-50'
+                  : 'hover:bg-blue-400'
                 }`}
             >
               {pageNum}

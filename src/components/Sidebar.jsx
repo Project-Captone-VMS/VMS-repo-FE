@@ -26,9 +26,11 @@ const Sidebar = () => {
   ];
 
   return (
-    <aside className="w-[200px] bg-[#1a1a1a] min-h-screen text-white">
+    <aside className="w-[200px] bg-[#040D12] min-h-screen text-white">
       <div className="p-4">
-        <div className="h-8 w-8 bg-red-600"></div>
+        <div className="h-9 w-16 bg-[#040D12]">
+        <img className='logo' src='/src/assets/image/Logo.jpg'></img>
+        </div>
       </div>
       <nav className="mt-6">
         {menuItems.map((item) => {
@@ -38,7 +40,7 @@ const Sidebar = () => {
             <Link
               key={item.path}
               to={item.path}
-              className={`flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-800 ${
+              className={`justify-center items-center gap-4 inline-flex px-4 py-3 text-sm hover:bg-blue-400 ${
                 isActive ? 'bg-gray-800' : ''
               }`}
             >
