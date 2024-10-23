@@ -1,282 +1,399 @@
 import React, { useState } from 'react';
-import { Users, Search, Filter, MoreVertical, Calendar, Clock } from 'lucide-react';
+import { Users, Search, Filter, Clock, Calendar, Edit } from 'lucide-react';
+import UpdateDriverModal from '../components/Modals/UpdateDriver';
 
-// Custom Card Component
-const Card = ({ children, className = '' }) => {
-  return (
-    <div className={`bg-white rounded-lg shadow p-4 ${className}`}>
-      {children}
-    </div>
-  );
+
+// Tùy chọn cho các bộ lọc
+const FILTER_OPTIONS = {
+  status: [
+    { value: '', label: 'All Status' },
+    { value: 'on-duty', label: 'On Duty' },
+    { value: 'on-leave', label: 'On Leave' },
+    { value: 'available', label: 'Available' }
+  ],
+  workSchedule: [
+    { value: '', label: 'All Schedules' },
+    { value: 'monday-friday', label: 'Monday - Friday' },
+    { value: 'weekend', label: 'Weekend' },
+    { value: 'night-shift', label: 'Night Shift' }
+  ]
 };
 
-const DriverManagement = () => {
-  // State for filters
-  const [showFilters, setShowFilters] = useState(false);
-  const [filters, setFilters] = useState({
-    status: '',
-    route: '',
-    date: '',
-  });
+// Component Card dùng để hiển thị thông tin dạng thẻ
+const Card = ({ children, className = '' }) => (
+  <div className={`bg-white rounded-lg shadow p-4 ${className}`}>
+    {children}
+  </div>
+);
 
-  // State for pagination
+// Component để hiển thị các trường lọc dữ liệu
+const FilterField = ({ label, name, value, onChange, type = "text", options = null }) => (
+  <div>
+    <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+    {options ? (
+      <select
+        name={name}
+        value={value}
+        onChange={onChange}
+        className="w-full rounded-md border p-2 focus:border-blue-500 focus:outline-none"
+      >
+        {options.map(option => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    ) : (
+      <input
+        type={type}
+        name={name}
+        value={value}
+        onChange={onChange}
+        className="w-full rounded-md border p-2 focus:border-blue-500 focus:outline-none"
+      />
+    )}
+  </div>
+);
+
+const DriverManagement = () => {
+  // Khởi tạo các state quản lý dữ liệu
+  const [showFilters, setShowFilters] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filters, setFilters] = useState({
+    firstName: '',
+    lastName: '',
+    status: '',
+    licenseNumber: '',
+    workSchedule: ''
+  });
   const [currentPage, setCurrentPage] = useState(1);
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [selectedDriver, setSelectedDriver] = useState(null);
+
+  // Các giá trị không đổi
   const totalPages = 5;
-  const pageSize = 10;
   const totalItems = 42;
 
-  // Handle filter changes
+  // Dữ liệu mẫu danh sách tài xế
+  const driversData = [
+    {
+      firstName: "Trung",
+      lastName: "Nguyen",
+      status: "On Duty",
+      licenseNumber: "456",
+      vehicleId: "TRK-001",
+      phone: "+84 123 456 789",
+      email: "trungnguyen19102003@gmail.com",
+      workSchedule: "Monday - Friday (8:00 AM - 5:00 PM)"
+    },
+    {
+      firstName: "Vũ",
+      lastName: "Tran",
+      status: "Available",
+      licenseNumber: "123",
+      vehicleId: "VAN-002",
+      phone: "+84 987 654 321",
+      email: "Vutran@gmail.com",
+      workSchedule: "Weekend (6:00 AM - 6:00 PM)"
+    },
+    {
+      firstName: "Nhan",
+      lastName: "Tran",
+      status: "On Leave",
+      licenseNumber: "789",
+      vehicleId: "TRK-002",
+      phone: "+84 555 666 777",
+      email: "NhanTran@gmail.com",
+      workSchedule: "Night Shift (10:00 PM - 6:00 AM)"
+    },
+    {
+      firstName: "Lanh",
+      lastName: "Hoang",
+      status: "On Duty",
+      licenseNumber: "DN-QN-004",
+      vehicleId: "PICKUP-001",
+      phone: "+84 333 444 555",
+      email: "HoangLanh@gmail.com",
+      workSchedule: "Monday - Friday (8:00 AM - 5:00 PM)"
+    }
+
+    
+    
+    // Thêm dữ liệu mẫu khác tại đây nếu cần
+  ];
+
+  // Xử lý sự kiện thay đổi bộ lọc
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
     setFilters(prev => ({
       ...prev,
-      [name]: value
+      [name]: value.toLowerCase()
     }));
   };
 
-  // Generate page numbers
-  const getPageNumbers = () => {
-    const pages = [];
-    for (let i = 1; i <= totalPages; i++) {
-      pages.push(i);
-    }
-    return pages;
+  // Xử lý sự kiện tìm kiếm
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value.toLowerCase());
   };
 
-  return (
-    <div className="dashboard-container mx-auto max-w-7xl p-6">
-      {/* Header Section */}
-      <div className="header-section mb-6">
-        <div className="header-content">
-          <h1 className="header-title text-2xl font-bold">Driver Management</h1>
-          <p className="header-subtitle text-gray-500">Manage drivers and their schedules</p>
+  // Xử lý sự kiện khi nhấn nút chỉnh sửa
+  const handleEditClick = (driver) => {
+    setSelectedDriver(driver);
+    setIsUpdateModalOpen(true);
+  };
+
+  // Hàm lọc danh sách tài xế theo điều kiện
+  const getFilteredDrivers = () => {
+    return driversData.filter(driver => {
+      // Lọc theo từ khóa tìm kiếm trên tất cả các trường
+      const searchMatch = searchTerm === '' || 
+        Object.values(driver)
+          .join(' ')
+          .toLowerCase()
+          .includes(searchTerm);
+
+      // Lọc theo từng trường cụ thể
+      const firstNameMatch = !filters.firstName || 
+        driver.firstName.toLowerCase().includes(filters.firstName);
+      const lastNameMatch = !filters.lastName || 
+        driver.lastName.toLowerCase().includes(filters.lastName);
+      const statusMatch = !filters.status || 
+        driver.status.toLowerCase() === filters.status;
+      const licenseMatch = !filters.licenseNumber || 
+        driver.licenseNumber.toLowerCase().includes(filters.licenseNumber);
+      const scheduleMatch = !filters.workSchedule || 
+        driver.workSchedule.toLowerCase().includes(filters.workSchedule);
+
+      return searchMatch && 
+        firstNameMatch && 
+        lastNameMatch && 
+        statusMatch && 
+        licenseMatch && 
+        scheduleMatch;
+    });
+  };
+
+  // Hiển thị phần bộ lọc
+  const renderFilters = () => (
+    <div className="rounded-lg border bg-white p-4 shadow-sm">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <FilterField 
+          label="First Name"
+          name="firstName"
+          value={filters.firstName}
+          onChange={handleFilterChange}
+        />
+        
+        <FilterField 
+          label="Last Name"
+          name="lastName"
+          value={filters.lastName}
+          onChange={handleFilterChange}
+        />
+        
+        <FilterField 
+          label="Status"
+          name="status"
+          value={filters.status}
+          onChange={handleFilterChange}
+          options={FILTER_OPTIONS.status}
+        />
+        
+        <FilterField 
+          label="License Number"
+          name="licenseNumber"
+          value={filters.licenseNumber}
+          onChange={handleFilterChange}
+        />
+        
+        <FilterField 
+          label="Work Schedule"
+          name="workSchedule"
+          value={filters.workSchedule}
+          onChange={handleFilterChange}
+          options={FILTER_OPTIONS.workSchedule}
+        />
+      </div>
+    </div>
+  );
+
+  // Hiển thị phần header
+  const renderHeader = () => (
+    <div className="mb-6">
+      <h1 className="text-2xl font-bold">Driver Management</h1>
+      <p className="text-gray-500">Manage drivers and their schedules</p>
+    </div>
+  );
+
+  // Hiển thị phần thống kê
+  const renderStats = () => (
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <Card>
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-gray-500">Total Drivers</p>
+            <h3 className="text-2xl font-bold">42</h3>
+          </div>
+          <Users className="h-8 w-8 text-blue-600" />
         </div>
-      </div>
+      </Card>
 
-      {/* Statistics Cards */}
-      <div className="stats-grid grid grid-cols-1 gap-4 2xl:grid-cols mb-6b ">
-        {/* Total Drivers Card */}
-        <Card>
-          <div className="stat-card flex items-center justify-between">
-            <div className="stat-info">
-              <p className="stat-label text-gray-500">Total Drivers</p>
-              <h3 className="stat-value text-2xl font-bold">42</h3>
-            </div>
-            <Users className="stat-icon h-8 w-8 text-blue-600" />
+      <Card>
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-gray-500">On Duty</p>
+            <h3 className="text-2xl font-bold">28</h3>
           </div>
-        </Card>
-
-        {/* On Duty Card */}
-        <Card>
-          <div className="stat-card flex items-center justify-between">
-            <div className="stat-info">
-              <p className="stat-label text-gray-500">On Duty</p>
-              <h3 className="stat-value text-2xl font-bold">28</h3>
-            </div>
-            <Clock className="stat-icon h-8 w-8 text-green-600" />
-          </div>
-        </Card>
-
-        {/* On Leave Card */}
-        <Card>
-          <div className="stat-card flex items-center justify-between">
-            <div className="stat-info">
-              <p className="stat-label text-gray-500">On Leave</p>
-              <h3 className="stat-value text-2xl font-bold">5</h3>
-            </div>
-            <Calendar className="stat-icon h-8 w-8 text-orange-500" />
-          </div>
-        </Card>
-
-        {/* Available Card */}
-        <Card>
-          <div className="stat-card flex items-center justify-between">
-            <div className="stat-info">
-              <p className="stat-label text-gray-500">Available</p>
-              <h3 className="stat-value text-2xl font-bold">9</h3>
-            </div>
-            <div className="status-indicator flex h-8 w-8 items-center justify-center rounded-full bg-green-100">
-              <div className="indicator-dot h-3 w-3 rounded-full bg-green-500"></div>
-            </div>
-          </div>
-        </Card>
-      </div>
-
-      {/* Search and Filter Section */}
-      <div className="search-filter-section mb-6">
-        <div className="flex gap-4 mb-4">
-          <div className="search-container relative flex-1">
-            <Search className="search-icon absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-            <input 
-              type="text" 
-              placeholder="Search drivers..."
-              className="search-input w-full rounded-lg border py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <button 
-            className="filter-btn flex items-center gap-2 rounded-lg border px-4 py-2 hover:bg-gray-50"
-            onClick={() => setShowFilters(!showFilters)}
-          >
-            <Filter className="h-5 w-5" />
-            Filters
-          </button>
+          <Clock className="h-8 w-8 text-green-600" />
         </div>
+      </Card>
 
-        {/* Filter Panel */}
-        {showFilters && (
-          <div className="filter-panel rounded-lg border bg-white p-4 shadow-sm">
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-              <div className="filter-group">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                <select
-                  name="status"
-                  value={filters.status}
-                  onChange={handleFilterChange}
-                  className="w-full rounded-md border border-gray-300 p-2 focus:border-blue-500 focus:outline-none"
-                >
-                  <option value="">All Status</option>
-                  <option value="on-duty">On Duty</option>
-                  <option value="on-leave">On Leave</option>
-                  <option value="available">Available</option>
-                </select>
-              </div>
-
-              <div className="filter-group">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Route</label>
-                <select
-                  name="route"
-                  value={filters.route}
-                  onChange={handleFilterChange}
-                  className="w-full rounded-md border border-gray-300 p-2 focus:border-blue-500 focus:outline-none"
-                >
-                  <option value="">All Routes</option>
-                  <option value="hn-hcm">HN-HCM</option>
-                  <option value="hn-dn">HN-DN</option>
-                  <option value="hcm-dn">HCM-DN</option>
-                </select>
-              </div>
-
-              <div className="filter-group">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
-                <input
-                  type="date"
-                  name="date"
-                  value={filters.date}
-                  onChange={handleFilterChange}
-                  className="w-full rounded-md border border-gray-300 p-2 focus:border-blue-500 focus:outline-none"
-                />
-              </div>
-            </div>
+      <Card>
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-gray-500">On Leave</p>
+            <h3 className="text-2xl font-bold">5</h3>
           </div>
-        )}
-      </div>
+          <Calendar className="h-8 w-8 text-orange-500" />
+        </div>
+      </Card>
 
-      {/* Drivers Table */}
-      <div className="drivers-table-container overflow-hidden rounded-lg bg-white shadow">
-        <table className="drivers-table min-w-full divide-y divide-gray-200">
-          <thead className="table-header bg-gray-50">
+      <Card>
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-gray-500">Available</p>
+            <h3 className="text-2xl font-bold">9</h3>
+          </div>
+          <div className="h-8 w-8 bg-green-100 rounded-full flex items-center justify-center">
+            <div className="h-3 w-3 bg-green-500 rounded-full"></div>
+          </div>
+        </div>
+      </Card>
+    </div>
+  );
+
+  // Hiển thị phần tìm kiếm và bộ lọc
+  const renderSearchAndFilter = () => (
+    <div className="mb-6">
+      <div className="flex gap-4 mb-4">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-5 w-5" />
+          <input 
+            type="text" 
+            placeholder="Search drivers..."
+            value={searchTerm}
+            onChange={handleSearchChange}
+            className="w-full rounded-lg border py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        <button 
+          className="flex items-center gap-2 rounded-lg border px-4 py-2 hover:bg-gray-50"
+          onClick={() => setShowFilters(!showFilters)}
+        >
+          <Filter className="h-5 w-5" />
+          Filters
+        </button>
+      </div>
+      {showFilters && renderFilters()}
+    </div>
+  );
+
+  // Hiển thị bảng danh sách tài xế
+  const renderTable = () => {
+    const filteredDrivers = getFilteredDrivers();
+    
+    return (
+      <div className="bg-white rounded-lg shadow overflow-hidden">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
             <tr>
-              <th className="column-header px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                Driver Info
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                First Name
               </th>
-              <th className="column-header px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                Last Name
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                 Status
               </th>
-              <th className="column-header px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                Current Assignment
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                License Number
               </th>
-              <th className="column-header px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                 Contact Info
               </th>
-              <th className="column-header px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                Work Schedule
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                 Actions
               </th>
             </tr>
           </thead>
-          <tbody className="table-body divide-y divide-gray-200 bg-white">
-            <tr className="table-row">
-              <td className="driver-info-cell px-6 py-4 whitespace-nowrap">
-                <div className="flex items-center">
-                  <img 
-                    src="/src/assets/image/anh-cv-01.jpg" 
-                    alt="Driver" 
-                    className="driver-avatar h-10 w-10 rounded-full mr-3"
-                  />
-                  <div className="driver-details">
-                    <div className="driver-name font-medium">Trung Nguyen</div>
-                    <div className="driver-id text-sm text-gray-500">ID: DRV-001</div>
-                  </div>
-                </div>
-              </td>
-              <td className="status-cell px-6 py-4 whitespace-nowrap">
-                <span className="status-badge inline-flex rounded-full bg-green-100 px-2 text-xs font-semibold leading-5 text-green-800">
-                  On Duty
-                </span>
-              </td>
-              <td className="assignment-cell px-6 py-4 whitespace-nowrap">
-                <div className="route text-sm">Route: DN-QN</div>
-                <div className="vehicle text-sm text-gray-500">Vehicle: TRK-001</div>
-              </td>
-              <td className="contact-cell px-6 py-4 whitespace-nowrap">
-                <div className="phone text-sm">+84 123 456 789</div>
-                <div className="email text-sm text-gray-500">trungnguyen19102003@gmail.com</div>
-              </td>
-              <td className="actions-cell px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                <button className="action-btn text-gray-400 hover:text-gray-500">
-                  <MoreVertical className="h-5 w-5" />
-                </button>
-              </td>
-            </tr>
+          <tbody className="divide-y divide-gray-200">
+            {filteredDrivers.map((driver, index) => (
+              <tr key={index}>
+                <td className="px-6 py-4 whitespace-nowrap">{driver.firstName}</td>
+                <td className="px-6 py-4 whitespace-nowrap">{driver.lastName}</td>
+                <td className="px-6 py-4 whitespace-nowrap">{driver.status}</td>
+                <td className="px-6 py-4 whitespace-nowrap">{driver.licenseNumber}</td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <p>{driver.phone}</p>
+                  <p>{driver.email}</p>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">{driver.workSchedule}</td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <button
+                    className="text-blue-600 hover:text-blue-900"
+                    onClick={() => handleEditClick(driver)}
+                  >
+                    <Edit className="h-5 w-5" />
+                  </button>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
-      </div>
 
-      {/* Enhanced Pagination Section */}
-      <div className="pagination-section mt-4 flex items-center justify-between rounded-lg bg-white px-4 py-3 border-t border-gray-200">
-        <div className="pagination-info flex items-center">
-          <span className="text-sm text-gray-700">
-            Showing{' '}
-            <span className="font-medium">{(currentPage - 1) * pageSize + 1}</span>
-            {' '}to{' '}
-            <span className="font-medium">
-              {Math.min(currentPage * pageSize, totalItems)}
-            </span>
-            {' '}of{' '}
-            <span className="font-medium">{totalItems}</span> results
-          </span>
-        </div>
-        <div className="pagination-controls flex items-center space-x-2">
-          <button 
-            className="page-btn rounded-md border px-3 py-1 hover:bg-gray-50 disabled:opacity-50"
-            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-          >
-            Previous
-          </button>
-          
-          {getPageNumbers().map(pageNum => (
-            <button
-              key={pageNum}
-              onClick={() => setCurrentPage(pageNum)}
-              className={`page-btn rounded-md border px-3 py-1 
-                ${currentPage === pageNum 
-                  ? 'border-blue-600 bg-blue-50 text-blue-600' 
-                  : 'hover:bg-blue-400'
+        <div className="flex items-center justify-between p-4">
+          <div>
+            Showing {currentPage} of {totalPages} pages (Total items: {totalItems})
+          </div>
+          <div className="flex gap-2">
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNumber => (
+              <button
+                key={pageNumber}
+                className={`px-4 py-2 rounded-lg ${
+                  pageNumber === currentPage
+                    ? 'bg-blue-500 text-white'
+                    : 'bg-gray-100 hover:bg-gray-200'
                 }`}
-            >
-              {pageNum}
-            </button>
-          ))}
-          
-          <button 
-            className="page-btn rounded-md border px-3 py-1 hover:bg-gray-50 disabled:opacity-50"
-            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-            disabled={currentPage === totalPages}
-          >
-            Next
-          </button>
+                onClick={() => setCurrentPage(pageNumber)}
+              >
+                {pageNumber}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
+    );
+  };
+
+  // Render giao diện chính
+  return (
+    <div className="mx-auto max-w-7xl p-6 bg-gray-50 min-h-screen">
+      {renderHeader()}
+      {renderStats()}
+      {renderSearchAndFilter()}
+      {renderTable()}
+      
+      {isUpdateModalOpen && (
+        <UpdateDriverModal
+          isOpen={isUpdateModalOpen}
+          onClose={() => setIsUpdateModalOpen(false)}
+          driver={selectedDriver}
+        />
+      )}
     </div>
   );
 };

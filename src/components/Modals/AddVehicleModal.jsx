@@ -3,85 +3,365 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import toast, { Toaster } from "react-hot-toast"; // Import toast
+import { createVehicle } from "../../services/api";
+import { useNavigate } from "react-router-dom";
+import { Check, X, AlertCircle } from 'lucide-react';
+import toast, { Toaster } from "react-hot-toast";
 
 const AddVehicleModal = ({ isOpen, onClose }) => {
-  const [vehicleID, setVehicleID] = useState("");
-  const [plateNumber, setPlateNumber] = useState("");
-  const [vehicleType, setVehicleType] = useState(""); // Manual input for Vehicle Type
-  const [vehicleDetails, setVehicleDetails] = useState("");
-  const [status, setStatus] = useState("");
-  const [value, setValue] = useState({
-    id:"",
-    plateNumber:"",
-    vehicleType:"",
-    vehicleDetails:"",
-    status:"",
+  const [vehicleData, setVehicleData] = useState({
+    licensePlate: '',
+    type: '',
+    capacity: '',
+    status: '',
+    maintenanceSchedule: '',
   });
 
-  const handleSave = () =>{
-    setValue([value]);
-  }
-  
+  const [fieldErrors, setFieldErrors] = useState({});
+  const [touchedFields, setTouchedFields] = useState({});
+  const navigate = useNavigate();
 
-  // const handleSave = () => {
-  //   if (!vehicleID || !plateNumber || !vehicleType || !vehicleDetails || !status) {
-  //     toast.error("Please fill all fields."); // Show error toast if validation fails
-  //     return;
-  //   }
+  const handleCancel = () => {
+    setVehicleData({
+      licensePlate: '',
+      type: '',
+      capacity: '',
+      status: '',
+      maintenanceSchedule: '',
+    });
+    setFieldErrors({});
+    setTouchedFields({});
+    onClose();
+  };
 
-  //   // Success toast when vehicle is created
-  //   toast.success("Successfully created a new vehicle");
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setVehicleData({
+      ...vehicleData,
+      [name]: value,
+    });
+    setTouchedFields({
+      ...touchedFields,
+      [name]: true
+    });
+    validateField(name, value);
+  };
 
-  //   // Clear inputs after saving
-  //   setVehicleID("");
-  //   setPlateNumber("");
-  //   setVehicleType("");
-  //   setVehicleDetails("");
-  //   setStatus("");
-  //   onClose(); // Close the modal after saving
-  // };
+  const validateField = (name, value) => {
+    let errors = { ...fieldErrors };
 
+    switch (name) {
+      case "licensePlate":
+        if (!value) {
+          errors.licensePlate = "License plate is required";
+        } else if (value.length > 15) {
+          errors.licensePlate = "License plate cannot exceed 15 characters";
+        } else {
+          delete errors.licensePlate;
+        }
+        break;
 
+      case "type":
+        if (!value) {
+          errors.type = "Vehicle type is required";
+        } else if (value.length > 30) {
+          errors.type = "Vehicle type cannot exceed 30 characters";
+        } else {
+          delete errors.type;
+        }
+        break;
+
+      case "capacity":
+        if (!value || value <= 0) {
+          errors.capacity = "Capacity must be a positive number";
+        } else {
+          delete errors.capacity;
+        }
+        break;
+
+      case "status":
+        if (!value) {
+          errors.status = "Status is required";
+        } else {
+          delete errors.status;
+        }
+        break;
+
+      case "maintenanceSchedule":
+        if (!value) {
+          errors.maintenanceSchedule = "Maintenance schedule is required";
+        } else {
+          const date = new Date(value);
+          const today = new Date();
+          if (date < today) {
+            errors.maintenanceSchedule = "Schedule must be today or later";
+          } else {
+            delete errors.maintenanceSchedule;
+          }
+        }
+        break;
+
+      default:
+        break;
+    }
+
+    setFieldErrors(errors);
+  };
+
+  const handleSave = async (event) => {
+    event.preventDefault();
+    
+    // Mark all fields as touched
+    const allTouched = Object.keys(vehicleData).reduce((acc, key) => ({
+      ...acc,
+      [key]: true
+    }), {});
+    setTouchedFields(allTouched);
+
+    // Validate all fields
+    Object.keys(vehicleData).forEach(key => {
+      validateField(key, vehicleData[key]);
+    });
+
+    if (Object.keys(fieldErrors).length > 0) {
+      toast.error("Please fix all errors before submitting");
+      return;
+    }
+
+    try {
+      await createVehicle(vehicleData);
+      toast.success("Vehicle created successfully!");
+      navigate("/vehicle");
+    } catch (error) {
+      toast.error("Failed to create vehicle");
+    }
+  };
+
+  const getInputStatus = (fieldName) => {
+    if (!touchedFields[fieldName]) return 'default';
+    return fieldErrors[fieldName] ? 'error' : 'success';
+  };
 
   return (
     <>
-      {/* Toaster Component for Toast Notifications */}
-      <Toaster position="top-right" reverseOrder={false} />
+      <Toaster position="top-right" />
       
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <div className="fixed inset-0 bg-black bg-opacity-75 z-40"></div>
-        <DialogContent className="w-full max-w-lg fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 max-h-[90vh] overflow-y-auto bg-white shadow-lg p-6 rounded-md">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-bold mb-4">Add New Vehicle</DialogTitle>
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40"></div>
+        <DialogContent className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-xl p-6 w-full max-w-xl max-h-[90vh] overflow-y-auto z-50 border border-gray-200">
+          <DialogHeader className="border-b pb-4">
+            <DialogTitle className="text-2xl font-bold text-gray-900">
+              Add New Vehicle
+            </DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label>Vehicle ID</Label>
-              <Input value={vehicleID} onChange={(e) => setVehicleID(e.target.value)} placeholder="Enter vehicle ID" />
+
+          <div className="mt-6 space-y-6 bg-white">
+            {/* License Plate Field */}
+            <div className="relative">
+              <Label htmlFor="licensePlate" className="block text-sm font-medium text-gray-700">
+                License Plate
+              </Label>
+              <div className="mt-1 relative">
+                <Input
+                  id="licensePlate"
+                  name="licensePlate"
+                  value={vehicleData.licensePlate}
+                  onChange={handleInputChange}
+                  className={`block w-full pr-10 bg-white ${
+                    getInputStatus('licensePlate') === 'error' 
+                      ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+                      : getInputStatus('licensePlate') === 'success'
+                      ? 'border-green-300 focus:border-green-500 focus:ring-green-500'
+                      : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500'
+                  }`}
+                  placeholder="Enter license plate"
+                />
+                {touchedFields.licensePlate && (
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                    {getInputStatus('licensePlate') === 'error' ? (
+                      <X className="h-5 w-5 text-red-500" />
+                    ) : getInputStatus('licensePlate') === 'success' ? (
+                      <Check className="h-5 w-5 text-green-500" />
+                    ) : null}
+                  </div>
+                )}
+              </div>
+              {fieldErrors.licensePlate && touchedFields.licensePlate && (
+                <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                  <AlertCircle className="h-4 w-4" />
+                  {fieldErrors.licensePlate}
+                </p>
+              )}
             </div>
-            <div>
-              <Label>Plate number</Label>
-              <Input value={plateNumber} onChange={(e) => setPlateNumber(e.target.value)} placeholder="Enter plate number" />
+
+            {/* Vehicle Type Field */}
+            <div className="relative">
+              <Label htmlFor="type" className="block text-sm font-medium text-gray-700">
+                Vehicle Type
+              </Label>
+              <div className="mt-1 relative">
+                <Input
+                  id="type"
+                  name="type"
+                  value={vehicleData.type}
+                  onChange={handleInputChange}
+                  className={`block w-full pr-10 bg-white ${
+                    getInputStatus('type') === 'error'
+                      ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+                      : getInputStatus('type') === 'success'
+                      ? 'border-green-300 focus:border-green-500 focus:ring-green-500'
+                      : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500'
+                  }`}
+                  placeholder="Enter vehicle type"
+                />
+                {touchedFields.type && (
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                    {getInputStatus('type') === 'error' ? (
+                      <X className="h-5 w-5 text-red-500" />
+                    ) : getInputStatus('type') === 'success' ? (
+                      <Check className="h-5 w-5 text-green-500" />
+                    ) : null}
+                  </div>
+                )}
+              </div>
+              {fieldErrors.type && touchedFields.type && (
+                <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                  <AlertCircle className="h-4 w-4" />
+                  {fieldErrors.type}
+                </p>
+              )}
             </div>
-            <div>
-              <Label>Vehicle Type</Label>
-              <Input value={vehicleType} onChange={(e) => setVehicleType(e.target.value)} placeholder="Enter vehicle type" /> {/* Manual input */}
+
+            {/* Capacity Field */}
+            <div className="relative">
+              <Label htmlFor="capacity" className="block text-sm font-medium text-gray-700">
+                Capacity
+              </Label>
+              <div className="mt-1 relative">
+                <Input
+                  id="capacity"
+                  name="capacity"
+                  type="number"
+                  value={vehicleData.capacity}
+                  onChange={handleInputChange}
+                  className={`block w-full pr-10 bg-white ${
+                    getInputStatus('capacity') === 'error'
+                      ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+                      : getInputStatus('capacity') === 'success'
+                      ? 'border-green-300 focus:border-green-500 focus:ring-green-500'
+                      : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500'
+                  }`}
+                  placeholder="Enter capacity"
+                />
+                {touchedFields.capacity && (
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                    {getInputStatus('capacity') === 'error' ? (
+                      <X className="h-5 w-5 text-red-500" />
+                    ) : getInputStatus('capacity') === 'success' ? (
+                      <Check className="h-5 w-5 text-green-500" />
+                    ) : null}
+                  </div>
+                )}
+              </div>
+              {fieldErrors.capacity && touchedFields.capacity && (
+                <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                  <AlertCircle className="h-4 w-4" />
+                  {fieldErrors.capacity}
+                </p>
+              )}
             </div>
-            <div>
-              <Label>Vehicle Details</Label>
-              <Input value={vehicleDetails} onChange={(e) => setVehicleDetails(e.target.value)} placeholder="Enter vehicle details" />
+
+            {/* Status Field */}
+            <div className="relative">
+              <Label htmlFor="status" className="block text-sm font-medium text-gray-700">
+                Status
+              </Label>
+              <div className="mt-1 relative">
+                <Input
+                  id="status"
+                  name="status"
+                  value={vehicleData.status}
+                  onChange={handleInputChange}
+                  className={`block w-full pr-10 bg-white ${
+                    getInputStatus('status') === 'error'
+                      ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+                      : getInputStatus('status') === 'success'
+                      ? 'border-green-300 focus:border-green-500 focus:ring-green-500'
+                      : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500'
+                  }`}
+                  placeholder="Enter status"
+                />
+                {touchedFields.status && (
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                    {getInputStatus('status') === 'error' ? (
+                      <X className="h-5 w-5 text-red-500" />
+                    ) : getInputStatus('status') === 'success' ? (
+                      <Check className="h-5 w-5 text-green-500" />
+                    ) : null}
+                  </div>
+                )}
+              </div>
+              {fieldErrors.status && touchedFields.status && (
+                <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                  <AlertCircle className="h-4 w-4" />
+                  {fieldErrors.status}
+                </p>
+              )}
             </div>
-            <div>
-              <Label>Status</Label>
-              <Input value={status} onChange={(e) => setStatus(e.target.value)} placeholder="Enter status" />
+
+            {/* Maintenance Schedule Field */}
+            <div className="relative">
+              <Label htmlFor="maintenanceSchedule" className="block text-sm font-medium text-gray-700">
+                Maintenance Schedule
+              </Label>
+              <div className="mt-1 relative">
+                <Input
+                  id="maintenanceSchedule"
+                  name="maintenanceSchedule"
+                  type="date"
+                  value={vehicleData.maintenanceSchedule}
+                  onChange={handleInputChange}
+                  className={`block w-full pr-10 bg-white ${
+                    getInputStatus('maintenanceSchedule') === 'error'
+                      ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+                      : getInputStatus('maintenanceSchedule') === 'success'
+                      ? 'border-green-300 focus:border-green-500 focus:ring-green-500'
+                      : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500'
+                  }`}
+                />
+                {touchedFields.maintenanceSchedule && (
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                    {getInputStatus('maintenanceSchedule') === 'error' ? (
+                      <X className="h-5 w-5 text-red-500" />
+                    ) : getInputStatus('maintenanceSchedule') === 'success' ? (
+                      <Check className="h-5 w-5 text-green-500" />
+                    ) : null}
+                  </div>
+                )}
+              </div>
+              {fieldErrors.maintenanceSchedule && touchedFields.maintenanceSchedule && (
+                <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                  <AlertCircle className="h-4 w-4" />
+                  {fieldErrors.maintenanceSchedule}
+                </p>
+              )}
             </div>
           </div>
-          <div className="flex justify-end gap-4 mt-6">
-            <Button variant="outline" onClick={onClose}>
+
+          <div className="mt-6 flex justify-end gap-3 border-t pt-4">
+            <Button
+              variant="outline"
+              onClick={handleCancel}
+              className="px-4 py-2 bg-white hover:bg-gray-50"
+            >
               Cancel
             </Button>
-            <Button onClick={handleSave}>Save Vehicle</Button>
+            <Button
+              onClick={handleSave}
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              Save Vehicle
+            </Button>
           </div>
         </DialogContent>
       </Dialog>

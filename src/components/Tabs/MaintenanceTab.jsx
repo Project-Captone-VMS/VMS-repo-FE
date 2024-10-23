@@ -62,13 +62,13 @@ const MaintenanceTab = () => {
           <CardTitle>Maintenance History</CardTitle>
           <Button>
             <Plus className="w-4 h-4 mr-2" />
-            Schedule Maintenance
+            Add Schedule Maintenance
           </Button>
         </div>
       </CardHeader>
       <CardContent>
         <MaintenanceTable 
-          maintenanceRecords={maintenanceRecords}
+          maintenanceRecords={maintenanceRecords} 
           currentPage={currentPage}
           itemsPerPage={itemsPerPage}
         />

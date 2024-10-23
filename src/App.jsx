@@ -4,6 +4,8 @@ import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import DriverManagement from './page/DriverManagement';
 import VehicleManagement from './page/VehicleManagement';
+import AddVehicleModal from './components/Modals/AddVehicleModal';
+import EditVehicleModal from './components/Modals/EditVehicleModal';
 
 
 // Tạo các components tạm thời cho các trang
@@ -32,7 +34,9 @@ function App() {
     <Router>
       <Layout>
         <Routes>
-          <Route path="/" element={<Navigate to="/driver" replace />} />
+          <Route path="/" element={<Navigate to="/vehicle" replace />} />
+          <Route path="/vehicle/create" element={<AddVehicleModal />} />
+          <Route path="/vehicle/update/:vehicleId" element={<EditVehicleModal />} />
           <Route path="/vehicle" element={<VehicleManagement />} />
           <Route path="/driver" element={<DriverManagement />} />
           <Route path="/route" element={<RoutePlanning />} />
@@ -47,15 +51,4 @@ function App() {
 }
 
 export default App;
-// import React from 'react';
-// import VehicleManagement from './page/VehicleManagement';
 
-// const App = () => {
-//   return (
-//     <div>
-//       <VehicleManagement />
-//     </div>
-//   );
-// };
-
-// export default App;
