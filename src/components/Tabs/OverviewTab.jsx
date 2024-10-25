@@ -1,8 +1,8 @@
 import React from 'react';
 import { Car, Settings, Calendar } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import StatCard from '@/components/StatCard';
-import StatusItem from '@/components/StatusItem';
+import StatCard from '../Vehicle/StatCard';
+import StatusItem from '../Vehicle/StatusItem';
 
 const OverviewTab = () => (
   <div className="space-y-6">

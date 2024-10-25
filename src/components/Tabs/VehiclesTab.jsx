@@ -3,8 +3,8 @@ import { Search, ChevronDown, Edit, Settings, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Table, TableRow } from "../Table";
-import Pagination from "../Pagination";
+import { Table, TableRow } from "../Vehicle/Table";
+import Pagination from "../Layouts/Pagination";
 import EditVehicleModal from "../Modals/EditVehicleModal";
 import {
   getAllVehicle,
@@ -14,14 +14,16 @@ import {
 } from "../../services/api";
 import Swal from "sweetalert2";
 
+import {formatDate} from "../../lib/formatDate"
+
 // Utility functions
-const formatDate = (dateString) => {
-  const date = new Date(dateString);
-  const day = String(date.getDate()).padStart(2, "0");
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const year = date.getFullYear();
-  return `${day}-${month}-${year}`;
-};
+// const formatDate = (dateString) => {
+//   const date = new Date(dateString);
+//   const day = String(date.getDate()).padStart(2, "0");
+//   const month = String(date.getMonth() + 1).padStart(2, "0");
+//   const year = date.getFullYear();
+//   return `${day}-${month}-${year}`;
+// };
 
 // Sub-components
 const VehiclesTable = ({ vehicles, currentPage, itemsPerPage, onEdit, onDelete }) => {

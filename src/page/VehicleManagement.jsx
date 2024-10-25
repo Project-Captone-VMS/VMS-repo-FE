@@ -71,6 +71,7 @@ const VehicleManagement = () => {
         onClose={() => setIsModalOpen(false)}
         onSave={handleAddVehicle}
       />
+      
     </div>
   );
 };
