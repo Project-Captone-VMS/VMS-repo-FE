@@ -227,6 +227,7 @@ const VehiclesTab = () => {
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
+          totalItems={totalItems}
           onPageChange={setCurrentPage}
         />
       </CardContent>

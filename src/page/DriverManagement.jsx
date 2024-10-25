@@ -11,6 +11,7 @@ import Pagination from '../components/Layouts/Pagination';
 import getFilteredDrivers from '../components/Driver/getFilteredDrivers';
 
 const DriverManagement = () => {
+  // State Management
   const [drivers, setDrivers] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState({
@@ -23,6 +24,7 @@ const DriverManagement = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [selectedDriver, setSelectedDriver] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -35,16 +37,21 @@ const DriverManagement = () => {
 
   const loadDrivers = async () => {
     try {
+      setLoading(true);
       const response = await getAllDriver();
       setDrivers(response.data);
     } catch (error) {
       console.error('Error fetching drivers:', error);
+      Swal.fire('Error!', 'Failed to fetch drivers.', 'error');
+    } finally {
+      setLoading(false);
     }
   };
 
   // Search and filter handlers
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
+    setCurrentPage(1); // Reset to first page when searching
   };
 
   const handleFilterChange = (e) => {
@@ -53,6 +60,7 @@ const DriverManagement = () => {
       ...prevFilters,
       [name]: value
     }));
+    setCurrentPage(1); // Reset to first page when filtering
   };
 
   const handleDeleteDriver = async (driver) => {
@@ -67,12 +75,15 @@ const DriverManagement = () => {
 
     if (confirmResult.isConfirmed) {
       try {
+        setLoading(true);
         await deleteDriver(driver.id);
-        loadDrivers();
+        await loadDrivers();
         Swal.fire('Deleted!', 'The driver has been deleted.', 'success');
       } catch (error) {
         console.error('Error deleting driver:', error);
         Swal.fire('Error!', 'Failed to delete the driver.', 'error');
+      } finally {
+        setLoading(false);
       }
     }
   };
@@ -87,8 +98,9 @@ const DriverManagement = () => {
     setIsModalOpen(false);
   };
 
-  // Filtered and paginated drivers
+  // Get filtered and paginated data
   const filteredDrivers = getFilteredDrivers(drivers, searchTerm, filters);
+  const totalPages = Math.ceil(filteredDrivers.length / itemsPerPage);
   const paginatedDrivers = filteredDrivers.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
@@ -104,7 +116,7 @@ const DriverManagement = () => {
       <h1 className="text-3xl font-bold mb-4">Driver Management</h1>
       
       {/* Stats */}
-      <Stats />
+      <Stats drivers={drivers} />
 
       {/* Search and Filter */}
       <SearchAndFilter 
@@ -116,28 +128,39 @@ const DriverManagement = () => {
         onFilterChange={handleFilterChange}
       />
 
-      {/* Driver Table */}
-      <DriverTable 
-        drivers={paginatedDrivers} // Render paginated drivers
-        onEditClick={handleEditClick}
-        onDelete={handleDeleteDriver}
-      />
+      {/* Loading State */}
+      {loading ? (
+        <div className="flex justify-center items-center h-32">
+          <span className="loading loading-spinner loading-lg"></span>
+        </div>
+      ) : (
+        <>
+          {/* Driver Table */}
+          <DriverTable 
+            drivers={paginatedDrivers}
+            onEditClick={handleEditClick}
+            onDelete={handleDeleteDriver}
+          />
 
-      {/* Pagination */}
-      <Pagination
-        currentPage={currentPage}
-        itemsPerPage={itemsPerPage}
-        totalItems={filteredDrivers.length}
-        onPageChange={handlePageChange}
-      />
+          {/* Show Pagination only if there are drivers */}
+          {filteredDrivers.length > 0 && (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalItems={filteredDrivers.length}
+              onPageChange={handlePageChange}
+            />
+          )}
+        </>
+      )}
 
       {/* Update Driver Modal */}
       {isModalOpen && (
         <UpdateDriverModal
           driver={selectedDriver}
           onClose={closeModal}
-          onSave={() => {
-            loadDrivers();
+          onSave={async () => {
+            await loadDrivers();
             closeModal();
           }}
         />
