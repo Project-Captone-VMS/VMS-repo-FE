@@ -8,11 +8,14 @@ const PrivateRouter = ({ allowedRoles }) => {
     (state) => state.auth.login.currentUser?.result.roles[0]
   );
 
+  const userRole = localStorage.getItem("userRole");
+
+
   if (!currentUser) {
-    return <Navigate to="/drive" />;
+    return <Navigate to="/login" />;
   }
 
-  if (allowedRoles && !allowedRoles.includes(role)) {
+  if (allowedRoles && !allowedRoles.includes(userRole)) {
     return <Navigate to="/dashboard" />;
   }
 

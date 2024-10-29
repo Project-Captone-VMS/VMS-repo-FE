@@ -1,5 +1,5 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, Link, useLocation } from "react-router-dom";
 import {
   LayoutGrid,
   Car,
@@ -8,15 +8,29 @@ import {
   Bolt,
   SquareChartGantt,
   MapPinHouse,
+  Truck,
+  Users,
+  Map,
+  Warehouse,
+  BarChart2,
+  MessageSquare,
+  FileText,
+  Settings,
 } from "lucide-react";
 import Logo from "../assets/images/logo.png";
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
-  const [open, setOpen] = React.useState(0);
+  const location = useLocation();
 
-  const handleOpen = (value) => {
-    setOpen(open === value ? 0 : value);
-  };
+  const menuItems = [
+    { path: "/vehicle", icon: Truck, label: "Vehicle Management" },
+    { path: "/driver", icon: Users, label: "Driver Management" },
+    { path: "/realtime", icon: Map, label: "Realtime Tracking" },
+    { path: "/warehouse", icon: Warehouse, label: "Warehouse Management" },
+    { path: "/analytics", icon: BarChart2, label: "Analytics" },
+    { path: "/chat", icon: MessageSquare, label: "Internal Chat" },
+    { path: "/reports", icon: FileText, label: "Reports" },
+  ];
 
   return (
     <div
@@ -32,90 +46,38 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
       </div>
 
       <div className="no-scrollbar flex flex-col overflow-y-auto">
-        {/* <nav className="mt-5 py-4 px-4 lg:mt-9 lg:px-6">
-          <h3 className="mb-1 ml-4 text-sm font-semibold text-white">MENU</h3>
-        </nav> */}
         <ul className="text-white">
-          {/* <li
-            className="flex items-center p-3 cursor-pointer hover:bg-slate-800"
-            onClick={() => handleOpen(1)}
-          >
-            <LayoutGrid className="mr-2" />
-            Dashboard
-            <ChevronRight
-              className={`ml-auto transition-transform ${
-                open === 1 ? "rotate-90" : ""
-              }`}
-            />
-          </li>
-          {open === 1 && (
-            <ul className="ml-8">
-              <li className="flex items-center p-2">Analytics</li>
-              <li className="flex items-center p-2">Reporting</li>
-              <li className="flex items-center p-2">Projects</li>
-            </ul>
-          )} */}
-
-          <li
-            className="flex items-center p-3 cursor-pointer hover:bg-slate-800"
-            onClick={() => handleOpen(1)}
-          >
-            <UserRoundPen className="mr-2" />
-            Driver
-            <ChevronRight
-              className={`ml-auto transition-transform ${
-                open === 1 ? "rotate-90" : ""
-              }`}
-            />
-          </li>
-          {open === 1 && (
-            <ul className="ml-8">
-              <li className="flex items-center p-2">Orders</li>
-              <li className="flex items-center p-2">Products</li>
-            </ul>
-          )}
-
-          <li
-            className="flex items-center p-3 cursor-pointer hover:bg-slate-800"
-            onClick={() => handleOpen(2)}
-          >
-            <Car className="mr-2" />
-            Vehicle
-            <ChevronRight
-              className={`ml-auto transition-transform ${
-                open === 2 ? "rotate-90" : ""
-              }`}
-            />
-          </li>
-          {open === 2 && (
-            <ul className="ml-8">
-              <li className="flex items-center p-2">Models</li>
-              <li className="flex items-center p-2">Maintenance</li>
-            </ul>
-          )}
-
-          <li
-            className="flex items-center p-3 cursor-pointer hover:bg-slate-800"
-            onClick={() => handleOpen(3)}
-          >
-            <MapPinHouse className="mr-2" />
-            Real-time tracking
-          </li>
-          <li
-            className="flex items-center p-3 cursor-pointer hover:bg-slate-800"
-            onClick={() => handleOpen(3)}
-          >
-            <SquareChartGantt className="mr-2" />
-            Manager
-          </li>
-          <li
-            className="flex items-center p-3 cursor-pointer hover:bg-slate-800"
-            onClick={() => handleOpen(3)}
-          >
-            <Bolt className="mr-2" />
-            Update
-          </li>
+        {menuItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = location.pathname === item.path;
+            
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={`
+                  flex items-center px-4 py-3 text-sm rounded-lg
+                  transition-all duration-200 ease-in-out
+                  ${isActive 
+                    ? 'bg-blue-600 text-white shadow-md' 
+                    : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                  }
+                `}
+              >
+                <Icon className={`w-5 h-5 mr-3 ${isActive ? 'text-white' : 'text-gray-400'}`} />
+                <span className="font-medium">{item.label}</span>
+              </Link>
+            );
+          })}
         </ul>
+      </div>
+
+
+      <div className="p-4 border-t border-gray-800">
+        <button className="w-full flex items-center px-4 py-3 text-sm text-gray-300 rounded-lg hover:bg-gray-800 hover:text-white transition-colors duration-200">
+          <Settings className="w-5 h-5 mr-3 text-gray-400" />
+          <span className="font-medium">Settings</span>
+        </button>
       </div>
     </div>
   );
