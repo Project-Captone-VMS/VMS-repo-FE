@@ -17,7 +17,7 @@ const Sidebar = () => {
   const menuItems = [
     { path: '/vehicle', icon: Truck, label: 'Vehicle Management' },
     { path: '/driver', icon: Users, label: 'Driver Management' },
-    { path: '/route', icon: Map, label: 'Route Planning' },
+    { path: '/realtime', icon: Map, label: 'Realtime Tracking' },
     { path: '/warehouse', icon: Warehouse, label: 'Warehouse Management' },
     { path: '/analytics', icon: BarChart2, label: 'Analytics' },
     { path: '/chat', icon: MessageSquare, label: 'Internal Chat' },

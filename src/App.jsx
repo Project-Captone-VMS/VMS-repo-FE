@@ -6,10 +6,11 @@ import DriverManagement from './page/DriverManagement';
 import VehicleManagement from './page/VehicleManagement';
 import AddVehicleModal from './components/Modals/AddVehicleModal';
 import EditVehicleModal from './components/Modals/EditVehicleModal';
+import RealtimeTracking from './page/RealtimeTracking';
 
 
 // Tạo các components tạm thời cho các trang
-const RoutePlanning = () => <div className="p-4">Route Planning Page</div>;
+
 const WarehouseManagement = () => <div className="p-4">Warehouse Management Page</div>;
 const Analytics = () => <div className="p-4">Analytics Page</div>;
 const InternalChat = () => <div className="p-4">Internal Chat Page</div>;
@@ -38,6 +39,8 @@ const Layout = ({ children }) => {
     </div>
   );
 };
+
+// App Component
 function App() {
   return (
     <Router>
@@ -48,7 +51,7 @@ function App() {
           <Route path="/vehicle/update/:vehicleId" element={<EditVehicleModal />} />
           <Route path="/vehicle" element={<VehicleManagement />} />
           <Route path="/driver" element={<DriverManagement />} />
-          <Route path="/route" element={<RoutePlanning />} />
+          <Route path="/realtime" element={<RealtimeTracking />} />
           <Route path="/warehouse" element={<WarehouseManagement />} />
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/chat" element={<InternalChat />} />
