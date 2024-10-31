@@ -12,7 +12,7 @@ import {
   Settings,
 } from "lucide-react";
 
-const Sidebar = ({ isOpen, setIsOpen }) => {
+const Sidebar = ({ isOpen, setIsOpen, role }) => {
   const location = useLocation();
 
   const sb_menuItems = [
@@ -24,6 +24,11 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
     { path: "/chat", icon: MessageSquare, label: "Internal Chat" },
     { path: "/reports", icon: FileText, label: "Reports" },
   ];
+
+  const filteredMenuItems =
+    role === "USER"
+      ? sb_menuItems.filter((item) => item.path === "/realtime") // Only show Realtime Tracking for USER
+      : sb_menuItems; // Show all items for other roles
 
   return (
     <div
@@ -40,7 +45,10 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
 
       <div className="no-scrollbar flex flex-col overflow-y-auto">
         <ul className="text-white">
-          {sb_menuItems.map((item) => {
+          {/* {sb_menuItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = location.pathname === item.path; */}
+          {filteredMenuItems.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.path;
 
