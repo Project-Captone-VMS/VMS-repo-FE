@@ -1,6 +1,7 @@
 // components/DriverTable.jsx
-import React from 'react';
-import { Edit, Trash2 } from 'lucide-react';
+import React from "react";
+import { Edit, Trash2 } from "lucide-react";
+import { Button } from "../../../src/components/ui/button";
 
 const DriverTable = ({ drivers, onEditClick, onDelete }) => (
   <div className="bg-white rounded-lg shadow overflow-hidden">
@@ -33,15 +34,29 @@ const DriverTable = ({ drivers, onEditClick, onDelete }) => (
             <td className="px-6 py-4 whitespace-nowrap">{driver.firstName}</td>
             <td className="px-6 py-4 whitespace-nowrap">{driver.lastName}</td>
             <td className="px-6 py-4 whitespace-nowrap">{driver.status}</td>
-            <td className="px-6 py-4 whitespace-nowrap">{driver.licenseNumber}</td>
-            <td className="px-6 py-4 whitespace-nowrap">{driver.workSchedule}</td>
             <td className="px-6 py-4 whitespace-nowrap">
-              <button className="text-blue-600 hover:text-blue-900" onClick={() => onEditClick(driver)}>
-                <Edit className="h-5 w-5" />
-              </button>
-              <button className="text-blue-600 hover:text-blue-900" onClick={() => onDelete(driver)}>
-                <Trash2 className="h-5 w-5" />
-              </button>
+              {driver.licenseNumber}
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap">
+              {driver.workSchedule}
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap">
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => onEditClick(driver)}
+                >
+                  <Edit className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant="destructive"
+                  size="icon"
+                  onClick={() => onDelete(driver)}
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </div>
             </td>
           </tr>
         ))}
