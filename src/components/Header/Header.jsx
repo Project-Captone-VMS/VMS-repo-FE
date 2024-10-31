@@ -15,9 +15,11 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [fullName, setFullName] = useState("");
+  
   const username = localStorage.getItem("username");
   const userRole = localStorage.getItem("userRole");
   const navigate = useNavigate();
+
   const mockNotifications = [
     { id: 1, message: "New update available", time: "5m ago" },
     { id: 2, message: "Welcome to the dashboard", time: "1h ago" },
