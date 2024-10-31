@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Search, ChevronDown, Edit, Settings, Trash2 } from "lucide-react";
+import { Search, ChevronDown, Edit, Trash2 } from "lucide-react";
 import { Button } from "../../../components/ui/button";
 import {
   Card,
@@ -36,7 +36,7 @@ const VehiclesTable = ({
   const renderTableRow = (vehicle, index) => (
     <TableRow key={vehicle.vehicleId}>
       <div className="font-medium">{startIndex + index + 1}</div>
-      <div className="font-medium">{vehicle.vehicleId}</div>
+      {/* <div className="font-medium">{vehicle.vehicleId}</div> */}
       <div className="font-medium">{vehicle.licensePlate}</div>
       <div className="font-medium">{vehicle.type}</div>
       <div>
@@ -54,6 +54,7 @@ const VehiclesTable = ({
       <div className="font-medium">
         {formatDate(vehicle.maintenanceSchedule)}
       </div>
+
       <div className="flex gap-2">
         <Button
           variant="outline"
@@ -61,9 +62,6 @@ const VehiclesTable = ({
           onClick={() => onEdit(vehicle.vehicleId)}
         >
           <Edit className="w-4 h-4" />
-        </Button>
-        <Button variant="outline" size="icon">
-          <Settings className="w-4 h-4" />
         </Button>
         <Button
           variant="destructive"
@@ -73,6 +71,7 @@ const VehiclesTable = ({
           <Trash2 className="w-4 h-4" />
         </Button>
       </div>
+
     </TableRow>
   );
 
@@ -80,7 +79,7 @@ const VehiclesTable = ({
     <Table
       headers={[
         "STT",
-        "ID",
+        // "ID",
         "Plate Number",
         "Type",
         "Status",
@@ -104,7 +103,6 @@ const VehiclesTab = () => {
   const itemsPerPage = 5;
   const totalPages = Math.ceil(vehicles.length / itemsPerPage);
 
-  // Data fetching
   useEffect(() => {
     const fetchVehicles = async () => {
       setLoading(true);
@@ -122,14 +120,9 @@ const VehiclesTab = () => {
     fetchVehicles();
   }, []);
 
-  // Event handlers
   const handleEdit = async (vehicleId) => {
-    try {
       const vehicleToEdit = await getVehicleById(vehicleId);
       setEditingVehicle(vehicleToEdit);
-    } catch (error) {
-      console.error(`Error fetching vehicle with ID: ${vehicleId}`, error);
-    }
   };
 
   const handleSaveVehicle = async (updatedVehicle) => {
