@@ -1,14 +1,13 @@
-// App.js
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import DefaultLayout from "./layout/DefaultLayout";
 import PrivateRouter from "./components/PrivateRouter";
-import Dashboard from "./pages/Dashboard/Dashboard";
+import Dashboard from "./pages/Dashboard";
 import AuthLayout from "./layout/AuthLayout";
-import VehicleManagement from "./pages/VehicleManagement";
-import DriverManagement from "./pages/DriverManagement";
-import RealtimeTracking from "./pages/RealtimeTracking";
+import VehicleManagement from "./pages/VehicleManegement/VehicleManagement";
+import DriverManagement from "./pages/DriverManagement/DriverManagement";
+import RealtimeTracking from "./pages/RealtimeTracking/RealtimeTracking";
 
 function App() {
   const router = createBrowserRouter([
