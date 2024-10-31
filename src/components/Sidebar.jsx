@@ -1,13 +1,7 @@
 import React from "react";
 import { NavLink, Link, useLocation } from "react-router-dom";
+import Logo from "../assets/images/logo.png";
 import {
-  LayoutGrid,
-  Car,
-  UserRoundPen,
-  ChevronRight,
-  Bolt,
-  SquareChartGantt,
-  MapPinHouse,
   Truck,
   Users,
   Map,
@@ -17,12 +11,11 @@ import {
   FileText,
   Settings,
 } from "lucide-react";
-import Logo from "../assets/images/logo.png";
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
   const location = useLocation();
 
-  const menuItems = [
+  const sb_menuItems = [
     { path: "/vehicle", icon: Truck, label: "Vehicle Management" },
     { path: "/driver", icon: Users, label: "Driver Management" },
     { path: "/realtime", icon: Map, label: "Realtime Tracking" },
@@ -47,31 +40,35 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
 
       <div className="no-scrollbar flex flex-col overflow-y-auto">
         <ul className="text-white">
-        {menuItems.map((item) => {
+          {sb_menuItems.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.path;
-            
+
             return (
               <Link
                 key={item.path}
                 to={item.path}
                 className={`
-                  flex items-center px-4 py-3 text-sm rounded-lg
+                  flex items-center px-4 py-3 text-sm rounded-sm
                   transition-all duration-200 ease-in-out
-                  ${isActive 
-                    ? 'bg-blue-600 text-white shadow-md' 
-                    : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                  ${
+                    isActive
+                      ? "bg-blue-600 text-white shadow-md"
+                      : "text-gray-300 hover:bg-gray-800 hover:text-white"
                   }
                 `}
               >
-                <Icon className={`w-5 h-5 mr-3 ${isActive ? 'text-white' : 'text-gray-400'}`} />
+                <Icon
+                  className={`w-5 h-5 mr-3 ${
+                    isActive ? "text-white" : "text-gray-400"
+                  }`}
+                />
                 <span className="font-medium">{item.label}</span>
               </Link>
             );
           })}
         </ul>
       </div>
-
 
       <div className="p-4 border-t border-gray-800">
         <button className="w-full flex items-center px-4 py-3 text-sm text-gray-300 rounded-lg hover:bg-gray-800 hover:text-white transition-colors duration-200">

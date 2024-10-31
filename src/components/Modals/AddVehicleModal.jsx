@@ -1,14 +1,17 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Check, X, AlertCircle } from "lucide-react";
+import toast, { Toaster } from "react-hot-toast";
 import { Button } from "../../components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { createVehicle } from "../../services/apiRequest";
-import { useNavigate } from "react-router-dom";
-import { Check, X, AlertCircle } from "lucide-react";
-import toast, { Toaster } from "react-hot-toast";
 
 const AddVehicleModal = ({ isOpen, onClose }) => {
+  const [fieldErrors, setFieldErrors] = useState({});
+  const [touchedFields, setTouchedFields] = useState({});
+  const navigate = useNavigate();
   const [vehicleData, setVehicleData] = useState({
     licensePlate: "",
     type: "",
@@ -16,10 +19,6 @@ const AddVehicleModal = ({ isOpen, onClose }) => {
     status: "",
     maintenanceSchedule: "",
   });
-
-  const [fieldErrors, setFieldErrors] = useState({});
-  const [touchedFields, setTouchedFields] = useState({});
-  const navigate = useNavigate();
 
   const handleCancel = () => {
     setVehicleData({
@@ -111,7 +110,6 @@ const AddVehicleModal = ({ isOpen, onClose }) => {
   const handleSave = async (event) => {
     event.preventDefault();
 
-    // Mark all fields as touched
     const allTouched = Object.keys(vehicleData).reduce(
       (acc, key) => ({
         ...acc,

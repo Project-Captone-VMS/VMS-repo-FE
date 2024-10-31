@@ -1,6 +1,6 @@
 import { Truck } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "./card";
-import { ETAStatus } from "../tracking/ETAStatus/ETAStatus";
+import { ETAStatus } from "../tracking/ETAStatus";
 
 export const VehicleList = ({ trucks, selectedTruck, onSelectTruck }) => (
   <Card>

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import {
   Bell,
   ChevronDown,
@@ -8,16 +8,14 @@ import {
   Settings,
   Menu,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import User from "../../assets/images/user/user.png";
+import User from "../../assets/images/user.png";
 
 const Header = ({ sidebarOpen, setSidebarOpen }) => {
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
-  const navigate = useNavigate();
-
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const username = localStorage.getItem("username");
-
+  const userRole = localStorage.getItem("userRole");
+  const navigate = useNavigate();
   const mockNotifications = [
     { id: 1, message: "New update available", time: "5m ago" },
     { id: 2, message: "Welcome to the dashboard", time: "1h ago" },
@@ -34,16 +32,7 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
     setShowNotifications(false);
   };
 
-  const handleProfileClick = () => {
-    // Navigate to profile or handle profile action
-  };
-
-  const handleSettingsClick = () => {
-    // Navigate to settings or handle settings action
-  };
-
   const handleLogout = () => {
-    // Perform logout action and navigate to login
     navigate("/login");
   };
 
@@ -113,11 +102,11 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
                   alt="Admin Avatar"
                 />
               </div>
-              <div>
+              <div className="flex flex-col text-left">
                 <p className="text-sm font-medium text-gray-900">
                   Jasmine Rose
                 </p>
-                <p className="text-xs text-gray-400">Admin</p>
+                <p className="text-xs text-gray-400">{userRole}</p>
               </div>
               <ChevronDown className="w-4 h-4 text-gray-400" />
             </button>
@@ -125,14 +114,14 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
             {isDropdownOpen && (
               <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-50">
                 <button
-                  onClick={handleProfileClick}
+                  // onClick={handleProfileClick}
                   className="w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
                 >
                   <UserCircle className="w-4 h-4" />
                   Profile Information
                 </button>
                 <button
-                  onClick={handleSettingsClick}
+                  // onClick={handleSettingsClick}
                   className="w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
                 >
                   <Settings className="w-4 h-4" />
@@ -140,7 +129,7 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
                 </button>
                 <div className="border-t border-gray-100"></div>
                 <button
-                  onClick={handleLogout}
+                  // onClick={handleLogout}
                   className="w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100 flex items-center gap-2"
                 >
                   <LogOut className="w-4 h-4" />
