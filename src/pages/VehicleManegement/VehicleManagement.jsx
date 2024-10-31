@@ -1,29 +1,35 @@
 import React, { useState } from "react";
-import OverviewTab from "../components/Tabs/OverviewTab";
-import VehiclesTab from "../components/Tabs/VehiclesTab";
-import MaintenanceTab from "../components/Tabs/MaintenanceTab";
-import AddVehicleModal from "../components/Modals/AddVehicleModal";
+import OverviewTab from "./sub-pages/OverviewTab";
+import VehiclesTab from "./sub-pages/VehiclesTab";
+import MaintenanceTab from "./sub-pages/MaintenanceTab";
+import AddVehicleModal from "../../components/Modals/AddVehicleModal";
 
 const VehicleManagement = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [vehicles, setVehicles] = useState([]);
 
+  const tabs = [
+    { name: "Overview", value: "overview" },
+    { name: "Vehicles", value: "vehicles" },
+    { name: "Maintenance", value: "maintenance" },
+  ];
+
   const handleAddVehicle = (newVehicle) => {
     setVehicles((prev) => [...prev, newVehicle]);
   };
-  
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
+    <div>
+      <div className="flex justify-between items-center mb-2 ">
         <div>
           <h1 className="text-2xl font-bold">Vehicle Management</h1>
           <p className="text-gray-600">Manage your fleet efficiently</p>
         </div>
+
         <button
           onClick={() => {
-            setIsModalOpen(true); 
+            setIsModalOpen(true);
           }}
           className="bg-black text-white px-4 py-2 rounded-lg flex items-center"
         >
@@ -31,35 +37,22 @@ const VehicleManagement = () => {
         </button>
       </div>
 
-      {/* Tab navigation */}
+      <hr className="my-6 md:my-4 border-gray-200 dark:border-gray-300 " />
+
       <div className="flex border-b mb-4">
-        <button
-          className={`px-4 py-2 ${
-            activeTab === "overview" ? "border-b-2 border-blue-500" : ""
-          }`}
-          onClick={() => setActiveTab("overview")}
-        >
-          Overview
-        </button>
-        <button
-          className={`px-4 py-2 ${
-            activeTab === "vehicles" ? "border-b-2 border-blue-500" : ""
-          }`}
-          onClick={() => setActiveTab("vehicles")}
-        >
-          Vehicles
-        </button>
-        <button
-          className={`px-4 py-2 ${
-            activeTab === "maintenance" ? "border-b-2 border-blue-500" : ""
-          }`}
-          onClick={() => setActiveTab("maintenance")}
-        >
-          Maintenance
-        </button>
+        {tabs.map((tab) => (
+          <button
+            key={tab.value}
+            className={`px-4 py-2 ${
+              activeTab === tab.value ? "border-b-2 border-blue-500" : ""
+            }`}
+            onClick={() => setActiveTab(tab.value)}
+          >
+            {tab.name}
+          </button>
+        ))}
       </div>
 
-      {/* Tab content */}
       <div>
         {activeTab === "overview" && <OverviewTab />}
         {activeTab === "vehicles" && <VehiclesTab vehicles={vehicles} />}
@@ -71,7 +64,6 @@ const VehicleManagement = () => {
         onClose={() => setIsModalOpen(false)}
         onSave={handleAddVehicle}
       />
-      
     </div>
   );
 };

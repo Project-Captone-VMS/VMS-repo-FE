@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import { trucks } from "../components/tracking/constants/truck";
-import { MapSection } from "../components/tracking/map/MapSection";
-import { AlertsSection } from "../components/tracking/Alerts/AlertsSection";
-import { VehicleList } from "../components/ui/VehicleList";
-import { TimelineSection } from "../components/tracking/Timeline/TimelineSection";
+import { trucks } from "../../components/tracking/truck";
+import { MapSection } from "../../components/tracking/MapSection";
+import { AlertsSection } from "../../components/tracking/AlertsSection";
+import { VehicleList } from "../../components/ui/VehicleList";
+import { TimelineSection } from "../../components/tracking/TimelineSection";
 
 export default function RealtimeTrackingDashboard() {
   const [selectedTruck, setSelectedTruck] = useState(null);

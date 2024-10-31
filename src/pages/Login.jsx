@@ -73,29 +73,6 @@ const Login = () => {
           <p className="text-sm text-gray-500 mb-4">Login to Get Started</p>
         </div>
 
-        {/* <form className="w-full flex flex-col" onSubmit={handleLogin}>
-          <input
-            type="text"
-            placeholder="Username"
-            className="w-full border mb-4 p-3 rounded-[5px] border-solid border-[#ddd]"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            className="w-full border mb-4 p-3 rounded-[5px] border-solid border-[#ddd]"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <button
-            type="submit"
-            className="w-full bg-[#0073ff] text-[white] cursor-pointer text-base p-3 rounded-[5px] border-[none] hover:bg-[#005bb5]"
-          >
-            Submit
-          </button>
-        </form> */}
-
         <form class="space-y-4 md:space-y-2 w-full" onSubmit={handleLogin}>
           <div>
             <label

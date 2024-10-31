@@ -1,14 +1,12 @@
-// DriverManagement.jsx
 import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
-import { getAllDriver, deleteDriver } from "../services/apiRequest";
-
-import DriverTable from "../components/Driver/DriverTable";
-import SearchAndFilter from "../components/Driver/SearchAndFilter";
-import Stats from "../components/Driver/Stats";
-import UpdateDriverModal from "../components/Modals/UpdateDriver";
-import Pagination from "../components/Pagination";
-import getFilteredDrivers from "../components/Driver/getFilteredDrivers";
+import { getAllDriver, deleteDriver } from "../../services/apiRequest";
+import DriverTable from "../../components/Driver/DriverTable";
+import SearchAndFilter from "../../components/Driver/SearchAndFilter";
+import Stats from "../../components/Driver/Stats";
+import UpdateDriverModal from "../../components/Modals/UpdateDriver";
+import Pagination from "../../components/Pagination";
+import getFilteredDrivers from "../../components/Driver/getFilteredDrivers";
 
 const DriverManagement = () => {
   const [drivers, setDrivers] = useState([]);
@@ -23,27 +21,19 @@ const DriverManagement = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [selectedDriver, setSelectedDriver] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
 
   const itemsPerPage = 5;
 
-  // Fetch drivers when component mounts
   useEffect(() => {
-    loadDrivers();
+    const fetchDrivers = async () => {
+      const data = await getAllDriver();
+      setDrivers(data);
+    };
+
+    fetchDrivers();
   }, []);
 
-  const loadDrivers = async () => {
-    try {
-      const response = await getAllDriver();
-      setDrivers(response.data);
-    } catch (error) {
-      console.error("Error fetching drivers:", error);
-    }
-  };
-
-  // Search and filter handlers
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
   };
@@ -104,10 +94,8 @@ const DriverManagement = () => {
     <div className="p-6 bg-gray-100 min-h-screen">
       <h1 className="text-3xl font-bold mb-4">Driver Management</h1>
 
-      {/* Stats */}
       <Stats />
 
-      {/* Search and Filter */}
       <SearchAndFilter
         searchTerm={searchTerm}
         onSearchChange={handleSearchChange}
@@ -117,7 +105,6 @@ const DriverManagement = () => {
         onFilterChange={handleFilterChange}
       />
 
-      {/* Driver Table */}
       <DriverTable
         drivers={paginatedDrivers} // Render paginated drivers
         onEditClick={handleEditClick}
