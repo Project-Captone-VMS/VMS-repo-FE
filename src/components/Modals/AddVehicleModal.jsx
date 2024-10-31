@@ -9,9 +9,9 @@ import { Input } from "../ui/input";
 import { createVehicle } from "../../services/apiRequest";
 
 const AddVehicleModal = ({ isOpen, onClose }) => {
+  const navigate = useNavigate();
   const [fieldErrors, setFieldErrors] = useState({});
   const [touchedFields, setTouchedFields] = useState({});
-  const navigate = useNavigate();
   const [vehicleData, setVehicleData] = useState({
     licensePlate: "",
     type: "",
@@ -39,10 +39,12 @@ const AddVehicleModal = ({ isOpen, onClose }) => {
       ...vehicleData,
       [name]: value,
     });
+
     setTouchedFields({
       ...touchedFields,
       [name]: true,
     });
+
     validateField(name, value);
   };
 
@@ -119,7 +121,7 @@ const AddVehicleModal = ({ isOpen, onClose }) => {
     );
     setTouchedFields(allTouched);
 
-    // Validate all fields
+
     Object.keys(vehicleData).forEach((key) => {
       validateField(key, vehicleData[key]);
     });
