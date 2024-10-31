@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Bell,
@@ -9,10 +9,12 @@ import {
   Menu,
 } from "lucide-react";
 import User from "../../assets/images/user.png";
+import { getUserByUsername } from "../../services/apiRequest";
 
 const Header = ({ sidebarOpen, setSidebarOpen }) => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [fullName, setFullName] = useState("");
   const username = localStorage.getItem("username");
   const userRole = localStorage.getItem("userRole");
   const navigate = useNavigate();
@@ -21,6 +23,22 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
     { id: 2, message: "Welcome to the dashboard", time: "1h ago" },
     { id: 3, message: "Your profile was updated", time: "2h ago" },
   ];
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await getUserByUsername(username);
+        const userData = response.result;
+        const { firstName, lastName } = userData;
+        setFullName(`${firstName} ${lastName}`);
+        console.log(setFullName);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    fetchUserData();
+  }, [username]);
 
   const toggleNotifications = () => {
     setShowNotifications(!showNotifications);
@@ -48,7 +66,7 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
           </button>
           <div className="hidden sm:block">
             <h1 className="text-2xl font-bold">
-              Welcome <span className="text-fuchsia-400">{username}</span>
+              Welcome <span className="text-fuchsia-400">{fullName}</span>
             </h1>
             <p>Track, manage, and forecast your customers and orders.</p>
           </div>
@@ -104,7 +122,7 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
               </div>
               <div className="flex flex-col text-left">
                 <p className="text-sm font-medium text-gray-900">
-                  Jasmine Rose
+                  {fullName || "Loading..."}
                 </p>
                 <p className="text-xs text-gray-400">{userRole}</p>
               </div>
@@ -113,23 +131,17 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
 
             {isDropdownOpen && (
               <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-50">
-                <button
-                  // onClick={handleProfileClick}
-                  className="w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
-                >
+                <button className="w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2">
                   <UserCircle className="w-4 h-4" />
                   Profile Information
                 </button>
-                <button
-                  // onClick={handleSettingsClick}
-                  className="w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
-                >
+                <button className="w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2">
                   <Settings className="w-4 h-4" />
                   Settings
                 </button>
                 <div className="border-t border-gray-100"></div>
                 <button
-                  // onClick={handleLogout}
+                  onClick={handleLogout}
                   className="w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100 flex items-center gap-2"
                 >
                   <LogOut className="w-4 h-4" />
