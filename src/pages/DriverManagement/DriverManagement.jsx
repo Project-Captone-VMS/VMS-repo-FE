@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import Swal from "sweetalert2";
 import { getAllDriver, deleteDriver } from "../../services/apiRequest";
+import Swal from "sweetalert2";
 import DriverTable from "../../components/Driver/DriverTable";
 import SearchAndFilter from "../../components/Driver/SearchAndFilter";
 import Stats from "../../components/Driver/Stats";
@@ -11,6 +11,7 @@ import getFilteredDrivers from "../../components/Driver/getFilteredDrivers";
 const DriverManagement = () => {
   const [drivers, setDrivers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+
   const [filters, setFilters] = useState({
     firstName: "",
     lastName: "",
@@ -18,11 +19,11 @@ const DriverManagement = () => {
     licenseNumber: "",
     workSchedule: "",
   });
+
   const [showFilters, setShowFilters] = useState(false);
   const [selectedDriver, setSelectedDriver] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-
   const itemsPerPage = 5;
 
   useEffect(() => {
@@ -58,8 +59,8 @@ const DriverManagement = () => {
 
     if (confirmResult.isConfirmed) {
       try {
-        await deleteDriver(driver.id);
-        loadDrivers();
+        await deleteDriver(driver.driverId);
+        console.log(driver.driverId);
         Swal.fire("Deleted!", "The driver has been deleted.", "success");
       } catch (error) {
         console.error("Error deleting driver:", error);
@@ -106,12 +107,11 @@ const DriverManagement = () => {
       />
 
       <DriverTable
-        drivers={paginatedDrivers} // Render paginated drivers
+        drivers={paginatedDrivers}
         onEditClick={handleEditClick}
         onDelete={handleDeleteDriver}
       />
 
-      {/* Pagination */}
       <Pagination
         currentPage={currentPage}
         itemsPerPage={itemsPerPage}
@@ -125,7 +125,6 @@ const DriverManagement = () => {
           driver={selectedDriver}
           onClose={closeModal}
           onSave={() => {
-            loadDrivers();
             closeModal();
           }}
         />
