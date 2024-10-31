@@ -48,14 +48,13 @@ export const loginUser = async (user, dispatch, navigate) => {
       } else if (userRole === "USER") {
         navigate("/driveuser");
       }
+      toast.success("Logged in successfully");
       dispatch(loginSuccess(res.data));
       return res.data;
-    } else {
-      console.log("Not contact with API");
     }
   } catch (err) {
+    toast.error("Login failed. Please try again.");
     dispatch(loginFailed());
-    alert("Login failed. Please check your credentials.");
   }
 };
 
@@ -69,15 +68,13 @@ export const registerUser = async (user, dispatch, navigate) => {
 
       localStorage.setItem("userRole", userRole);
 
+      toast.success("Registration successfully");
       dispatch(registerSuccess(res.data));
-      toast.success("Register successfully");
       navigate("/login");
-    } else {
-      console.log("Not contact with API");
     }
   } catch (err) {
+    toast.error("Registration failed. Please try again.");
     dispatch(registerFailed());
-    alert("Registration failed. Please try again.");
   }
 };
 

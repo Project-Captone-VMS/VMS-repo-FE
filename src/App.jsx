@@ -15,7 +15,6 @@ import RealtimeTracking from "./pages/RealtimeTracking/RealtimeTracking";
 import OverviewTab from "./pages/VehicleManegement/sub-pages/OverviewTab";
 import VehiclesTab from "./pages/VehicleManegement/sub-pages/VehiclesTab";
 import MaintenanceTab from "./pages/VehicleManegement/sub-pages/MaintenanceTab";
-
 import { Toaster } from "react-hot-toast";
 
 function App() {
