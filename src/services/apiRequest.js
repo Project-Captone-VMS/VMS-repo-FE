@@ -7,6 +7,7 @@ import {
   registerStart,
   registerSuccess,
 } from "../redux/authSlice";
+import toast from "react-hot-toast";
 
 const api = axios.create({
   baseURL: "http://localhost:8082/api/",
@@ -42,12 +43,12 @@ export const loginUser = async (user, dispatch, navigate) => {
       localStorage.setItem("jwtToken", token);
       localStorage.setItem("username", user.username);
 
-      dispatch(loginSuccess(res.data));
       if (userRole === "ADMIN") {
         navigate("/dashboard");
       } else if (userRole === "USER") {
         navigate("/driveuser");
       }
+      dispatch(loginSuccess(res.data));
       return res.data;
     } else {
       console.log("Not contact with API");
@@ -63,14 +64,17 @@ export const registerUser = async (user, dispatch, navigate) => {
 
   try {
     const res = await api.post("user/create", user);
-    const userRole = res.data.result.roles[0];
+    if (res.status === 200) {
+      const userRole = res.data.result.roles[0];
 
-    localStorage.setItem("userRole", userRole);
+      localStorage.setItem("userRole", userRole);
 
-    dispatch(registerSuccess(res.data));
-    console.log("Registration data:", res.data);
-    alert("Registration successful.");
-    navigate("/login");
+      dispatch(registerSuccess(res.data));
+      toast.success("Register successfully");
+      navigate("/login");
+    } else {
+      console.log("Not contact with API");
+    }
   } catch (err) {
     dispatch(registerFailed());
     alert("Registration failed. Please try again.");
@@ -137,5 +141,10 @@ export const updateDriver = async (driverId, driverData) => {
 
 export const deleteDriver = async (driverId) => {
   const response = await api.delete(`driver/delete/${driverId}`);
+  return response.data;
+};
+
+export const getUserByUsername = async (username) => {
+  const response = await api.get(`user/username/${username}`);
   return response.data;
 };
