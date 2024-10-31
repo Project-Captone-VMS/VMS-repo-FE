@@ -1,4 +1,8 @@
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import {
+  createBrowserRouter,
+  RouterProvider,
+  Navigate,
+} from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import DefaultLayout from "./layout/DefaultLayout";
@@ -8,6 +12,11 @@ import AuthLayout from "./layout/AuthLayout";
 import VehicleManagement from "./pages/VehicleManegement/VehicleManagement";
 import DriverManagement from "./pages/DriverManagement/DriverManagement";
 import RealtimeTracking from "./pages/RealtimeTracking/RealtimeTracking";
+import OverviewTab from "./pages/VehicleManegement/sub-pages/OverviewTab";
+import VehiclesTab from "./pages/VehicleManegement/sub-pages/VehiclesTab";
+import MaintenanceTab from "./pages/VehicleManegement/sub-pages/MaintenanceTab";
+
+import { Toaster } from "react-hot-toast";
 
 function App() {
   const router = createBrowserRouter([
@@ -32,15 +41,6 @@ function App() {
       element: <DefaultLayout />,
       children: [
         {
-          element: <PrivateRouter allowedRoles={"ADMIN"} />,
-          children: [
-            {
-              path: "dashboard",
-              element: <Dashboard />,
-            },
-          ],
-        },
-        {
           element: <PrivateRouter allowedRoles={"USER"} />,
           children: [
             {
@@ -48,8 +48,39 @@ function App() {
               element: <Dashboard />,
             },
             {
+              path: "realtime",
+              element: <RealtimeTracking />,
+            },
+          ],
+        },
+        {
+          element: <PrivateRouter allowedRoles={"ADMIN"} />,
+          children: [
+            {
+              path: "dashboard",
+              element: <Dashboard />,
+            },
+            {
               path: "vehicle",
               element: <VehicleManagement />,
+              children: [
+                {
+                  path: "",
+                  element: <Navigate to="OverviewTab" replace />,
+                },
+                {
+                  path: "OverviewTab",
+                  element: <OverviewTab />,
+                },
+                {
+                  path: "VehiclesTab",
+                  element: <VehiclesTab />,
+                },
+                {
+                  path: "MaintenanceTab",
+                  element: <MaintenanceTab />,
+                },
+              ],
             },
             {
               path: "driver",
@@ -67,6 +98,7 @@ function App() {
 
   return (
     <>
+      <Toaster />
       <RouterProvider router={router} />
     </>
   );
