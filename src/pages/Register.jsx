@@ -1,16 +1,13 @@
-// eslint-disable-next-line no-unused-vars
 import React, { useEffect, useState } from "react";
 import { registerUser } from "../services/apiRequest";
 import { useDispatch } from "react-redux";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import container from "../assets/images/Container.png";
 import circle from "../assets/images/circle.png";
 import logo from "../assets/images/logo.png";
 
 const Register = () => {
   const [isSecondForm, setIsSecondForm] = useState(false);
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
   const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -19,16 +16,13 @@ const Register = () => {
   const [username, setUsername] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  const handleFirstFormSubmit = (e) => {
-    e.preventDefault();
-    setIsSecondForm(true);
-  };
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleSecondFormSubmit = (e) => {
     e.preventDefault();
 
     if (password !== confirmPassword) {
-      alert("Passwords do not match!");
       return;
     }
     const newUser = {
@@ -44,6 +38,11 @@ const Register = () => {
 
   const handleBack = () => {
     setIsSecondForm(false);
+  };
+
+  const handleFirstFormSubmit = (e) => {
+    e.preventDefault();
+    setIsSecondForm(true);
   };
 
   return (
