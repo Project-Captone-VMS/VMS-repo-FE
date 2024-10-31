@@ -1,6 +1,6 @@
 import { Clock } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "../../ui/card";
-import { ETAStatus } from "../ETAStatus/ETAStatus";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { ETAStatus } from "../tracking/ETAStatus";
 import { DeliveryTimeline } from "./DeliveryTimeline";
 
 export const TimelineSection = ({ selectedTruck }) => (

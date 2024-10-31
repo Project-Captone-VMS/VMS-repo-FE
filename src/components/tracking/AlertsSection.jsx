@@ -1,6 +1,6 @@
 import { AlertTriangle } from "lucide-react";
-import { Alert, AlertDescription, AlertTitle } from "../../ui/alert";
-import { Card, CardContent, CardHeader, CardTitle } from "../../ui/card";
+import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
 export const AlertsSection = ({ trucks }) => (
   <Card className="bg-red-50">
