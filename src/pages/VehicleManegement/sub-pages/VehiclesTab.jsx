@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { Search, ChevronDown, Edit, Trash2 } from "lucide-react";
 import { Button } from "../../../components/ui/button";
+import { Input } from "../../../components/ui/input";
+import { Table, TableRow } from "../../../components/Tabs/Vehicle/Table";
+import { formatDate } from "../../../lib/formatDate";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
 } from "../../../components/ui/card";
-import { Input } from "../../../components/ui/input";
-import { Table, TableRow } from "../../../components/Tabs/Vehicle/Table";
-import Pagination from "../../../components/Pagination";
-import EditVehicleModal from "../../../components/Modals/EditVehicleModal";
 import {
   getAllVehicle,
   updateVehicle,
@@ -18,10 +17,9 @@ import {
   deleteVehicle,
 } from "../../../services/apiRequest";
 import Swal from "sweetalert2";
+import Pagination from "../../../components/Pagination";
+import EditVehicleModal from "../../../components/Modals/EditVehicleModal";
 
-import { formatDate } from "../../../lib/formatDate";
-
-// Sub-components
 const VehiclesTable = ({
   vehicles,
   currentPage,
@@ -36,7 +34,6 @@ const VehiclesTable = ({
   const renderTableRow = (vehicle, index) => (
     <TableRow key={vehicle.vehicleId}>
       <div className="font-medium">{startIndex + index + 1}</div>
-      {/* <div className="font-medium">{vehicle.vehicleId}</div> */}
       <div className="font-medium">{vehicle.licensePlate}</div>
       <div className="font-medium">{vehicle.type}</div>
       <div>
@@ -71,7 +68,6 @@ const VehiclesTable = ({
           <Trash2 className="w-4 h-4" />
         </Button>
       </div>
-
     </TableRow>
   );
 
@@ -79,7 +75,6 @@ const VehiclesTable = ({
     <Table
       headers={[
         "STT",
-        // "ID",
         "Plate Number",
         "Type",
         "Status",
@@ -121,13 +116,12 @@ const VehiclesTab = () => {
   }, []);
 
   const handleEdit = async (vehicleId) => {
-      const vehicleToEdit = await getVehicleById(vehicleId);
-      setEditingVehicle(vehicleToEdit);
+    const vehicleToEdit = await getVehicleById(vehicleId);
+    setEditingVehicle(vehicleToEdit);
   };
 
   const handleSaveVehicle = async (updatedVehicle) => {
     const { vehicleId, ...vehicleWithoutId } = updatedVehicle;
-
     try {
       await updateVehicle(vehicleId, vehicleWithoutId);
       setVehicles((prevVehicles) =>
