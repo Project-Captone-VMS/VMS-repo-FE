@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { loginUser } from "../services/apiRequest.js";
 import { useDispatch } from "react-redux";
 import container from "../assets/images/Container.png";
@@ -9,6 +9,7 @@ import logo from "../assets/images/logo.png";
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
