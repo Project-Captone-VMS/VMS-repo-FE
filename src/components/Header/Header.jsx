@@ -10,15 +10,17 @@ import {
 } from "lucide-react";
 import User from "../../assets/images/user.png";
 import { getUserByUsername } from "../../services/apiRequest";
+import { useDispatch } from "react-redux";
 
 const Header = ({ sidebarOpen, setSidebarOpen }) => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [fullName, setFullName] = useState("");
-  
+
   const username = localStorage.getItem("username");
   const userRole = localStorage.getItem("userRole");
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const mockNotifications = [
     { id: 1, message: "New update available", time: "5m ago" },
@@ -30,8 +32,14 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
     const fetchUserData = async () => {
       try {
         const response = await getUserByUsername(username);
+        // dispatch(login)
         const userData = response.result;
-        const { firstName, lastName } = userData;
+        if (username === "admin") {
+          setFullName("");
+        } else {
+          const { firstName, lastName } = userData;
+          setFullName(`${firstName} ${lastName}`);
+        }
         setFullName(`${firstName} ${lastName}`);
         console.log(setFullName);
       } catch (error) {
@@ -124,7 +132,7 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
               </div>
               <div className="flex flex-col text-left">
                 <p className="text-sm font-medium text-gray-900">
-                  {fullName || "Loading..."}
+                  {fullName || ""}
                 </p>
                 <p className="text-xs text-gray-400">{userRole}</p>
               </div>

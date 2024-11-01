@@ -4,6 +4,14 @@ import { MapSection } from "../../components/tracking/MapSection";
 import { AlertsSection } from "../../components/tracking/AlertsSection";
 import { VehicleList } from "../../components/ui/VehicleList";
 import { TimelineSection } from "../../components/tracking/TimelineSection";
+import Map from "../../components/Map/map";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../../components/ui/card";
+import { MapPin } from "lucide-react";
 
 export default function RealtimeTrackingDashboard() {
   const [selectedTruck, setSelectedTruck] = useState(null);
@@ -15,7 +23,13 @@ export default function RealtimeTrackingDashboard() {
       </div>
 
       <div className="flex flex-col space-y-4">
-        <MapSection />
+        <CardTitle className="flex items-center gap-2">
+          <MapPin className="w-5 h-5" />
+          Live Map
+        </CardTitle>
+
+        <Map />
+
         <AlertsSection trucks={trucks} />
         <VehicleList
           trucks={trucks}

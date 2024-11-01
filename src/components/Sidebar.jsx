@@ -12,7 +12,7 @@ import {
   Settings,
 } from "lucide-react";
 
-const Sidebar = ({ isOpen, setIsOpen, role }) => {
+const Sidebar = ({ isOpen, role }) => {
   const location = useLocation();
 
   const sb_menuItems = [
@@ -27,8 +27,8 @@ const Sidebar = ({ isOpen, setIsOpen, role }) => {
 
   const filteredMenuItems =
     role === "USER"
-      ? sb_menuItems.filter((item) => item.path === "/realtime") // Only show Realtime Tracking for USER
-      : sb_menuItems; // Show all items for other roles
+      ? sb_menuItems.filter((item) => item.path === "/realtime")
+      : sb_menuItems;
 
   return (
     <div
@@ -36,18 +36,18 @@ const Sidebar = ({ isOpen, setIsOpen, role }) => {
         isOpen ? "translate-x-0" : "-translate-x-full"
       } lg:static lg:translate-x-0`}
     >
-      <div className="flex items-center gap-3 px-5 py-3 lg:py-6">
-        <NavLink to="/">
+      <div>
+        <NavLink
+          to="/dashboard"
+          className="flex items-center gap-3 px-5 py-3 lg:py-6"
+        >
           <img src={Logo} alt="Logo" className="w-16 h-12" />
+          <p className="text-white text-3xl font-bold">VMS</p>
         </NavLink>
-        <p className="text-white text-3xl font-bold">VMS</p>
       </div>
 
       <div className="no-scrollbar flex flex-col overflow-y-auto">
         <ul className="text-white">
-          {/* {sb_menuItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = location.pathname === item.path; */}
           {filteredMenuItems.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.path;
@@ -79,7 +79,7 @@ const Sidebar = ({ isOpen, setIsOpen, role }) => {
       </div>
 
       <div className="p-4 border-t border-gray-800">
-        <button className="w-full flex items-center px-4 py-3 text-sm text-gray-300 rounded-lg hover:bg-gray-800 hover:text-white transition-colors duration-200">
+        <button className="w-full flex items-center py-3 text-sm text-gray-300 rounded-lg hover:bg-gray-800 hover:text-white transition-colors duration-200">
           <Settings className="w-5 h-5 mr-3 text-gray-400" />
           <span className="font-medium">Settings</span>
         </button>
