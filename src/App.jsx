@@ -11,6 +11,7 @@ import Dashboard from "./pages/Dashboard";
 import AuthLayout from "./layout/AuthLayout";
 import VehicleManagement from "./pages/VehicleManegement/VehicleManagement";
 import DriverManagement from "./pages/DriverManagement/DriverManagement";
+import UpdateDriver from "./components/Modals/UpdateDriver";
 import RealtimeTracking from "./pages/RealtimeTracking/RealtimeTracking";
 import OverviewTab from "./pages/VehicleManegement/sub-pages/OverviewTab";
 import VehiclesTab from "./pages/VehicleManegement/sub-pages/VehiclesTab";
@@ -84,6 +85,10 @@ function App() {
             {
               path: "driver",
               element: <DriverManagement />,
+            },
+            {
+              path: "driver/update/:id", // Add this route
+              element: <UpdateDriver />,
             },
             {
               path: "realtime",

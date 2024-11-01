@@ -1,16 +1,21 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from 'react-router-dom';
 import { getAllDriver, deleteDriver } from "../../services/apiRequest";
 import Swal from "sweetalert2";
 import DriverTable from "../../components/Driver/DriverTable";
 import SearchAndFilter from "../../components/Driver/SearchAndFilter";
 import Stats from "../../components/Driver/Stats";
-import UpdateDriverModal from "../../components/Modals/UpdateDriver";
 import Pagination from "../../components/Pagination";
 import getFilteredDrivers from "../../components/Driver/getFilteredDrivers";
+import UpdateDriver from "../../components/Modals/UpdateDriver";
 
 const DriverManagement = () => {
+  const navigate = useNavigate();
   const [drivers, setDrivers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedDriver, setSelectedDriver] = useState(null);
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
 
   const [filters, setFilters] = useState({
     firstName: "",
@@ -21,17 +26,22 @@ const DriverManagement = () => {
   });
 
   const [showFilters, setShowFilters] = useState(false);
-  const [selectedDriver, setSelectedDriver] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
+  const totalPages = Math.ceil(drivers.length / itemsPerPage);
 
-  useEffect(() => {
-    const fetchDrivers = async () => {
+  // Fetch drivers data
+  const fetchDrivers = async () => {
+    try {
       const data = await getAllDriver();
       setDrivers(data);
-    };
+    } catch (error) {
+      console.error("Error fetching drivers:", error);
+      Swal.fire("Error!", "Failed to fetch drivers.", "error");
+    }
+  };
 
+  useEffect(() => {
     fetchDrivers();
   }, []);
 
@@ -60,7 +70,7 @@ const DriverManagement = () => {
     if (confirmResult.isConfirmed) {
       try {
         await deleteDriver(driver.driverId);
-        console.log(driver.driverId);
+        await fetchDrivers(); // Refresh the list after deletion
         Swal.fire("Deleted!", "The driver has been deleted.", "success");
       } catch (error) {
         console.error("Error deleting driver:", error);
@@ -71,12 +81,17 @@ const DriverManagement = () => {
 
   const handleEditClick = (driver) => {
     setSelectedDriver(driver);
-    setIsModalOpen(true);
+    setIsUpdateModalOpen(true);
   };
 
-  const closeModal = () => {
+  const handleCloseUpdateModal = () => {
+    setIsUpdateModalOpen(false);
     setSelectedDriver(null);
-    setIsModalOpen(false);
+  };
+
+  const handleDriverUpdated = async () => {
+    await fetchDrivers(); // Refresh the drivers list
+    Swal.fire("Success!", "Driver updated successfully.", "success");
   };
 
   // Filtered and paginated drivers
@@ -114,19 +129,18 @@ const DriverManagement = () => {
 
       <Pagination
         currentPage={currentPage}
+        totalPages={totalPages}
         itemsPerPage={itemsPerPage}
         totalItems={filteredDrivers.length}
         onPageChange={handlePageChange}
       />
 
-      {/* Update Driver Modal */}
-      {isModalOpen && (
-        <UpdateDriverModal
+      {selectedDriver && (
+        <UpdateDriver
+          isOpen={isUpdateModalOpen}
+          onClose={handleCloseUpdateModal}
           driver={selectedDriver}
-          onClose={closeModal}
-          onSave={() => {
-            closeModal();
-          }}
+          onDriverUpdated={handleDriverUpdated}
         />
       )}
     </div>

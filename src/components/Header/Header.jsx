@@ -31,7 +31,12 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
       try {
         const response = await getUserByUsername(username);
         const userData = response.result;
-        const { firstName, lastName } = userData;
+        if (username === "admin") {
+          setFullName("");
+        } else {
+          const { firstName, lastName } = userData;
+          setFullName(`${firstName} ${lastName}`);
+        }
         setFullName(`${firstName} ${lastName}`);
         console.log(setFullName);
       } catch (error) {
@@ -124,7 +129,7 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
               </div>
               <div className="flex flex-col text-left">
                 <p className="text-sm font-medium text-gray-900">
-                  {fullName || "Loading..."}
+                  {fullName || ""}
                 </p>
                 <p className="text-xs text-gray-400">{userRole}</p>
               </div>
