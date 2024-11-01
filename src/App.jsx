@@ -9,12 +9,14 @@ import AuthLayout from "./layout/AuthLayout";
 import VehicleManagement from "./pages/VehicleManagement";
 import DriverManagement from "./pages/DriverManagement";
 import RealtimeTracking from "./pages/RealtimeTracking";
+import MapComponent from "./components/MapComponent.jsx";
+// import MapComponent from "./components/MapComponent.jsx";
 
 function App() {
   const router = createBrowserRouter([
     {
       path: "/",
-      element: <Login />,
+      element: <MapComponent />,
     },
     {
       element: <AuthLayout />,
@@ -42,10 +44,10 @@ function App() {
           ],
         },
         {
-          element: <PrivateRouter allowedRoles={"USER"} />,
+          // element: <PrivateRouter allowedRoles={"ADMIN"} />,
           children: [
             {
-              path: "driveuser",
+              path: "drive-user",
               element: <Dashboard />,
             },
             {

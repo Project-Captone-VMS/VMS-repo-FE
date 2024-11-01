@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { trucks } from "../components/tracking/constants/truck";
-import { MapSection } from "../components/tracking/map/MapSection";
+import {MapSection} from "../components/tracking/map/MapSection.jsx";
 import { AlertsSection } from "../components/tracking/Alerts/AlertsSection";
 import { VehicleList } from "../components/ui/VehicleList";
 import { TimelineSection } from "../components/tracking/Timeline/TimelineSection";
+import Map from "../components/Map.jsx";
 
 export default function RealtimeTrackingDashboard() {
-  const [selectedTruck, setSelectedTruck] = useState(null);
+  // const [selectedTruck, setSelectedTruck] = useState(null);
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
@@ -15,14 +16,15 @@ export default function RealtimeTrackingDashboard() {
       </div>
 
       <div className="flex flex-col space-y-4">
-        <MapSection />
-        <AlertsSection trucks={trucks} />
-        <VehicleList
-          trucks={trucks}
-          selectedTruck={selectedTruck}
-          onSelectTruck={setSelectedTruck}
-        />
-        <TimelineSection selectedTruck={selectedTruck} />
+          <Map />
+        {/*<AlertsSection trucks={trucks} />*/}
+
+        {/*<VehicleList*/}
+        {/*  trucks={trucks}*/}
+        {/*  selectedTruck={selectedTruck}*/}
+        {/*  onSelectTruck={setSelectedTruck}*/}
+        {/*/>*/}
+        {/*<TimelineSection selectedTruck={selectedTruck} />*/}
       </div>
     </div>
   );
