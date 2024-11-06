@@ -87,7 +87,7 @@ function App() {
               element: <DriverManagement />,
             },
             {
-              path: "driver/update/:id", 
+              path: "driver/update/:id",
               element: <UpdateDriver />,
             },
             {
