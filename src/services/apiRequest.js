@@ -10,7 +10,7 @@ import {
 import toast from "react-hot-toast";
 
 const api = axios.create({
-  baseURL: "http://localhost:8082/api/",
+  baseURL: "http://localhost:8080/api/",
   headers: {
     "Content-Type": "application/json",
   },
@@ -143,5 +143,23 @@ export const deleteDriver = async (driverId) => {
 
 export const getUserByUsername = async (username) => {
   const response = await api.get(`user/username/${username}`);
+  return response.data;
+};
+export const createWarehouse = async (warehouseDTO) => {
+  const response = await api.post("warehouse/add", warehouseDTO);
+  return response.data;
+};
+
+export const updateWarehouse = async (warehouseId, warehouseData) => {
+  const response = await api.put(`warehouse/update/${warehouseId}`, warehouseData);
+  return response.data;
+};
+
+export const deleteWarehouse = async (warehouseId) => {
+  const response = await api.delete(`warehouse/delete/${warehouseId}`);
+  return response.data;
+};
+export const getAllWarehouses = async () => {
+  const response = await api.get("warehouse/all");
   return response.data;
 };

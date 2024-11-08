@@ -74,11 +74,11 @@ const Login = () => {
           <p className="text-sm text-gray-500 mb-4">Login to Get Started</p>
         </div>
 
-        <form class="space-y-4 md:space-y-2 w-full" onSubmit={handleLogin}>
+        <form className="space-y-4 md:space-y-2 w-full" onSubmit={handleLogin}>
           <div>
             <label
-              for="email"
-              class="block mb-1 text-ms font-normal0 text-gray-500 dark:text-gray-700"
+              htmlFor="email"
+              className="block mb-1 text-ms font-normal0 text-gray-500 dark:text-gray-700"
             >
               User name
             </label>
@@ -93,7 +93,7 @@ const Login = () => {
           </div>
           <div>
             <label
-              for="password"
+              htmlFor="password"
               className="block mb-1 text-ms font-normal0 text-gray-500 dark:text-gray-700"
             >
               Password
@@ -109,9 +109,9 @@ const Login = () => {
             />
           </div>
 
-          <div class="flex items-center justify-between">
-            <div class="flex items-start">
-              <div class="flex items-center h-5">
+          <div className="flex items-center justify-between">
+            <div className="flex items-start">
+              <div className="flex items-center h-5">
                 <input
                   aria-describedby="remember"
                   type="checkbox"
@@ -119,9 +119,9 @@ const Login = () => {
                   required=""
                 />
               </div>
-              <div class="ml-3 text-sm">
+              <div className="ml-3 text-sm">
                 <label
-                  for="remember"
+                  htmlFor="remember"
                   className="text-gray-500 dark:text-gray-500"
                 >
                   Remember me
