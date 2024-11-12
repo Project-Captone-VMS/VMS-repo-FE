@@ -163,3 +163,22 @@ export const getAllWarehouses = async () => {
   const response = await api.get("warehouse/all");
   return response.data;
 };
+export const createProduct = async (productDTO) => {
+  const response = await api.post("product/add", productDTO);
+  return response.data;
+};
+
+export const updateProduct = async (productId, productData) => {
+  const response = await api.put(`product/update/${productId}`, productData);
+  return response.data;
+};
+
+export const deleteProduct = async (productId) => {
+  const response = await api.delete(`product/delete/${productId}`);
+  return response.data;
+};
+
+export const getAllProducts = async () => {
+  const response = await api.get("product/all");
+  return response.data;
+};;

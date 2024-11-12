@@ -17,6 +17,7 @@ import OverviewTab from "./pages/VehicleManegement/sub-pages/OverviewTab";
 import VehiclesTab from "./pages/VehicleManegement/sub-pages/VehiclesTab";
 import MaintenanceTab from "./pages/VehicleManegement/sub-pages/MaintenanceTab";
 import WarehouseManagement from "./pages/WarehouseManagement.jsx/WarehouseManagement";
+import WarehouseProduct from "./pages/WarehouseManagement.jsx/WarehouseProduct";
 import { Toaster } from "react-hot-toast";
 
 function App() {
@@ -99,6 +100,10 @@ function App() {
               path: "warehouse",
               element: <WarehouseManagement />,
             },
+            {
+              path: "warehouse/:warehouseproduct",
+              element: <WarehouseProduct />,
+            }
           ],
         },
       ],

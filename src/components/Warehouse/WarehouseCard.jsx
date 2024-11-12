@@ -1,15 +1,32 @@
+import React, { memo, useEffect } from 'react';
 import { Edit, Trash2, Warehouse } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
 import { Progress } from "../../components/ui/progress";
 
-export const WarehouseCard = ({ warehouse, onSelect, onEdit, onDelete }) => {
-    console.log('Warehouse data received:', warehouse); // Log để debug
+export const WarehouseCard = memo(({ warehouse, onSelect, onEdit, onDelete }) => {
+    // Chuyển console.log vào useEffect
+    useEffect(() => {
+        console.log('Warehouse data received:', warehouse);
+    }, [warehouse]);
   
     // Kiểm tra và đảm bảo giá trị mặc định
     const capacity = warehouse?.capacity || 0;
-    const currentStock = warehouse?.currentStock || 0; // Đổi từ current_stock sang currentStock
-    const warehouseId = warehouse?.warehouseId; // Đổi từ warehouse_id sang warehouseId
+    const currentStock = warehouse?.currentStock || 0;
+    const warehouseId = warehouse?.warehouseId;
     const utilizationRate = capacity > 0 ? ((currentStock / capacity) * 100).toFixed(1) : 0;
+  
+    // Tách handlers ra để tránh tạo function mới mỗi lần render
+    const handleEdit = (e) => {
+        e.stopPropagation();
+        onEdit(warehouse);
+    };
+
+    const handleDelete = (e) => {
+        e.stopPropagation();
+        onDelete(warehouseId);
+    };
+
+    const handleSelect = () => onSelect(warehouse);
   
     return (
       <Card className="hover:shadow-lg transition-all cursor-pointer group">
@@ -26,19 +43,13 @@ export const WarehouseCard = ({ warehouse, onSelect, onEdit, onDelete }) => {
             </div>
             <div className="opacity-0 group-hover:opacity-100 transition-opacity flex space-x-2">
               <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onEdit(warehouse);
-                }}
+                onClick={handleEdit}
                 className="p-2 hover:bg-gray-100 rounded-full"
               >
                 <Edit className="h-4 w-4" />
               </button>
               <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDelete(warehouseId);
-                }}
+                onClick={handleDelete}
                 className="p-2 hover:bg-gray-100 rounded-full text-red-500"
               >
                 <Trash2 className="h-4 w-4" />
@@ -46,7 +57,7 @@ export const WarehouseCard = ({ warehouse, onSelect, onEdit, onDelete }) => {
             </div>
           </div>
         </CardHeader>
-        <CardContent onClick={() => onSelect(warehouse)}>
+        <CardContent onClick={handleSelect}>
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div>
               <p className="text-sm text-gray-600">Location</p>
@@ -73,6 +84,6 @@ export const WarehouseCard = ({ warehouse, onSelect, onEdit, onDelete }) => {
         </CardContent>
       </Card>
     );
-  };
+});
   
-  export default WarehouseCard;
+export default WarehouseCard;
