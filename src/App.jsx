@@ -1,8 +1,4 @@
-import {
-  createBrowserRouter,
-  RouterProvider,
-  Navigate,
-} from "react-router-dom";
+import {createBrowserRouter,RouterProvider,Navigate,} from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import DefaultLayout from "./layout/DefaultLayout";
@@ -18,6 +14,8 @@ import VehiclesTab from "./pages/VehicleManegement/sub-pages/VehiclesTab";
 import MaintenanceTab from "./pages/VehicleManegement/sub-pages/MaintenanceTab";
 import WarehouseManagement from "./pages/WarehouseManagement.jsx/WarehouseManagement";
 import WarehouseProduct from "./pages/WarehouseManagement.jsx/WarehouseProduct";
+import Analytics from "./pages/AnalyticsManagement/Analytics";
+import ProfileInformation from "./pages/Profileinformation";
 import { Toaster } from "react-hot-toast";
 
 function App() {
@@ -53,6 +51,10 @@ function App() {
               path: "realtime",
               element: <RealtimeTracking />,
             },
+            {
+              path: "profile",
+              element: <ProfileInformation />,
+            },
           ],
         },
         {
@@ -61,6 +63,10 @@ function App() {
             {
               path: "dashboard",
               element: <Dashboard />,
+            },
+            {
+              path: "profile",
+              element: <ProfileInformation />,
             },
             {
               path: "vehicle",
@@ -101,8 +107,12 @@ function App() {
               element: <WarehouseManagement />,
             },
             {
-              path: "warehouse/:warehouseproduct",
+              path: "warehouse/:warehouseId",
               element: <WarehouseProduct />,
+            },
+            {
+              path: "Analytics",
+              element: <Analytics />,
             }
           ],
         },

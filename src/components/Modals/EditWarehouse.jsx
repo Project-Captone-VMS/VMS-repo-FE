@@ -8,7 +8,7 @@ import { updateWarehouse } from "../../services/apiRequest";
 
 const EditWarehouse = ({ isOpen, onClose, onSubmit, warehouse }) => {
     const [formData, setFormData] = useState({
-        warehouseId: 0,
+        warehouseName: '',
         location: '',
         capacity: 0,
         currentStock: 0,
@@ -21,7 +21,7 @@ const EditWarehouse = ({ isOpen, onClose, onSubmit, warehouse }) => {
     useEffect(() => {
         if (warehouse) {
             setFormData({
-                warehouseId: warehouse.warehouseId ?? 0,
+                warehouseName: warehouse.warehouseName ?? '',
                 location: warehouse.location ?? '',
                 capacity: warehouse.capacity ?? 0,
                 currentStock: warehouse.currentStock ?? 0,
@@ -70,7 +70,7 @@ const EditWarehouse = ({ isOpen, onClose, onSubmit, warehouse }) => {
         try {
             // Prepare the data to send
             const warehouseData = {
-                warehouseId: formData.warehouseId,
+                warehouseName: formData.warehouseName,
                 location: formData.location.trim(),
                 capacity: parseInt(formData.capacity, 10),
                 currentStock: parseInt(formData.currentStock, 10),
@@ -79,7 +79,7 @@ const EditWarehouse = ({ isOpen, onClose, onSubmit, warehouse }) => {
             console.log('Submitting warehouse data:', warehouseData);
 
             // Call updateWarehouse API and wait for response
-            const response = await updateWarehouse(warehouseData.warehouseId, warehouseData);
+            const response = await updateWarehouse(warehouse.id, warehouseData);
 
             if (response) {
                 console.log('Update response:', response);
@@ -139,10 +139,10 @@ const EditWarehouse = ({ isOpen, onClose, onSubmit, warehouse }) => {
                     )}
 
                     <div className="space-y-2">
-                        <Label htmlFor="warehouseId">Warehouse ID</Label>
+                        <Label htmlFor="warehouseName">Warehouse Name</Label>
                         <Input
-                            id="warehouseId"
-                            value={formData.warehouseId}
+                            id="warehouseName"
+                            value={formData.warehouseName}
                             disabled
                             className="bg-gray-100"
                         />

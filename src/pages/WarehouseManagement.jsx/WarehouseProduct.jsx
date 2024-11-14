@@ -8,7 +8,7 @@ import { Badge } from "../../components/ui/badge";
 import { AddProduct } from"../../components/Modals/AddProduct";
 import { EditProduct } from"../../components/Modals/EditProduct";
 import { ProductTable } from '../../components/Warehouse/ProductTable';
-import { getAllProducts, deleteProduct } from "../../services/apiRequest";
+import { getAllProducts, deleteProduct ,getWarehouseById,   } from "../../services/apiRequest";
 import Swal from "sweetalert2";
 
 const WarehouseProduct = () => {
@@ -20,7 +20,7 @@ const WarehouseProduct = () => {
     const [editingProduct, setEditingProduct] = useState(null);
     const [products, setProducts] = useState([]);
     const [warehouse, setWarehouse] = useState({
-        warehouseId: '',
+        warehouseName: '',
         location: '',
         capacity: 0,
         currentStock: 0,
@@ -29,7 +29,7 @@ const WarehouseProduct = () => {
         lastUpdated: new Date().toISOString().split('T')[0]
     });
 
-    const fetchWarehouseData = async () => {
+    const fetchWarehouseData = async (warehouseId) => {
         try {
             const data = await getWarehouseById(warehouseId);
             const utilizationRate = data.capacity > 0 
@@ -40,19 +40,19 @@ const WarehouseProduct = () => {
                 ...data,
                 utilizationRate: Number(utilizationRate),
                 status: data.currentStock < data.capacity ? 'active' : 'full',
-                lastUpdated: data.lastUpdated || new Date().toISOString().split('T')[0]
+                lastUpdated: new Date().toISOString().split('T')[0]
             });
         } catch (error) {
             console.error("Error fetching warehouse:", error);
             Swal.fire({
                 icon: 'error',
                 title: 'Error!',
-                text: 'Failed to fetch warehouse information. Please try again.',
+                text: 'Failed to fetch warehouse information.',
             });
         }
     };
 
-    const fetchProducts = async () => {
+    const fetchProducts = async (warehouseId) => {
         try {
             const data = await getAllProducts(warehouseId);
             setProducts(data);
@@ -61,48 +61,66 @@ const WarehouseProduct = () => {
             Swal.fire({
                 icon: 'error',
                 title: 'Error!',
-                text: 'Failed to fetch products. Please try again.',
+                text: 'Failed to fetch products.',
             });
         }
     };
 
     useEffect(() => {
-        fetchWarehouseData();
-        fetchProducts();
+        if (warehouseId) {
+            fetchWarehouseData(warehouseId);
+            fetchProducts(warehouseId);
+        }
     }, [warehouseId]);
 
     const handleAddProduct = (product) => {
         setProducts([...products, product]);
         setIsAddProductOpen(false);
         Swal.fire({
+            
             icon: 'success',
             title: 'Success!',
             text: 'Product added successfully.',
         });
     };
 
+    // Updated handleEditProduct function
     const handleEditProduct = (product) => {
-        setEditingProduct(product);
-        setIsEditProductOpen(true);
+        if (product && product.id) {
+            setEditingProduct(product);
+            setIsEditProductOpen(true);
+        } else {
+            console.error("Invalid product data:", product);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: 'Invalid product data for editing.',
+            });
+        }
     };
 
     const handleUpdateProduct = (updatedProduct) => {
-        setProducts(products.map(p => 
-            p.id === updatedProduct.id ? updatedProduct : p
-        ));
-        setIsEditProductOpen(false);
-        setEditingProduct(null);
-        Swal.fire({
-            icon: 'success',
-            title: 'Success!',
-            text: 'Product updated successfully.',
-        });
+        if (updatedProduct && updatedProduct.id) {
+            setProducts(products.map(p => 
+                p.id === updatedProduct.id ? updatedProduct : p
+            ));
+            setIsEditProductOpen(false);
+            setEditingProduct(null);
+            // Refresh products list after update
+            fetchProducts(warehouseId);
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: 'Product updated successfully.',
+            });
+            window.location.reload();
+        }
     };
 
     const handleDeleteProduct = async (productId) => {
         const confirmResult = await Swal.fire({
             title: "Are you sure?",
-            text: `Do you want to delete product ${productId}?`,
+            text: "Do you want to delete this product?",
             icon: "warning",
             showCancelButton: true,
             confirmButtonText: "Yes, delete it!",
@@ -118,21 +136,21 @@ const WarehouseProduct = () => {
                     title: 'Success!',
                     text: 'Product deleted successfully.',
                 });
+                window.location.reload();
             } catch (error) {
                 console.error("Error deleting product:", error);
                 Swal.fire({
                     icon: 'error',
                     title: 'Error!',
-                    text: 'Failed to delete the product. Please try again.',
+                    text: 'Failed to delete the product.',
                 });
             }
         }
     };
 
     const filteredProducts = products.filter(product =>
-        product.warehouseId === warehouseId &&
-        (product.productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-         product.category?.toLowerCase().includes(searchTerm.toLowerCase()))
+        product.productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.category?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     return (
@@ -153,10 +171,10 @@ const WarehouseProduct = () => {
                             <Warehouse className="h-8 w-8 text-blue-500" />
                             <div>
                                 <CardTitle className="text-2xl font-bold text-gray-800">
-                                    Warehouse {warehouse.warehouseId}
+                                    {warehouse.warehouseName}
                                 </CardTitle>
                                 <p className="text-gray-500 text-sm mt-1">
-                                    ID: {warehouse.warehouseId}
+                                    {warehouse.location}
                                 </p>
                             </div>
                         </div>
@@ -175,18 +193,11 @@ const WarehouseProduct = () => {
                     </div>
                 </CardHeader>
                 <CardContent>
-                    <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        <div className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200">
-                            <div className="flex items-center space-x-2 text-gray-600 mb-2">
-                                <MapPin className="h-5 w-5" />
-                                <p>Location</p>
-                            </div>
-                            <p className="font-semibold text-gray-800">{warehouse.location}</p>
-                        </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200">
                             <div className="flex items-center space-x-2 text-gray-600 mb-2">
                                 <Layers className="h-5 w-5" />
-                                <p>Capacity</p>
+                                <p>Total Capacity</p>
                             </div>
                             <p className="font-semibold text-gray-800">
                                 {warehouse.capacity.toLocaleString()} units
@@ -204,7 +215,7 @@ const WarehouseProduct = () => {
                         <div className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200">
                             <div className="flex items-center space-x-2 text-gray-600 mb-2">
                                 <PercentSquare className="h-5 w-5" />
-                                <p>Utilization</p>
+                                <p>Space Utilization</p>
                             </div>
                             <p className="font-semibold text-gray-800">{warehouse.utilizationRate}%</p>
                         </div>

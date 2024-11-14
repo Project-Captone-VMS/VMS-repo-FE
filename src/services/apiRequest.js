@@ -181,4 +181,12 @@ export const deleteProduct = async (productId) => {
 export const getAllProducts = async () => {
   const response = await api.get("product/all");
   return response.data;
+};
+export const getWarehouseById = async (warehouseId) => {
+  try {
+    const response = await api.get(`warehouse/${warehouseId}`); 
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
 };;
