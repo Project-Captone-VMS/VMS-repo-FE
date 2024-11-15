@@ -10,6 +10,7 @@ import {
   MessageSquare,
   FileText,
   Settings,
+  Route,
 } from "lucide-react";
 
 const Sidebar = ({ isOpen, role }) => {
@@ -20,6 +21,7 @@ const Sidebar = ({ isOpen, role }) => {
     { path: "/driver", icon: Users, label: "Driver Management" },
     { path: "/realtime", icon: Map, label: "Realtime Tracking" },
     { path: "/warehouse", icon: Warehouse, label: "Warehouse Management" },
+    { path: "/route", icon: Route, label: "route" },
     { path: "/analytics", icon: BarChart2, label: "Analytics" },
     { path: "/chat", icon: MessageSquare, label: "Internal Chat" },
     { path: "/reports", icon: FileText, label: "Reports" },

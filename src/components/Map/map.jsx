@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from "react";
 
 const Map = () => {
   const mapRef = useRef(null);
-  const hereApiKey = "RDZ955b4FVsymS-8fDrYP5D--V1pR55u5S4dbuTNMa4"; 
+  const hereApiKey = "RDZ955b4FVsymS-8fDrYP5D--V1pR55u5S4dbuTNMa4";
 
   useEffect(() => {
     const platform = new H.service.Platform({
@@ -26,7 +26,7 @@ const Map = () => {
       <div
         ref={mapRef}
         id="map"
-        style={{ width: "90%", height: "500px", marginLeft: "60px" }}
+        style={{ width: "90%", height: "500px", marginLeft: "30px" }}
         className="mx-auto"
       />
     </div>
