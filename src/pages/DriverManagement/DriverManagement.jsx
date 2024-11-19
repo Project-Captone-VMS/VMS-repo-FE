@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { getAllDriver, deleteDriver } from "../../services/apiRequest";
 import Swal from "sweetalert2";
 import DriverTable from "../../components/Driver/DriverTable";
@@ -70,7 +70,7 @@ const DriverManagement = () => {
     if (confirmResult.isConfirmed) {
       try {
         await deleteDriver(driver.driverId);
-        await fetchDrivers(); // Refresh the list after deletion
+        await fetchDrivers();
         Swal.fire("Deleted!", "The driver has been deleted.", "success");
       } catch (error) {
         console.error("Error deleting driver:", error);
@@ -90,18 +90,16 @@ const DriverManagement = () => {
   };
 
   const handleDriverUpdated = async () => {
-    await fetchDrivers(); // Refresh the drivers list
+    await fetchDrivers();
     Swal.fire("Success!", "Driver updated successfully.", "success");
   };
 
-  // Filtered and paginated drivers
   const filteredDrivers = getFilteredDrivers(drivers, searchTerm, filters);
   const paginatedDrivers = filteredDrivers.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
 
-  // Pagination handler
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };

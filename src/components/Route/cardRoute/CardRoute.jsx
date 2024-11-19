@@ -1,9 +1,14 @@
-import React from "react";
-import { Link, Outlet } from "react-router-dom";
+import React, { useState } from "react";
+import RouteDetail from "../Sub_DetailRoute/RouteDetail";
+import NotificationDetail from "../Sub_DetailRoute/NotificationDetail";
+import Error from "../Sub_DetailRoute/Error";
 
-const CardRoute = ({ name, route, isOpen, onClick }) => {
+const CardRoute = ({ name, isOpen, onClick, locations, notifications }) => {
+  const [toggleState, setToggleState] = useState(1);
 
-  
+  const toggleTab = (index) => {
+    setToggleState(index);
+  };
   return (
     <div className="cursor-pointer">
       <div
@@ -14,32 +19,49 @@ const CardRoute = ({ name, route, isOpen, onClick }) => {
       </div>
 
       {isOpen && (
-        <div className="mt-2 bg-gray-100 p-2 rounded-md w-full">
-          <div className="flex justify-between">
-            <Link
-              to="detailRoute"
-              className="px-4 py-2 hover:bg-custom-teal active:bg-custom-teal"
-              state={{ route }}
+        <div className="mt-2 bg-gray-100 py-2 w-full ">
+          <div className="flex justify-between gap-1 mb-2 rounded-sm ">
+            <div
+              className={`px-4 py-2 w-1/3 rounded-md text-center ${
+                toggleState === 1
+                  ? "bg-custom-teal text-white"
+                  : "bg-gray-300 hover:bg-custom-teal active:bg-custom-teal text-black"
+              }`}
+              onClick={() => toggleTab(1)}
             >
-              Route Detail
-            </Link>
-            <Link
-              to="notification"
-              className="px-4 py-2 hover:bg-custom-teal active:bg-custom-teal"
+              Route
+            </div>
+            <div
+              className={`px-4 py-2 w-1/3 rounded-md text-center ${
+                toggleState === 2
+                  ? "bg-custom-teal text-white"
+                  : "bg-gray-300 hover:bg-custom-teal active:bg-custom-teal text-black"
+              }`}
+              onClick={() => toggleTab(2)}
             >
+              {" "}
               Notification
-            </Link>
-            <Link
-              to="error"
-              className="px-4 py-2 hover:bg-custom-teal active:bg-custom-teal"
+            </div>
+            <div
+              className={`px-4 py-2 w-1/3 rounded-md text-center ${
+                toggleState === 3
+                  ? "bg-custom-teal text-white"
+                  : "bg-gray-300 hover:bg-custom-teal active:bg-custom-teal text-black"
+              }`}
+              onClick={() => toggleTab(3)}
             >
+              {" "}
               Error
-            </Link>
+            </div>
           </div>
 
-          {/* <RouteDetail route={route} /> */}
-
-          <Outlet />
+          <div className="p-2 bg-white rounded-md">
+            {toggleState === 1 && <RouteDetail locations={locations} />}
+            {toggleState === 2 && (
+              <NotificationDetail notifications={notifications} />
+            )}
+            {toggleState === 3 && <Error notifications={notifications} />}
+          </div>
         </div>
       )}
     </div>

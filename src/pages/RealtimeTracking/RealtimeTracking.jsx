@@ -1,17 +1,11 @@
 import React, { useState } from "react";
 import { trucks } from "../../components/tracking/truck";
-import { MapSection } from "../../components/tracking/MapSection";
 import { AlertsSection } from "../../components/tracking/AlertsSection";
 import { VehicleList } from "../../components/ui/VehicleList";
 import { TimelineSection } from "../../components/tracking/TimelineSection";
-import Map from "../../components/Map/map";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "../../components/ui/card";
+import { CardTitle } from "../../components/ui/card";
 import { MapPin } from "lucide-react";
+import Map from "../../components/Map/map";
 
 export default function RealtimeTrackingDashboard() {
   const [selectedTruck, setSelectedTruck] = useState(null);

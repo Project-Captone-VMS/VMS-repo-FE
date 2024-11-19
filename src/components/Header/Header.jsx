@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import {
   Bell,
   ChevronDown,
@@ -9,8 +10,8 @@ import {
   Menu,
 } from "lucide-react";
 import User from "../../assets/images/user.png";
+import { logout } from "../../redux/authSlice";
 import { getUserByUsername } from "../../services/apiRequest";
-import { useDispatch } from "react-redux";
 
 const Header = ({ sidebarOpen, setSidebarOpen }) => {
   const [showNotifications, setShowNotifications] = useState(false);
@@ -32,7 +33,6 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
     const fetchUserData = async () => {
       try {
         const response = await getUserByUsername(username);
-        // dispatch(login)
         const userData = response.result;
         if (username === "admin") {
           setFullName("");
@@ -61,6 +61,7 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
   };
 
   const handleLogout = () => {
+    dispatch(logout());
     navigate("/login");
   };
 

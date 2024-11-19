@@ -2,18 +2,19 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CardRoute from "../../../components/Route/cardRoute/CardRoute";
 import Map from "../../../components/Map/map";
-import Carditem from "../../../components/Route/Sub_DetailRoute/Carditem";
+import CardItem from "../../../components/Route/Sub_DetailRoute/CardItem";
 import DriverSuggestion from "../../../components/Route/Sub_DetailRoute/DriverSuggestion";
 
 const DetailRoute = () => {
   const navigate = useNavigate();
 
+  // mock api
   const [listRoute, setListRoute] = useState([
     {
       route_id: 1,
       license_plate: "ID ER281412",
-      start_location: "A",
-      end_location: "A1",
+      start_location: "DaNang",
+      end_location: "Hue",
       estimated_time: "10",
       status: "Done",
       distance: "500km",
@@ -23,7 +24,7 @@ const DetailRoute = () => {
         { location_id: 3, locationsName: "C", status: "Done" },
         { location_id: 4, locationsName: "D", status: "Done" },
       ],
-      notification: [
+      notifications: [
         {
           notification_id: 1,
           content:
@@ -33,6 +34,12 @@ const DetailRoute = () => {
         },
         {
           notification_id: 2,
+          content: "Lorem Ipsum is simply dummy text of the printing.",
+          title: "alo",
+          type: "notification",
+        },
+        {
+          notification_id: 3,
           content: "Lỗi hệ thống",
           title: "Lỗi",
           type: "error",
@@ -57,7 +64,7 @@ const DetailRoute = () => {
         { location_id: 3, locationsName: "3", status: "Done" },
         { location_id: 4, locationsName: "4", status: "Done" },
       ],
-      notification: [
+      notifications: [
         {
           notification_id: 1,
           content:
@@ -67,6 +74,12 @@ const DetailRoute = () => {
         },
         {
           notification_id: 2,
+          content: "lanh",
+          title: "alo",
+          type: "notification",
+        },
+        {
+          notification_id: 3,
           content: "Lỗi hệ thống",
           title: "Lỗi",
           type: "error",
@@ -97,10 +110,10 @@ const DetailRoute = () => {
         <h2 className="text-lg font-semibold mb-4">Total Routes</h2>
         <div className="p-2 bg-white">
           <div className="space-y-2">
-            <label className="block text-sm">Time</label>
+            <label className="block text-sm">Route</label>
             <input
               type="text"
-              placeholder="day"
+              placeholder="Route"
               className="w-full p-1 border rounded-md"
             />
             <div className="flex gap-2">
@@ -132,9 +145,10 @@ const DetailRoute = () => {
             <CardRoute
               key={route.route_id}
               name={`${route.start_location} - ${route.end_location}`}
-              route={route}
               isOpen={openRoute === route}
               onClick={() => handleRouteClick(route)}
+              locations={route.locations}
+              notifications={route.notifications}
             />
           ))}
         </div>
@@ -144,7 +158,7 @@ const DetailRoute = () => {
         <Map />
         {openRoute && (
           <div className="flex gap-2">
-            <Carditem
+            <CardItem
               name={`${openRoute.start_location} - ${openRoute.end_location}`}
               total_hour={openRoute.estimated_time}
               distance={openRoute.distance}

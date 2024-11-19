@@ -1,6 +1,5 @@
 import React from "react";
 import { NavLink, Link, useLocation } from "react-router-dom";
-import Logo from "../assets/images/logo.png";
 import {
   Truck,
   Users,
@@ -12,6 +11,7 @@ import {
   Settings,
   Route,
 } from "lucide-react";
+import Logo from "../assets/images/logo.png";
 
 const Sidebar = ({ isOpen, role }) => {
   const location = useLocation();

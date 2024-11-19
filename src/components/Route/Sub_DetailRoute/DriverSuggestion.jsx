@@ -15,9 +15,7 @@ const DriverSuggestion = ({
       <hr className="border-gray-200 mb-6" />
 
       <div className="flex">
-        {/* Left section with details */}
         <div className="flex-1">
-          {/* Name */}
           <div className="mb-4">
             <span className="text-sm text-gray-500">Name</span>
             <p className="text-lg font-semibold text-gray-900">
@@ -25,14 +23,12 @@ const DriverSuggestion = ({
             </p>
           </div>
 
-          {/* ID */}
           <div className="mb-4">
             <span className="inline-block px-3 py-1 bg-gray-200 text-gray-700 text-sm font-semibold rounded-lg">
               {license_plate}
             </span>
           </div>
 
-          {/* Vehicle Capacity */}
           <div className="flex mb-4">
             <div className="mr-4">
               <span className="text-sm text-gray-500">Weight</span>

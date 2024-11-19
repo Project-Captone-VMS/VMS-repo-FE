@@ -6,7 +6,7 @@ const Map = () => {
 
   useEffect(() => {
     const platform = new H.service.Platform({
-      apikey: hereApiKey,
+      apiKey: hereApiKey,
     });
     const defaultLayers = platform.createDefaultLayers();
 

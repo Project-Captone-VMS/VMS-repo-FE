@@ -1,19 +1,17 @@
 import React from "react";
 
-const Carditem = ({ name, total_hour, distance, status }) => {
+const CardItem = ({ name, total_hour, distance, status }) => {
   return (
     <div className="w-full max-w-md mx-auto bg-gray-50 p-6 rounded-lg shadow-md">
       <h2 className="text-2xl font-bold text-gray-800 mb-4">{name}</h2>
       <hr className="border-gray-200 mb-6" />
 
       <div className="grid grid-cols-2 gap-y-4 text-gray-500">
-        {/* Item Quantity */}
         <div className="flex flex-col">
           <span className="text-sm">Item Quantity</span>
           <span className="text-lg font-semibold text-gray-900">23 Items</span>
         </div>
 
-        {/* Total Hour */}
         <div className="flex flex-col">
           <span className="text-sm">Total Hour</span>
           <span className="text-lg font-semibold text-gray-900">
@@ -21,7 +19,6 @@ const Carditem = ({ name, total_hour, distance, status }) => {
           </span>
         </div>
 
-        {/* Approximate Distance */}
         <div className="flex flex-col">
           <span className="text-sm"> Distance</span>
           <span className="text-lg font-semibold text-gray-900">
@@ -29,7 +26,6 @@ const Carditem = ({ name, total_hour, distance, status }) => {
           </span>
         </div>
 
-        {/* Status */}
         <div className="flex flex-col">
           <span className="text-sm">Status</span>
           <div
@@ -45,4 +41,4 @@ const Carditem = ({ name, total_hour, distance, status }) => {
   );
 };
 
-export default Carditem;
+export default CardItem;

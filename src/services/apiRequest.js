@@ -43,13 +43,15 @@ export const loginUser = async (user, dispatch, navigate) => {
       localStorage.setItem("jwtToken", token);
       localStorage.setItem("username", user.username);
 
+      toast.success("Logged in successfully");
+      dispatch(loginSuccess(res.data));
+
       if (userRole === "ADMIN") {
         navigate("/dashboard");
       } else if (userRole === "USER") {
         navigate("/driveuser");
       }
-      toast.success("Logged in successfully");
-      dispatch(loginSuccess(res.data));
+
       return res.data;
     }
   } catch (err) {
