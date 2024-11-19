@@ -12,7 +12,8 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
-  Menu
+  Menu,
+  Route,
 } from "lucide-react";
 
 const Sidebar = ({ isOpen, setIsOpen, role }) => {
@@ -24,7 +25,8 @@ const Sidebar = ({ isOpen, setIsOpen, role }) => {
     { path: "/realtime", icon: Map, label: "Realtime Tracking" },
     { path: "/warehouse", icon: Warehouse, label: "Warehouse Management" },
     { path: "/analytics", icon: BarChart2, label: "Analytics" },
-    { path: "/chat", icon: MessageSquare, label: "Internal Chat" },
+    { path: "/route", icon: Route, label: "Route Management" },
+    { path: "/chat", icon: MessageSquare, label: "Chat" },
     { path: "/reports", icon: FileText, label: "Reports" },
   ];
 

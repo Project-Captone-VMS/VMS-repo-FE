@@ -1,27 +1,53 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { loginUser } from "../services/apiRequest.js";
+import { loginUser } from "../services/apiRequest"; // Import hàm loginUser
 import { useDispatch } from "react-redux";
+import { loginStart } from "../redux/authSlice"; // Import các action
 import container from "../assets/images/Container.png";
 import circle from "../assets/images/circle.png";
 import logo from "../assets/images/logo.png";
+import { toast } from "react-toastify"; // Đảm bảo bạn đã cài đặt react-toastify
 
 const Login = () => {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const [formData, setFormData] = useState({
+    username: "",
+    password: "",
+  });
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleLogin = async (e) => {
     e.preventDefault();
+    const { username, password } = formData;
 
-    const newUser = {
-      username: username,
-      password: password,
-    };
+    const user = { username, password };
 
-    loginUser(newUser, dispatch, navigate);
+    dispatch(loginStart());
+
+    try {
+      const userData = await loginUser(user, dispatch, navigate);
+      dispatch(loginSuccess({ email }));
+      if (userData) {
+        const userRole = userData.result.roles[0];
+
+        if (userRole === "ADMIN") {
+          navigate("/dashboard");
+        } else if (userRole === "USER") {
+          navigate("/driveuser");
+        }
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      toast.error("Login failed. Please try again.");
+    }
   };
 
   return (
@@ -74,26 +100,27 @@ const Login = () => {
           <p className="text-sm text-gray-500 mb-4">Login to Get Started</p>
         </div>
 
-        <form className="space-y-4 md:space-y-2 w-full" onSubmit={handleLogin}>
+        <form class="space-y-4 md:space-y-2 w-full" onSubmit={handleLogin}>
           <div>
             <label
-              htmlFor="email"
-              className="block mb-1 text-ms font-normal0 text-gray-500 dark:text-gray-700"
+              for="email"
+              class="block mb-1 text-ms font-normal0 text-gray-500 dark:text-gray-700"
             >
               User name
             </label>
             <input
               type="text"
+              name="username"
               placeholder="User name"
               className=" text-black rounded-lg border-2 border-inherit block w-full p-2.5 "
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              value={formData.username}
+              onChange={handleChange}
               required
             />
           </div>
           <div>
             <label
-              htmlFor="password"
+              for="password"
               className="block mb-1 text-ms font-normal0 text-gray-500 dark:text-gray-700"
             >
               Password
@@ -103,15 +130,15 @@ const Login = () => {
               placeholder="••••••••"
               name="password"
               className=" text-black  rounded-lg border-2 border-inherit block w-full p-2.5"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={formData.password}
+              onChange={handleChange}
               required
             />
           </div>
 
-          <div className="flex items-center justify-between">
-            <div className="flex items-start">
-              <div className="flex items-center h-5">
+          <div class="flex items-center justify-between">
+            <div class="flex items-start">
+              <div class="flex items-center h-5">
                 <input
                   aria-describedby="remember"
                   type="checkbox"
@@ -119,9 +146,9 @@ const Login = () => {
                   required=""
                 />
               </div>
-              <div className="ml-3 text-sm">
+              <div class="ml-3 text-sm">
                 <label
-                  htmlFor="remember"
+                  for="remember"
                   className="text-gray-500 dark:text-gray-500"
                 >
                   Remember me

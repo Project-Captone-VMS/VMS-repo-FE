@@ -185,7 +185,7 @@ const WarehouseProduct = () => {
         onClick={() => navigate("/warehouse")}
       >
         <ArrowLeft className="h-4 w-4 mr-2" />
-        Back to Dashboard
+        Back to Warehouse
       </Button>
 
       <Card className="mb-8 shadow-lg hover:shadow-xl transition-shadow duration-300">

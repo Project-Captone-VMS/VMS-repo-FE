@@ -16,6 +16,12 @@ import WarehouseManagement from "./pages/WarehouseManagement.jsx/WarehouseManage
 import WarehouseProduct from "./pages/WarehouseManagement.jsx/WarehouseProduct";
 import Analytics from "./pages/AnalyticsManagement/Analytics";
 import ProfileInformation from "./pages/Profileinformation";
+import IndexRoute from "./pages/Route/IndexRoute";
+import OverviewRoute from "./pages/Route/sub-Route/OverviewRoute";
+import ListRoute from "./pages/Route/sub-Route/ListRoute";
+import DetailRoute from "./components/Route/Sub_DetailRoute/RouteDetail";
+import NotificationDetail from "./components/Route/Sub_DetailRoute/NotificationDetail";
+import Error from "./components/Route/Sub_DetailRoute/Error";
 import { Toaster } from "react-hot-toast";
 
 function App() {
@@ -113,7 +119,24 @@ function App() {
             {
               path: "Analytics",
               element: <Analytics />,
-            }
+            }, {
+              path: "route",
+              element: <IndexRoute />,
+              children: [
+                {
+                  path: "",
+                  element: <Navigate to="overviewRoute" replace />,
+                },
+                {
+                  path: "overviewRoute",
+                  element: <OverviewRoute />,
+                },
+                {
+                  path: "listRoute",
+                  element: <ListRoute />,
+                },
+              ],
+            },
           ],
         },
       ],

@@ -1,9 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import {Bell,ChevronDown,UserCircle,LogOut,Settings,Menu,} from "lucide-react";
-import User from "../../assets/images/user.png";
-import { getUserByUsername } from "../../services/apiRequest";
 import { useDispatch } from "react-redux";
+import {
+  Bell,
+  ChevronDown,
+  UserCircle,
+  LogOut,
+  Settings,
+  Menu,
+} from "lucide-react";
+import User from "../../assets/images/user.png";
+import { logout } from "../../redux/authSlice";
+import { getUserByUsername } from "../../services/apiRequest";
 
 const Header = ({ sidebarOpen, setSidebarOpen }) => {
   const [showNotifications, setShowNotifications] = useState(false);
@@ -25,7 +33,6 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
     const fetchUserData = async () => {
       try {
         const response = await getUserByUsername(username);
-        // dispatch(login)
         const userData = response.result;
         if (username === "admin") {
           setFullName("");
@@ -54,12 +61,8 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
   };
 
   const handleLogout = () => {
+    dispatch(logout());
     navigate("/login");
-  };
-
-  const handleNavigateToProfile = () => {
-    setIsDropdownOpen(false); 
-    navigate("/profile"); 
   };
 
   return (
@@ -104,7 +107,9 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
                     key={notification.id}
                     className="px-4 py-3 hover:bg-gray-50 border-b last:border-0"
                   >
-                    <p className="text-sm text-gray-700">{notification.message}</p>
+                    <p className="text-sm text-gray-700">
+                      {notification.message}
+                    </p>
                     <p className="text-xs text-gray-500 mt-1">
                       {notification.time}
                     </p>
@@ -137,10 +142,7 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
 
             {isDropdownOpen && (
               <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-50">
-                <button 
-                  onClick={handleNavigateToProfile}
-                  className="w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
-                >
+                <button className="w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2">
                   <UserCircle className="w-4 h-4" />
                   Profile Information
                 </button>
