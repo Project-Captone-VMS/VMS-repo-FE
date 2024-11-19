@@ -110,7 +110,8 @@ const DriverManagement = () => {
     <div className="p-6 bg-gray-100 min-h-screen">
       <h1 className="text-3xl font-bold mb-4">Driver Management</h1>
 
-      <Stats />
+      {/* Truyền danh sách drivers vào Stats */}
+      <Stats drivers={drivers} />
 
       <SearchAndFilter
         searchTerm={searchTerm}

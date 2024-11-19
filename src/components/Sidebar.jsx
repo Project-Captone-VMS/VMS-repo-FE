@@ -10,9 +10,12 @@ import {
   MessageSquare,
   FileText,
   Settings,
+  ChevronLeft,
+  ChevronRight,
+  Menu
 } from "lucide-react";
 
-const Sidebar = ({ isOpen, role }) => {
+const Sidebar = ({ isOpen, setIsOpen, role }) => {
   const location = useLocation();
 
   const sb_menuItems = [
@@ -30,24 +33,43 @@ const Sidebar = ({ isOpen, role }) => {
       ? sb_menuItems.filter((item) => item.path === "/realtime")
       : sb_menuItems;
 
+  const toggleSidebar = () => {
+    setIsOpen(!isOpen);
+  };
+
   return (
-    <div
-      className={`absolute left-0 top-0 z-9999 flex h-screen w-60 flex-col bg-black transition-transform duration-300 ease-linear dark:bg-boxdark ${
-        isOpen ? "translate-x-0" : "-translate-x-full"
-      } lg:static lg:translate-x-0`}
-    >
-      <div>
+    <aside className={`h-screen bg-black transition-all duration-300 ease-linear dark:bg-boxdark ${isOpen ? "w-60" : "w-16"} sticky top-0 left-0`}>
+      {/* Logo Section */}
+      <div className="flex flex-col">
         <NavLink
           to="/dashboard"
-          className="flex items-center gap-3 px-5 py-3 lg:py-6"
+          className={`flex items-center ${isOpen ? 'px-4' : 'justify-center'} py-4`}
         >
-          <img src={Logo} alt="Logo" className="w-16 h-12" />
-          <p className="text-white text-3xl font-bold">VMS</p>
+          <img 
+            src={Logo} 
+            alt="Logo" 
+            className={`transition-all duration-300 ${isOpen ? "w-12 h-9" : "w-10 h-8"}`} 
+          />
+          <div className={`transition-all duration-300 overflow-hidden ${isOpen ? "ml-2 w-auto opacity-100" : "w-0 opacity-0"}`}>
+            <p className="text-white text-2xl font-bold whitespace-nowrap">VMS</p>
+          </div>
         </NavLink>
+        
+        {/* Menu Toggle Button */}
+        <button
+          onClick={toggleSidebar}
+          className={`flex items-center ${isOpen ? 'px-4' : 'justify-center'} py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-all duration-200 ease-in-out border-b border-gray-800`}
+        >
+          <Menu className={`w-5 h-5 ${isOpen ? "mr-3" : ""} text-gray-400`} />
+          <span className={`font-medium transition-all duration-300 overflow-hidden ${isOpen ? "w-auto opacity-100" : "w-0 opacity-0"}`}>
+            Menu
+          </span>
+        </button>
       </div>
 
-      <div className="no-scrollbar flex flex-col overflow-y-auto">
-        <ul className="text-white">
+      {/* Menu Items */}
+      <nav className="flex-grow overflow-y-auto">
+        <ul className="text-white py-2">
           {filteredMenuItems.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.path;
@@ -57,34 +79,54 @@ const Sidebar = ({ isOpen, role }) => {
                 key={item.path}
                 to={item.path}
                 className={`
-                  flex items-center px-4 py-3 text-sm rounded-sm
+                  flex items-center ${isOpen ? 'px-4' : 'justify-center'} py-2
                   transition-all duration-200 ease-in-out
-                  ${
-                    isActive
-                      ? "bg-blue-600 text-white shadow-md"
-                      : "text-gray-300 hover:bg-gray-800 hover:text-white"
+                  ${isActive
+                    ? "bg-blue-600 text-white"
+                    : "text-gray-300 hover:bg-gray-800 hover:text-white"
                   }
                 `}
+                title={!isOpen ? item.label : ""}
               >
                 <Icon
-                  className={`w-5 h-5 mr-3 ${
+                  className={`w-5 h-5 ${isOpen ? "mr-3" : ""} ${
                     isActive ? "text-white" : "text-gray-400"
                   }`}
                 />
-                <span className="font-medium">{item.label}</span>
+                <span className={`font-medium transition-all duration-300 overflow-hidden ${isOpen ? "w-auto opacity-100" : "w-0 opacity-0"}`}>
+                  {item.label}
+                </span>
               </Link>
             );
           })}
         </ul>
-      </div>
+      </nav>
 
-      <div className="p-4 border-t border-gray-800">
-        <button className="w-full flex items-center py-3 text-sm text-gray-300 rounded-lg hover:bg-gray-800 hover:text-white transition-colors duration-200">
-          <Settings className="w-5 h-5 mr-3 text-gray-400" />
-          <span className="font-medium">Settings</span>
+      {/* Settings */}
+      <div className="border-t border-gray-800">
+        <button 
+          className={`w-full flex items-center ${isOpen ? 'px-4' : 'justify-center'} py-3 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors duration-200`}
+          title={!isOpen ? "Settings" : ""}
+        >
+          <Settings className={`w-5 h-5 ${isOpen ? "mr-3" : ""} text-gray-400`} />
+          <span className={`font-medium transition-all duration-300 overflow-hidden ${isOpen ? "w-auto opacity-100" : "w-0 opacity-0"}`}>
+            Settings
+          </span>
         </button>
       </div>
-    </div>
+
+      {/* Toggle Button */}
+      <button
+        onClick={toggleSidebar}
+        className="absolute -right-3 top-9 z-50 flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-white hover:bg-blue-700 lg:block"
+      >
+        {isOpen ? (
+          <ChevronLeft className="h-4 w-4" />
+        ) : (
+          <ChevronRight className="h-4 w-4" />
+        )}
+      </button>
+    </aside>
   );
 };
 

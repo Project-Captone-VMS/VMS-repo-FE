@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import { Check, X, AlertCircle } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
@@ -7,10 +7,56 @@ import { Label } from "../../components/ui/label";
 import { Input } from "../../components/ui/input";
 import { Button } from "../../components/ui/button";
 import { Alert, AlertDescription } from "../../components/ui/alert";
-import { createWarehouse } from "../../services/apiRequest";
 
 
-export const AddWarehouse = ({ isOpen, onClose }) => {
+
+const validateWarehouseData = (data, isEdit = false) => {
+  const errors = {};
+
+  // Warehouse Name validation (not required for edit)
+  if (!isEdit) {
+    if (!data.warehouseName?.trim()) {
+      errors.warehouseName = "Warehouse name is required";
+    } else if (data.warehouseName.length > 50) {
+      errors.warehouseName = "Warehouse name cannot exceed 50 characters";
+    }
+  }
+
+  // Location validation
+  if (!data.location?.trim()) {
+    errors.location = "Location is required";
+  } else if (data.location.length > 100) {
+    errors.location = "Location cannot exceed 100 characters";
+  }
+
+  // Capacity validation
+  const capacity = Number(data.capacity);
+  if (!data.capacity) {
+    errors.capacity = "Capacity is required";
+  } else if (isNaN(capacity)) {
+    errors.capacity = "Capacity must be a valid number";
+  } else if (capacity <= 0) {
+    errors.capacity = "Capacity must be greater than 0";
+  } else if (capacity > 1000000) {
+    errors.capacity = "Capacity cannot exceed 1,000,000";
+  }
+
+  // Current Stock validation
+  const currentStock = Number(data.currentStock);
+  if (data.currentStock === '') {
+    errors.currentStock = "Current stock is required";
+  } else if (isNaN(currentStock)) {
+    errors.currentStock = "Current stock must be a valid number";
+  } else if (currentStock < 0) {
+    errors.currentStock = "Current stock cannot be negative";
+  } else if (currentStock > capacity) {
+    errors.currentStock = "Current stock cannot exceed warehouse capacity";
+  }
+
+  return errors;
+};
+
+export const AddWarehouse = ({ isOpen, onClose, onAdd }) => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     warehouseName: '',
@@ -19,81 +65,15 @@ export const AddWarehouse = ({ isOpen, onClose }) => {
     currentStock: ''
   });
 
-  const [errors, setErrors] = useState({});
+  const [fieldErrors, setFieldErrors] = useState({});
   const [touchedFields, setTouchedFields] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const validateForm = () => {
-    const newErrors = {};
-
-    if (!formData.warehouseName?.trim()) {
-      newErrors.warehouseName = "Warehouse name is required";
-    }
-
-    if (!formData.location?.trim()) {
-      newErrors.location = "Location is required";
-    }
-
-    if (formData.capacity === '') {
-      newErrors.capacity = "Capacity is required";
-    } else if (formData.capacity < 0) {
-      newErrors.capacity = "Capacity must be greater than or equal to 0";
-    }
-
-    if (formData.currentStock === '') {
-      newErrors.currentStock = "Current stock is required";
-    } else if (formData.currentStock < 0) {
-      newErrors.currentStock = "Current stock must be greater than or equal to 0";
-    }
-
-    if (Number(formData.currentStock) > Number(formData.capacity)) {
-      newErrors.currentStock = "Current stock cannot exceed warehouse capacity";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    const allTouched = Object.keys(formData).reduce(
-      (acc, key) => ({ ...acc, [key]: true }),
-      {}
-    );
-    setTouchedFields(allTouched);
-    
-    if (!validateForm()) {
-      toast.error("Please fix all errors before submitting");
-      return;
-    }
-
-    try {
-      const warehouseData = {
-        ...formData,
-        capacity: Number(formData.capacity),
-        currentStock: Number(formData.currentStock),
-        utilizationRate: Math.round((Number(formData.currentStock) / Number(formData.capacity)) * 100)
-      };
-      
-      await createWarehouse(warehouseData);
-      toast.success("Warehouse created successfully!");
-      navigate("/warehouse");
-    } catch (error) {
-      toast.error("Failed to create warehouse");
-    }
-  };
-
-  const handleCancel = () => {
-    setFormData({
-      warehouseName: '',
-      location: '',
-      capacity: '',
-      currentStock: ''
-    });
-    setErrors({});
-    setTouchedFields({});
-    onClose();
-  };
+  // Validate all fields whenever any form data changes
+  useEffect(() => {
+    const errors = validateWarehouseData(formData);
+    setFieldErrors(errors);
+  }, [formData]);
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
@@ -105,18 +85,69 @@ export const AddWarehouse = ({ isOpen, onClose }) => {
       ...prev,
       [field]: true
     }));
+  };
 
-    if (errors[field]) {
-      setErrors(prev => ({
-        ...prev,
-        [field]: undefined
-      }));
+  const handleBlur = (field) => {
+    setTouchedFields(prev => ({
+      ...prev,
+      [field]: true
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    
+    // Mark all fields as touched
+    const allTouched = Object.keys(formData).reduce(
+      (acc, key) => ({ ...acc, [key]: true }),
+      {}
+    );
+    setTouchedFields(allTouched);
+    
+    const errors = validateWarehouseData(formData);
+    setFieldErrors(errors);
+
+    if (Object.keys(errors).length > 0) {
+      toast.error("Please fix all errors before submitting");
+      setIsSubmitting(false);
+      return;
     }
+
+    try {
+      const warehouseData = {
+        ...formData,
+        capacity: Number(formData.capacity),
+        currentStock: Number(formData.currentStock),
+        utilizationRate: Math.round((Number(formData.currentStock) / Number(formData.capacity)) * 100)
+      };
+      
+      await onAdd(warehouseData);
+      toast.success("Warehouse added successfully!");
+      handleCancel();
+    } catch (error) {
+      toast.error("Failed to create warehouse");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleCancel = () => {
+    setFormData({
+      warehouseName: '',
+      location: '',
+      capacity: '',
+      currentStock: ''
+    });
+    setFieldErrors({});
+    setTouchedFields({});
+    setIsSubmitting(false);
+    onClose();
   };
 
   const getInputStatus = (fieldName) => {
     if (!touchedFields[fieldName]) return "default";
-    return errors[fieldName] ? "error" : "success";
+    return fieldErrors[fieldName] ? "error" : "success";
   };
 
   return (
@@ -136,8 +167,9 @@ export const AddWarehouse = ({ isOpen, onClose }) => {
                   id="warehouseName"
                   value={formData.warehouseName}
                   onChange={(e) => handleInputChange('warehouseName', e.target.value)}
+                  onBlur={() => handleBlur('warehouseName')}
                   required
-                  className={`pr-10 ${errors.warehouseName && touchedFields.warehouseName ? 'border-red-500' : ''}`}
+                  className={`pr-10 ${fieldErrors.warehouseName && touchedFields.warehouseName ? 'border-red-500' : ''}`}
                 />
                 {touchedFields.warehouseName && (
                   <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
@@ -149,10 +181,10 @@ export const AddWarehouse = ({ isOpen, onClose }) => {
                   </div>
                 )}
               </div>
-              {errors.warehouseName && touchedFields.warehouseName && (
+              {fieldErrors.warehouseName && touchedFields.warehouseName && (
                 <Alert variant="destructive">
                   <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>{errors.warehouseName}</AlertDescription>
+                  <AlertDescription>{fieldErrors.warehouseName}</AlertDescription>
                 </Alert>
               )}
             </div>
@@ -164,8 +196,9 @@ export const AddWarehouse = ({ isOpen, onClose }) => {
                   id="location"
                   value={formData.location}
                   onChange={(e) => handleInputChange('location', e.target.value)}
+                  onBlur={() => handleBlur('location')}
                   required
-                  className={`pr-10 ${errors.location && touchedFields.location ? 'border-red-500' : ''}`}
+                  className={`pr-10 ${fieldErrors.location && touchedFields.location ? 'border-red-500' : ''}`}
                 />
                 {touchedFields.location && (
                   <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
@@ -177,10 +210,10 @@ export const AddWarehouse = ({ isOpen, onClose }) => {
                   </div>
                 )}
               </div>
-              {errors.location && touchedFields.location && (
+              {fieldErrors.location && touchedFields.location && (
                 <Alert variant="destructive">
                   <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>{errors.location}</AlertDescription>
+                  <AlertDescription>{fieldErrors.location}</AlertDescription>
                 </Alert>
               )}
             </div>
@@ -194,9 +227,10 @@ export const AddWarehouse = ({ isOpen, onClose }) => {
                     type="number"
                     value={formData.capacity}
                     onChange={(e) => handleInputChange('capacity', e.target.value)}
+                    onBlur={() => handleBlur('capacity')}
                     required
                     min="0"
-                    className={`pr-10 ${errors.capacity && touchedFields.capacity ? 'border-red-500' : ''}`}
+                    className={`pr-10 ${fieldErrors.capacity && touchedFields.capacity ? 'border-red-500' : ''}`}
                   />
                   {touchedFields.capacity && (
                     <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
@@ -208,10 +242,10 @@ export const AddWarehouse = ({ isOpen, onClose }) => {
                     </div>
                   )}
                 </div>
-                {errors.capacity && touchedFields.capacity && (
+                {fieldErrors.capacity && touchedFields.capacity && (
                   <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
-                    <AlertDescription>{errors.capacity}</AlertDescription>
+                    <AlertDescription>{fieldErrors.capacity}</AlertDescription>
                   </Alert>
                 )}
               </div>
@@ -224,9 +258,10 @@ export const AddWarehouse = ({ isOpen, onClose }) => {
                     type="number"
                     value={formData.currentStock}
                     onChange={(e) => handleInputChange('currentStock', e.target.value)}
+                    onBlur={() => handleBlur('currentStock')}
                     required
                     min="0"
-                    className={`pr-10 ${errors.currentStock && touchedFields.currentStock ? 'border-red-500' : ''}`}
+                    className={`pr-10 ${fieldErrors.currentStock && touchedFields.currentStock ? 'border-red-500' : ''}`}
                   />
                   {touchedFields.currentStock && (
                     <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
@@ -238,21 +273,21 @@ export const AddWarehouse = ({ isOpen, onClose }) => {
                     </div>
                   )}
                 </div>
-                {errors.currentStock && touchedFields.currentStock && (
+                {fieldErrors.currentStock && touchedFields.currentStock && (
                   <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
-                    <AlertDescription>{errors.currentStock}</AlertDescription>
+                    <AlertDescription>{fieldErrors.currentStock}</AlertDescription>
                   </Alert>
                 )}
               </div>
             </div>
 
             <div className="flex justify-end space-x-2 pt-4">
-              <Button variant="outline" type="button" onClick={handleCancel}>
+              <Button variant="outline" type="button" onClick={handleCancel} disabled={isSubmitting}>
                 Cancel
               </Button>
-              <Button type="submit">
-                Add Warehouse
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? 'Adding...' : 'Add Warehouse'}
               </Button>
             </div>
           </form>

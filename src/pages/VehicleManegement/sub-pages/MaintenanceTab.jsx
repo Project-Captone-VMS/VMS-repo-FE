@@ -167,9 +167,7 @@ const MaintenanceTab = () => {
 
       const matchesVehicleId =
         !filters.vehicleId ||
-        record.vehicleId
-          .toLowerCase()
-          .includes(filters.vehicleId.toLowerCase());
+        record.vehicleId.toLowerCase().includes(filters.vehicleId.toLowerCase());
 
       const matchesDate = !filters.date || record.date === filters.date;
 
@@ -180,7 +178,8 @@ const MaintenanceTab = () => {
     });
   }, [maintenanceRecords, searchTerm, filters]);
 
-  const totalPages = Math.ceil(filteredRecords.length / itemsPerPage);
+  const totalItems = filteredRecords.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
 
   const handleAddMaintenance = (newRecord) => {
     setMaintenanceRecords((prevRecords) => [...prevRecords, newRecord]);
@@ -242,6 +241,8 @@ const MaintenanceTab = () => {
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
+            itemsPerPage={itemsPerPage}
+            totalItems={totalItems}
             onPageChange={setCurrentPage}
           />
         </CardContent>

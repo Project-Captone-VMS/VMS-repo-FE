@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Search, ChevronDown, Edit, Trash2 } from "lucide-react";
 import { Button } from "../../../components/ui/button";
 import { Input } from "../../../components/ui/input";
@@ -94,9 +94,9 @@ const VehiclesTab = () => {
   const [editingVehicle, setEditingVehicle] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const itemsPerPage = 5;
-  const totalPages = Math.ceil(vehicles.length / itemsPerPage);
 
   useEffect(() => {
     const fetchVehicles = async () => {
@@ -184,6 +184,16 @@ const VehiclesTab = () => {
     setEditingVehicle(null);
   };
 
+  const filteredVehicles = useMemo(() => {
+    return vehicles.filter(vehicle => 
+      vehicle.licensePlate.toLowerCase().includes(searchTerm?.toLowerCase() || '') ||
+      vehicle.type.toLowerCase().includes(searchTerm?.toLowerCase() || '')
+    );
+  }, [vehicles, searchTerm]);
+
+  const totalItems = filteredVehicles.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+
   if (loading) {
     return <div>Loading vehicles...</div>;
   }
@@ -212,7 +222,7 @@ const VehiclesTab = () => {
 
       <CardContent>
         <VehiclesTable
-          vehicles={vehicles}
+          vehicles={filteredVehicles}
           currentPage={currentPage}
           itemsPerPage={itemsPerPage}
           onEdit={handleEdit}
@@ -221,6 +231,8 @@ const VehiclesTab = () => {
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
+          itemsPerPage={itemsPerPage}
+          totalItems={totalItems}
           onPageChange={setCurrentPage}
         />
       </CardContent>

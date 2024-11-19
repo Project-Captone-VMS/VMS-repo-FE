@@ -5,7 +5,6 @@ import { Progress } from "../../components/ui/progress";
 
 export const WarehouseCard = memo(({ warehouse, onSelect, onEdit, onDelete }) => {
   useEffect(() => {
-      console.log('Warehouse data received:', warehouse);
   }, [warehouse]);
 
   const capacity = warehouse?.capacity || 0;

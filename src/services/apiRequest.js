@@ -178,8 +178,8 @@ export const deleteProduct = async (productId) => {
   return response.data;
 };
 
-export const getAllProducts = async () => {
-  const response = await api.get("product/all");
+export const getAllProducts = async (warehouseId) => {
+  const response = await api.get(`product/all/${warehouseId}`);
   return response.data;
 };
 export const getWarehouseById = async (warehouseId) => {
