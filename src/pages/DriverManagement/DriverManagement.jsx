@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
-import { getAllDriver, deleteDriver } from "../../services/apiRequest";
+import { getAllDrivers, deleteDriver } from "../../services/apiRequest";
 import Swal from "sweetalert2";
 import DriverTable from "../../components/Driver/DriverTable";
 import SearchAndFilter from "../../components/Driver/SearchAndFilter";
@@ -33,11 +33,25 @@ const DriverManagement = () => {
   // Fetch drivers data
   const fetchDrivers = async () => {
     try {
-      const data = await getAllDriver();
-      setDrivers(data);
+      // Sửa từ getAllDriver() thành getAllDrivers()
+      const data = await getAllDrivers();
+      if (Array.isArray(data)) {
+        setDrivers(data);
+      } else {
+        console.error('Unexpected data format:', data);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Received unexpected data format from server'
+        });
+      }
     } catch (error) {
-      console.error("Error fetching drivers:", error);
-      Swal.fire("Error!", "Failed to fetch drivers.", "error");
+      console.error('Error fetching drivers:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error.response?.data?.message || 'Failed to fetch drivers'
+      });
     }
   };
 

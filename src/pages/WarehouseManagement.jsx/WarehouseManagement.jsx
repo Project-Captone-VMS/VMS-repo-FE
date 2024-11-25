@@ -265,18 +265,6 @@ const WarehouseManagement = () => {
             />
           ))}
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredWarehouses.map(warehouse => (
-            <WarehouseCard
-              key={warehouse.warehouseId}
-              warehouse={warehouse}
-              onSelect={() => navigate(`/warehouse/${warehouse.warehouseId}`)}
-              onEdit={handleEditWarehouse}
-              onDelete={() => handleDeleteWarehouse(warehouse.warehouseId)}
-              disabled={isLoading}
-            />
-          ))}
-        </div>
       </div>
 
       {/* Add Warehouse Modal */}

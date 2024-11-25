@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { Search, ChevronDown, Edit, Trash2 } from "lucide-react";
 import { Button } from "../../../components/ui/button";
 import { Input } from "../../../components/ui/input";
-import { Table, TableRow } from "../../../components/Tabs/Vehicle/Table";
+import { Table, TableRow } from "../../../components/Vehicle/Table";
 import { formatDate } from "../../../lib/formatDate";
 import {
   Card,
@@ -11,7 +11,7 @@ import {
   CardTitle,
 } from "../../../components/ui/card";
 import {
-  getAllVehicle,
+  getAllVehicles,
   updateVehicle,
   getVehicleById,
   deleteVehicle,
@@ -102,7 +102,7 @@ const VehiclesTab = () => {
     const fetchVehicles = async () => {
       setLoading(true);
       try {
-        const data = await getAllVehicle();
+        const data = await getAllVehicles();
         setVehicles(data);
       } catch (err) {
         console.error("Error fetching vehicles:", err);

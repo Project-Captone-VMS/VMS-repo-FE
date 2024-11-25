@@ -7,7 +7,7 @@ import {
   registerStart,
   registerSuccess,
 } from "../redux/authSlice";
-import toast from "react-hot-toast";
+import Swal from "sweetalert2";
 
 const api = axios.create({
   baseURL: "http://localhost:8080/api/",
@@ -48,12 +48,12 @@ export const loginUser = async (user, dispatch, navigate) => {
       } else if (userRole === "USER") {
         navigate("/driveuser");
       }
-      toast.success("Logged in successfully");
+      Swal.fire("Success!", "Logged in successfully!", "success");
       dispatch(loginSuccess(res.data));
       return res.data;
     }
   } catch (err) {
-    toast.error("Login failed. Please try again.");
+    Swal.fire("Error!", "Login failed. Please try again.", "error");
     dispatch(loginFailed());
   }
 };
@@ -68,30 +68,20 @@ export const registerUser = async (user, dispatch, navigate) => {
 
       localStorage.setItem("userRole", userRole);
 
-      toast.success("Registration successfully");
+      Swal.fire("Success!", "Registration successfully!", "success");
       dispatch(registerSuccess(res.data));
       navigate("/login");
     }
   } catch (err) {
-    toast.error("Registration failed. Please try again.");
+    Swal.fire("Error!", "Registration failed. Please try again.", "error");
     dispatch(registerFailed());
   }
 };
 
-export const getAllVehicle = async () => {
-  const token = localStorage.getItem("jwtToken");
-
-  if (!token) {
-    throw new Error("No token found. Please log in.");
-  }
-
+export const getAllVehicles = async () => {
   try {
-    const response = await api.get("vehicle/all", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return response.data;
+    const response = await api.get("vehicle/all");
+    return response.data.result || response.data;
   } catch (error) {
     console.error(
       "Error fetching vehicles:",
@@ -121,9 +111,17 @@ export const getVehicleById = async (vehicleId) => {
   return response.data;
 };
 
-export const getAllDriver = async () => {
-  const response = await api.get("driver/all");
-  return response.data;
+export const getAllDrivers = async () => {
+  try {
+    const response = await api.get("driver/all");
+    return response.data.result || response.data;
+  } catch (error) {
+    console.error(
+      "Error fetching drivers:",
+      error.response ? error.response.data : error.message
+    );
+    throw error;
+  }
 };
 
 export const getDriverById = async (driverId) => {
@@ -189,4 +187,134 @@ export const getWarehouseById = async (warehouseId) => {
   } catch (error) {
     throw error;
   }
-};;
+};
+
+// API gọi để lấy danh sách hóa đơn
+export const getAllInvoices = async (warehouseId) => {
+  const response = await api.get(`invoices/${warehouseId}`);
+  return response.data;
+};
+
+// API gọi để tạo mới hóa đơn
+export const createInvoice = async (warehouseId, invoice) => {
+  const response = await api.post(`invoices/${warehouseId}`, invoice);
+  return response.data;
+};
+
+// API gọi để xóa hóa đơn
+export const deleteInvoice = async (invoiceId) => {
+  const response = await api.delete(`invoices/${invoiceId}`);
+  return response.data;
+};
+// API gọi Incidents
+export const getAllIncidents = async () => {
+  try {
+    const response = await api.get('incidents');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching incidents:', error);
+    throw error;
+  }
+};
+
+export const getIncidentById = async (id) => {
+  try {
+    const response = await api.get(`incidents/${id}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const addIncident = async (incidentData) => {
+  try {
+    const response = await api.post('incidents', incidentData);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const updateIncident = async (id, updatedIncident) => {
+  try {
+    if (!id) {
+      throw new Error('Incident ID is required');
+    }
+    const response = await api.put(`incidents/${id}`, updatedIncident);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating incident:', error);
+    throw error;
+  }
+};
+
+export const deleteIncident = async (id) => {
+  try {
+    const response = await api.delete(`incidents/${id}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getIncidentsByType = async (type) => {
+  try {
+    const response = await api.get(`incidents/type/${type}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getIncidentsByDateRange = async (startDate, endDate) => {
+  try {
+    const response = await api.get(`incidents/date-range?startDate=${startDate}&endDate=${endDate}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getIncidentsByDriver = async (driverId) => {
+  try {
+    const response = await api.get(`incidents/driver/${driverId}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getIncidentsByVehicle = async (vehicleId) => {
+  try {
+    const response = await api.get(`incidents/vehicle/${vehicleId}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// Maintenance API endpoints
+export const getAllMaintenance = async (vehicleId) => {
+  const response = await api.get(`maintenance/all/${vehicleId}`);
+  return response.data;
+};
+
+export const getMaintenanceById = async (maintenanceId) => {
+  const response = await api.get(`maintenance/${maintenanceId}`);
+  return response.data;
+};
+
+export const createMaintenance = async (maintenanceDTO) => {
+  const response = await api.post('maintenance/add', maintenanceDTO);
+  return response.data;
+};
+
+export const updateMaintenance = async (maintenanceId, maintenanceData) => {
+  const response = await api.put(`maintenance/update/${maintenanceId}`, maintenanceData);
+  return response.data;
+};
+
+export const deleteMaintenance = async (maintenanceId) => {
+  const response = await api.delete(`maintenance/delete/${maintenanceId}`);
+  return response.data;
+};

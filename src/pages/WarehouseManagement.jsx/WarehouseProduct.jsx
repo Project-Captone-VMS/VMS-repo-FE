@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import {
   Plus,
   Search,
@@ -11,6 +11,7 @@ import {
   Layers,
   PercentSquare,
   Calendar,
+  FileText,
 } from "lucide-react";
 import {
   Card,
@@ -108,7 +109,6 @@ const WarehouseProduct = () => {
     });
   };
 
-  // Updated handleEditProduct function
   const handleEditProduct = (product) => {
     if (product && product.productId) {
       setEditingProduct(product);
@@ -127,7 +127,6 @@ const WarehouseProduct = () => {
   const handleUpdateProduct = (updatedProduct) => {
     setIsEditProductOpen(false);
     setEditingProduct(null);
-    // Reload both warehouse data and products
     Promise.all([
       fetchWarehouseData(warehouseId),
       fetchProducts(warehouseId)
@@ -275,6 +274,14 @@ const WarehouseProduct = () => {
                 <Plus className="h-4 w-4 mr-2" />
                 Add Product
               </Button>
+              <Link to={`/warehouse/${warehouseId}/invoices`}>
+                <Button
+                  className="bg-green-500 hover:bg-green-600 text-white transition-colors duration-200"
+                >
+                  <FileText className="h-4 w-4 mr-2" />
+                  Invoices
+                </Button>
+              </Link>
             </div>
           </div>
         </CardHeader>

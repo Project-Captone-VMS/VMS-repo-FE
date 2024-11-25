@@ -117,17 +117,7 @@ const Sidebar = ({ isOpen, setIsOpen, role }) => {
         </button>
       </div>
 
-      {/* Toggle Button */}
-      <button
-        onClick={toggleSidebar}
-        className="absolute -right-3 top-9 z-50 flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-white hover:bg-blue-700 lg:block"
-      >
-        {isOpen ? (
-          <ChevronLeft className="h-4 w-4" />
-        ) : (
-          <ChevronRight className="h-4 w-4" />
-        )}
-      </button>
+ 
     </aside>
   );
 };

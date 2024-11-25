@@ -1,4 +1,3 @@
-// data.js
 const orders = [
   {
     id: "IDO001",

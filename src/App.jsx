@@ -19,6 +19,8 @@ import ProfileInformation from "./pages/Profileinformation";
 import IndexRoute from "./pages/Route/IndexRoute";
 import OverviewRoute from "./pages/Route/sub-Route/OverviewRoute";
 import ListRoute from "./pages/Route/sub-Route/ListRoute";
+import InvoicePage from "./pages/WarehouseManagement.jsx/InvoicePage";
+import IncidentTab from "./pages/VehicleManegement/sub-pages/IncidentTab";
 import DetailRoute from "./components/Route/Sub_DetailRoute/RouteDetail";
 import NotificationDetail from "./components/Route/Sub_DetailRoute/NotificationDetail";
 import Error from "./components/Route/Sub_DetailRoute/Error";
@@ -94,6 +96,10 @@ function App() {
                   path: "MaintenanceTab",
                   element: <MaintenanceTab />,
                 },
+                {
+                  path: "IncidentTab",
+                  element: <IncidentTab />,
+                },
               ],
             },
             {
@@ -115,6 +121,10 @@ function App() {
             {
               path: "warehouse/:warehouseId",
               element: <WarehouseProduct />,
+            },
+            {
+              path: "warehouse/:warehouseId/invoices",
+              element: <InvoicePage />,
             },
             {
               path: "Analytics",

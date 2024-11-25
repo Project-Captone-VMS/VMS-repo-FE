@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { Plus, Search, Filter } from "lucide-react";
 import {
   Card,
@@ -6,11 +6,14 @@ import {
   CardHeader,
   CardTitle,
 } from "../../../components/ui/card";
-import { Table, TableRow } from "../../../components/Tabs/Vehicle/Table";
+import { Table, TableRow } from "../../../components/Vehicle/Table";
 import { Button } from "../../../components/ui/button";
 import { Input } from "../../../components/ui/input";
 import Pagination from "../../../components/Pagination";
 import AddMaintenanceModal from "../../../components/Modals/AddMaintenance";
+import { updateMaintenance, deleteMaintenance, getAllMaintenance, createMaintenance } from "../../../services/apiRequest";
+import EditMaintenanceModal from "../../../components/Modals/EditMaintenance";
+import toast from "react-hot-toast";
 
 const FilterModal = ({ isOpen, onClose, filters, setFilters }) => {
   if (!isOpen) return null;
@@ -128,7 +131,7 @@ const MaintenanceTable = ({
   );
 };
 
-const MaintenanceTab = () => {
+const MaintenanceTab = ({ vehicleId }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
@@ -138,36 +141,43 @@ const MaintenanceTab = () => {
     date: "",
     status: "all",
   });
-  const [maintenanceRecords, setMaintenanceRecords] = useState([
-    {
-      vehicleId: "VH001",
-      date: "2024-03-15",
-      type: "Routine",
-      description: "Oil change",
-      cost: 250,
-      status: "Completed",
-    },
-    {
-      vehicleId: "VH002",
-      date: "2024-04-01",
-      type: "Repair",
-      description: "Brake system overhaul",
-      cost: 500,
-      status: "In Progress",
-    },
-  ]);
+  const [maintenanceRecords, setMaintenanceRecords] = useState([]);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingMaintenance, setEditingMaintenance] = useState(null);
 
   const itemsPerPage = 5;
+
+  useEffect(() => {
+    console.log("Vehicle ID:", vehicleId); // Debugging
+    if (vehicleId) {
+      loadMaintenanceData();
+    }
+  }, [vehicleId])
+
+  const loadMaintenanceData = async () => {
+    try {
+      if (!vehicleId) {
+        console.error("Vehicle ID is missing");
+        toast.error("Failed to load maintenance records: Vehicle ID is missing");
+        return;
+      }
+      const data = await getAllMaintenance(vehicleId);
+      setMaintenanceRecords(data);
+    } catch (error) {
+      toast.error("Failed to load maintenance records");
+      console.error("Error loading maintenance data:", error);
+    }
+  };
 
   const filteredRecords = useMemo(() => {
     return maintenanceRecords.filter((record) => {
       const matchesSearch =
-        record.vehicleId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        record.vehicleId.toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
         record.description.toLowerCase().includes(searchTerm.toLowerCase());
 
       const matchesVehicleId =
         !filters.vehicleId ||
-        record.vehicleId.toLowerCase().includes(filters.vehicleId.toLowerCase());
+        record.vehicleId.toString().toLowerCase().includes(filters.vehicleId.toLowerCase());
 
       const matchesDate = !filters.date || record.date === filters.date;
 
@@ -181,8 +191,42 @@ const MaintenanceTab = () => {
   const totalItems = filteredRecords.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
 
-  const handleAddMaintenance = (newRecord) => {
-    setMaintenanceRecords((prevRecords) => [...prevRecords, newRecord]);
+  const handleAddMaintenance = async (newRecord) => {
+    try {
+      await createMaintenance(newRecord);
+      toast.success("Maintenance record added successfully");
+      await loadMaintenanceData();
+    } catch (error) {
+      toast.error("Failed to add maintenance record");
+      console.error(error);
+    }
+  };
+
+  const handleEditMaintenance = (maintenance) => {
+    setEditingMaintenance(maintenance);
+    setIsEditModalOpen(true);
+  };
+
+  const handleUpdateMaintenance = async (updatedData) => {
+    try {
+      await updateMaintenance(editingMaintenance.maintenanceId, updatedData);
+      await loadMaintenanceData();
+      toast.success("Maintenance record updated successfully");
+    } catch (error) {
+      toast.error("Failed to update maintenance record");
+      console.error(error);
+    }
+  };
+
+  const handleDeleteMaintenance = async (maintenanceId) => {
+    try {
+      await deleteMaintenance(maintenanceId);
+      await loadMaintenanceData();
+      toast.success("Maintenance record deleted successfully");
+    } catch (error) {
+      toast.error("Failed to delete maintenance record");
+      console.error(error);
+    }
   };
 
   return (
@@ -217,7 +261,8 @@ const MaintenanceTab = () => {
       <AddMaintenanceModal
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
-        onSave={handleAddMaintenance}
+        onSubmit={handleAddMaintenance}
+        vehicleId={vehicleId}
       />
 
       <Card>
@@ -247,6 +292,16 @@ const MaintenanceTab = () => {
           />
         </CardContent>
       </Card>
+
+      <EditMaintenanceModal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setEditingMaintenance(null);
+        }}
+        maintenance={editingMaintenance}
+        onSubmit={handleUpdateMaintenance}
+      />
     </div>
   );
 };
