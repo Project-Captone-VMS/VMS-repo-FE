@@ -3,14 +3,13 @@ import { Outlet } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header/Header";
 
-const DefaultLayout = ({ children }) => {
+const DefaultLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [role, setRole] = useState(null);
 
   useEffect(() => {
     const userRole = localStorage.getItem("userRole");
     setRole(userRole);
-    
   }, []);
 
   return (
@@ -18,9 +17,7 @@ const DefaultLayout = ({ children }) => {
       <div className="flex h-full overflow-hidden">
         <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} role={role} />
 
-        <div
-          className={`flex flex-col flex-1 ${sidebarOpen ? "ml-64" : "ml-0"}`}
-        >
+        <div className={`flex flex-col flex-1`}>
           <Header
             sidebarOpen={sidebarOpen}
             setSidebarOpen={setSidebarOpen}

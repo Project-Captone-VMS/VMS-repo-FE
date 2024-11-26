@@ -1,4 +1,8 @@
-import {createBrowserRouter,RouterProvider,Navigate,} from "react-router-dom";
+import {
+  createBrowserRouter,
+  RouterProvider,
+  Navigate,
+} from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import DefaultLayout from "./layout/DefaultLayout";
@@ -19,9 +23,10 @@ import ProfileInformation from "./pages/Profileinformation";
 import IndexRoute from "./pages/Route/IndexRoute";
 import OverviewRoute from "./pages/Route/sub-Route/OverviewRoute";
 import ListRoute from "./pages/Route/sub-Route/ListRoute";
-import DetailRoute from "./components/Route/Sub_DetailRoute/RouteDetail";
-import NotificationDetail from "./components/Route/Sub_DetailRoute/NotificationDetail";
-import Error from "./components/Route/Sub_DetailRoute/Error";
+import NotificationPage from "./pages/NotificationPage";
+import IndexNotification from "./pages/SendNotification/indexNotification";
+import UserReceiver from "./pages/SendNotification/UserReceiver";
+import AdminSender from "./pages/SendNotification/AdminSender";
 import { Toaster } from "react-hot-toast";
 
 function App() {
@@ -61,6 +66,10 @@ function App() {
               path: "profile",
               element: <ProfileInformation />,
             },
+            // {
+            //   path: "UserReceiver",
+            //   element: <UserReceiver />,
+            // },
           ],
         },
         {
@@ -73,6 +82,10 @@ function App() {
             {
               path: "profile",
               element: <ProfileInformation />,
+            },
+            {
+              path: "notification",
+              element: <NotificationPage />,
             },
             {
               path: "vehicle",
@@ -119,7 +132,16 @@ function App() {
             {
               path: "Analytics",
               element: <Analytics />,
-            }, {
+            },
+            // {
+            //   path: "indexNotification",
+            //   element: <IndexNotification />,
+            // },
+            {
+              path: "indexNotification",
+              element: <AdminSender />,
+            },
+            {
               path: "route",
               element: <IndexRoute />,
               children: [

@@ -104,6 +104,10 @@ const DetailRoute = () => {
       : "Pending";
   };
 
+
+
+
+
   return (
     <div className="flex gap-2">
       <div className="flex flex-col w-2/5 bg-[#0C1F1F] bg-opacity-4 p-4">

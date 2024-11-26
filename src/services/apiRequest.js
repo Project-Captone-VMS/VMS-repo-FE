@@ -151,7 +151,10 @@ export const createWarehouse = async (warehouseDTO) => {
 };
 
 export const updateWarehouse = async (warehouseId, warehouseData) => {
-  const response = await api.put(`warehouse/update/${warehouseId}`, warehouseData);
+  const response = await api.put(
+    `warehouse/update/${warehouseId}`,
+    warehouseData
+  );
   return response.data;
 };
 
@@ -184,9 +187,19 @@ export const getAllProducts = async (warehouseId) => {
 };
 export const getWarehouseById = async (warehouseId) => {
   try {
-    const response = await api.get(`warehouse/${warehouseId}`); 
+    const response = await api.get(`warehouse/${warehouseId}`);
     return response.data;
   } catch (error) {
     throw error;
   }
-};;
+};
+
+export const sendNoti = async (data) => {
+  const response = await api.post(`notificaitons/send`, data);
+  return response.data;
+};
+
+export const getNoti = async (username) => {
+  const response = await api.get(`notifications/${username}`);
+  return response.data;
+};

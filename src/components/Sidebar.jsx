@@ -10,10 +10,9 @@ import {
   MessageSquare,
   FileText,
   Settings,
-  ChevronLeft,
-  ChevronRight,
   Menu,
   Route,
+  BellDot,
 } from "lucide-react";
 
 const Sidebar = ({ isOpen, setIsOpen, role }) => {
@@ -25,6 +24,9 @@ const Sidebar = ({ isOpen, setIsOpen, role }) => {
     { path: "/realtime", icon: Map, label: "Realtime Tracking" },
     { path: "/warehouse", icon: Warehouse, label: "Warehouse Management" },
     { path: "/analytics", icon: BarChart2, label: "Analytics" },
+    { path: "/notification", icon: BarChart2, label: "notification" },
+    { path: "/indexNotification", icon: BellDot, label: "indexNotification" },
+    // { path: "/UserReceiver", icon: BellDot, label: "UserReceiver" },
     { path: "/route", icon: Route, label: "Route Management" },
     { path: "/chat", icon: MessageSquare, label: "Chat" },
     { path: "/reports", icon: FileText, label: "Reports" },
@@ -32,7 +34,10 @@ const Sidebar = ({ isOpen, setIsOpen, role }) => {
 
   const filteredMenuItems =
     role === "USER"
-      ? sb_menuItems.filter((item) => item.path === "/realtime")
+      ? sb_menuItems.filter(
+          (item) =>
+            item.path === "/realtime" || item.path === "/UserReceiver"
+        )
       : sb_menuItems;
 
   const toggleSidebar = () => {
@@ -40,30 +45,50 @@ const Sidebar = ({ isOpen, setIsOpen, role }) => {
   };
 
   return (
-    <aside className={`h-screen bg-black transition-all duration-300 ease-linear dark:bg-boxdark ${isOpen ? "w-60" : "w-16"} sticky top-0 left-0`}>
+    <aside
+      className={`h-screen bg-black transition-all duration-300 ease-linear dark:bg-boxdark ${
+        isOpen ? "w-60" : "w-16"
+      } sticky top-0 left-0`}
+    >
       {/* Logo Section */}
       <div className="flex flex-col">
         <NavLink
           to="/dashboard"
-          className={`flex items-center ${isOpen ? 'px-4' : 'justify-center'} py-4`}
+          className={`flex items-center ${
+            isOpen ? "px-4" : "justify-center"
+          } py-4`}
         >
-          <img 
-            src={Logo} 
-            alt="Logo" 
-            className={`transition-all duration-300 ${isOpen ? "w-12 h-9" : "w-10 h-8"}`} 
+          <img
+            src={Logo}
+            alt="Logo"
+            className={`transition-all duration-300 ${
+              isOpen ? "w-12 h-9" : "w-10 h-8"
+            }`}
           />
-          <div className={`transition-all duration-300 overflow-hidden ${isOpen ? "ml-2 w-auto opacity-100" : "w-0 opacity-0"}`}>
-            <p className="text-white text-2xl font-bold whitespace-nowrap">VMS</p>
+          <div
+            className={`transition-all duration-300 overflow-hidden ${
+              isOpen ? "ml-2 w-auto opacity-100" : "w-0 opacity-0"
+            }`}
+          >
+            <p className="text-white text-2xl font-bold whitespace-nowrap">
+              VMS
+            </p>
           </div>
         </NavLink>
-        
+
         {/* Menu Toggle Button */}
         <button
           onClick={toggleSidebar}
-          className={`flex items-center ${isOpen ? 'px-4' : 'justify-center'} py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-all duration-200 ease-in-out border-b border-gray-800`}
+          className={`flex items-center ${
+            isOpen ? "px-4" : "justify-center"
+          } py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-all duration-200 ease-in-out border-b border-gray-800`}
         >
           <Menu className={`w-5 h-5 ${isOpen ? "mr-3" : ""} text-gray-400`} />
-          <span className={`font-medium transition-all duration-300 overflow-hidden ${isOpen ? "w-auto opacity-100" : "w-0 opacity-0"}`}>
+          <span
+            className={`font-medium transition-all duration-300 overflow-hidden ${
+              isOpen ? "w-auto opacity-100" : "w-0 opacity-0"
+            }`}
+          >
             Menu
           </span>
         </button>
@@ -81,11 +106,12 @@ const Sidebar = ({ isOpen, setIsOpen, role }) => {
                 key={item.path}
                 to={item.path}
                 className={`
-                  flex items-center ${isOpen ? 'px-4' : 'justify-center'} py-2
+                  flex items-center ${isOpen ? "px-4" : "justify-center"} py-2
                   transition-all duration-200 ease-in-out
-                  ${isActive
-                    ? "bg-blue-600 text-white"
-                    : "text-gray-300 hover:bg-gray-800 hover:text-white"
+                  ${
+                    isActive
+                      ? "bg-blue-600 text-white"
+                      : "text-gray-300 hover:bg-gray-800 hover:text-white"
                   }
                 `}
                 title={!isOpen ? item.label : ""}
@@ -95,7 +121,11 @@ const Sidebar = ({ isOpen, setIsOpen, role }) => {
                     isActive ? "text-white" : "text-gray-400"
                   }`}
                 />
-                <span className={`font-medium transition-all duration-300 overflow-hidden ${isOpen ? "w-auto opacity-100" : "w-0 opacity-0"}`}>
+                <span
+                  className={`font-medium transition-all duration-300 overflow-hidden ${
+                    isOpen ? "w-auto opacity-100" : "w-0 opacity-0"
+                  }`}
+                >
                   {item.label}
                 </span>
               </Link>
@@ -106,28 +136,24 @@ const Sidebar = ({ isOpen, setIsOpen, role }) => {
 
       {/* Settings */}
       <div className="border-t border-gray-800">
-        <button 
-          className={`w-full flex items-center ${isOpen ? 'px-4' : 'justify-center'} py-3 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors duration-200`}
+        <button
+          className={`w-full flex items-center ${
+            isOpen ? "px-4" : "justify-center"
+          } py-3 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors duration-200`}
           title={!isOpen ? "Settings" : ""}
         >
-          <Settings className={`w-5 h-5 ${isOpen ? "mr-3" : ""} text-gray-400`} />
-          <span className={`font-medium transition-all duration-300 overflow-hidden ${isOpen ? "w-auto opacity-100" : "w-0 opacity-0"}`}>
+          <Settings
+            className={`w-5 h-5 ${isOpen ? "mr-3" : ""} text-gray-400`}
+          />
+          <span
+            className={`font-medium transition-all duration-300 overflow-hidden ${
+              isOpen ? "w-auto opacity-100" : "w-0 opacity-0"
+            }`}
+          >
             Settings
           </span>
         </button>
       </div>
-
-      {/* Toggle Button */}
-      <button
-        onClick={toggleSidebar}
-        className="absolute -right-3 top-9 z-50 flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-white hover:bg-blue-700 lg:block"
-      >
-        {isOpen ? (
-          <ChevronLeft className="h-4 w-4" />
-        ) : (
-          <ChevronRight className="h-4 w-4" />
-        )}
-      </button>
     </aside>
   );
 };

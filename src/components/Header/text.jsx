@@ -19,7 +19,7 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [fullName, setFullName] = useState("");
-  const [notifications, setNotifications] = useState([]);
+  const [notifications, setNotifications] = useState([]); // Đặt mặc định là mảng rỗng
   const [notificationCount, setNotificationCount] = useState(0); // Số đếm thông báo chưa đọc
   const [selectedNotification, setSelectedNotification] = useState(null); // Thông báo được chọn
 
@@ -28,6 +28,7 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
+  // Lấy thông tin người dùng từ API
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -47,15 +48,15 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
     fetchUserData();
   }, [username]);
 
+  // Lấy thông báo từ localStorage khi load lại trang
   useEffect(() => {
-    if (userRole === "USER") {
-      const storedNotifications =
-        JSON.parse(localStorage.getItem("notifications")) || [];
-      setNotifications(storedNotifications);
-      setNotificationCount(storedNotifications.length);
-    }
-  }, [userRole]);
+    const storedNotifications =
+      JSON.parse(localStorage.getItem("notifications")) || [];
+    setNotifications(storedNotifications);
+    setNotificationCount(storedNotifications.length); // Cập nhật số đếm khi lấy thông báo từ localStorage
+  }, []);
 
+  // Kết nối với WebSocket để nhận thông báo
   useEffect(() => {
     if (!username) return;
 
@@ -68,57 +69,16 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
         console.log(`Connected to WebSocket as ${username}`);
         client.subscribe(`/user/${username}/notifications`, (message) => {
           const notification = JSON.parse(message.body);
-          console.log("notification:", notification);
-          alert(`Bạn có tin nhắn mới: ${notification.title}`);
-
-          // setNotifications((prev) => {
-          //   const updatedNotifications = [...prev, notification];
-          //   localStorage.setItem(
-          //     "notifications",
-          //     JSON.stringify(updatedNotifications)
-          //   ); // Lưu thông báo vào localStorage
-          //   setNotificationCount(updatedNotifications.length); // Cập nhật số lượng thông báo mới
-          //   return updatedNotifications;
-          // });
-
-          // // Hiển thị thông báo ngay lập tức
-          // alert(`Bạn có tin nhắn mới: ${notification.title}`);
-
-          // setNotifications((prevNotifications) => {
-          //   const isDuplicate = prevNotifications.some(
-          //     (notif) => notif.id === notification.id
-          //   );
-          //   if (isDuplicate) {
-          //     return prevNotifications;
-          //   }
-
-          //   const updatedNotifications = [...prevNotifications, notification];
-          //   localStorage.setItem(
-          //     "notifications",
-          //     JSON.stringify(updatedNotifications)
-          //   );
-          //   setNotificationCount(updatedNotifications.length);
-
-          //   return updatedNotifications;
-          // });
-
-          setNotifications((prevNotifications) => {
-            const updatedNotifications = [
-              ...prevNotifications.filter(
-                (notif) => notif.id !== notification.id
-              ),
-              notification,
-            ];
-
+          console.log("New notification received:", notification);
+          setNotifications((prev) => {
+            const updatedNotifications = [...prev, notification];
+            setNotificationCount(updatedNotifications.length); // Cập nhật số lượng thông báo mới
             localStorage.setItem(
               "notifications",
               JSON.stringify(updatedNotifications)
-            );
-            setNotificationCount(updatedNotifications.length);
-
+            ); // Lưu thông báo vào localStorage
             return updatedNotifications;
           });
-          alert(`Bạn có tin nhắn mới: ${notification.title}`);
         });
       },
       (error) => {
@@ -151,12 +111,13 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
   };
 
   const handleNotificationClick = (notification) => {
+    // Khi click vào thông báo, hiển thị chi tiết thông báo trong pop-up
     setSelectedNotification(notification);
-    setShowNotifications(false);
+    setShowNotifications(false); // Đóng danh sách thông báo
   };
 
   const handleClosePopUp = () => {
-    setSelectedNotification(null);
+    setSelectedNotification(null); // Đóng pop-up chi tiết thông báo
   };
 
   return (
@@ -178,6 +139,7 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
         </div>
 
         <div className="flex items-center gap-3">
+          {/* Bell - Notification */}
           <div className="relative">
             <button
               onClick={toggleNotifications}
@@ -186,7 +148,7 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
               <Bell className="w-5 h-5 text-gray-600" />
               {notificationCount > 0 && (
                 <span className="absolute top-0 right-0 inline-flex items-center justify-center w-4 h-4 text-xs font-bold text-white bg-red-500 rounded-full">
-                  {notificationCount}
+                  {notificationCount} {/* Hiển thị số đếm */}
                 </span>
               )}
             </button>
@@ -204,7 +166,7 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
                       <li
                         key={notif.id}
                         className="border-b last:border-0 py-3 hover:bg-gray-50"
-                        onClick={() => handleNotificationClick(notif)}
+                        onClick={() => handleNotificationClick(notif)} // Click vào thông báo để xem chi tiết
                       >
                         <p className="text-sm font-medium text-gray-700">
                           <strong>{notif.title}</strong>
@@ -227,6 +189,7 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
             )}
           </div>
 
+          {/* User Avatar Dropdown */}
           <div className="relative">
             <button
               onClick={toggleDropdown}
@@ -261,10 +224,10 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
                 <div className="border-t border-gray-100"></div>
                 <button
                   onClick={handleLogout}
-                  className="w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100 flex items-center gap-2"
+                  className="w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
                 >
                   <LogOut className="w-4 h-4" />
-                  Logout
+                  Log Out
                 </button>
               </div>
             )}
@@ -272,23 +235,23 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
         </div>
       </div>
 
+      {/* Pop-up for selected notification */}
       {selectedNotification && (
-        <div className="fixed top-0 left-0 w-full h-full bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-lg w-1/3 p-6">
-            <h3 className="text-xl font-semibold text-gray-900">
+        <div className="fixed top-0 left-0 w-full h-full bg-gray-800 bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-96 max-w-full">
+            <h2 className="text-xl font-semibold">
               {selectedNotification.title}
-            </h3>
-            <p className="text-sm text-gray-700 mt-2">
-              {selectedNotification.content}
+            </h2>
+            <p className="mt-2 text-gray-700">{selectedNotification.content}</p>
+            <p className="mt-1 text-sm text-gray-500">
+              Type: <em>{selectedNotification.type}</em>
             </p>
-            <div className="mt-4 flex justify-end">
-              <button
-                onClick={handleClosePopUp}
-                className="px-4 py-2 bg-red-500 text-white rounded-lg"
-              >
-                Close
-              </button>
-            </div>
+            <button
+              onClick={handleClosePopUp}
+              className="mt-4 bg-gray-800 text-white px-4 py-2 rounded-lg"
+            >
+              Close
+            </button>
           </div>
         </div>
       )}
