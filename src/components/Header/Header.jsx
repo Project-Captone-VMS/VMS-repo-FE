@@ -65,10 +65,10 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
       const res = await getNoti(username);
       if (res) {
         setNotifications(res);
+        setNotificationCount(res.length);
       }
     };
     getNotice();
-
     const socket = new SockJS("http://localhost:8080/ws");
     const client = over(socket);
 
@@ -80,7 +80,7 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
           const notification = JSON.parse(message.body);
           console.log("notification:", notification);
 
-          setNotifications((prev) => [...prev, notification]);
+          getNotice();
         });
       },
       (error) => {
