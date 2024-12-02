@@ -260,7 +260,7 @@
 // export default AdminSender;
 
 import React, { useState, useEffect } from "react";
-import { Modal, Input, Select, Button, Form, Space } from "antd";
+import { Modal, Input, Select, Button, Form, Space, Pagination } from "antd";
 import { over } from "stompjs";
 import SockJS from "sockjs-client";
 import useGetAllNotice from "../../hooks/useGetAllNotice";
@@ -279,6 +279,9 @@ const AdminSender = () => {
     content: "",
     type: "ALERT",
   });
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   useEffect(() => {
     const savedNotifications = JSON.parse(
@@ -396,6 +399,15 @@ const AdminSender = () => {
           (notification) => notification.notification.type === filterType
         );
 
+  const paginatedNotifications = filteredNotifications.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
   return (
     <div>
       <div className="flex justify-between px-2 py-4 bg-slate-200 rounded-md mb-4 items-center">
@@ -483,7 +495,7 @@ const AdminSender = () => {
           </tr>
         </thead>
         <tbody>
-          {filteredNotifications.map((notification) => (
+          {paginatedNotifications.map((notification) => (
             <tr key={notification.key}>
               <td className="border border-gray-300 px-4 py-2">
                 {notification.user.username}
@@ -518,6 +530,14 @@ const AdminSender = () => {
           ))}
         </tbody>
       </table>
+      <div className="flex justify-center mt-4">
+        <Pagination
+          current={currentPage}
+          total={filteredNotifications.length}
+          pageSize={itemsPerPage}
+          onChange={handlePageChange}
+        />
+      </div>
     </div>
   );
 };
