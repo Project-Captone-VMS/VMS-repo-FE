@@ -51,7 +51,6 @@ const NotificationDetail = ({ notifications }) => {
         ))}
       </div>
 
-      {/* Input field for adding notifications */}
       <input
         type="text"
         placeholder="Add notification"

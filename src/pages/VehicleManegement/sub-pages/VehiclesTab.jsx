@@ -185,9 +185,12 @@ const VehiclesTab = () => {
   };
 
   const filteredVehicles = useMemo(() => {
-    return vehicles.filter(vehicle => 
-      vehicle.licensePlate.toLowerCase().includes(searchTerm?.toLowerCase() || '') ||
-      vehicle.type.toLowerCase().includes(searchTerm?.toLowerCase() || '')
+    return vehicles.filter(
+      (vehicle) =>
+        vehicle.licensePlate
+          .toLowerCase()
+          .includes(searchTerm?.toLowerCase() || "") ||
+        vehicle.type.toLowerCase().includes(searchTerm?.toLowerCase() || "")
     );
   }, [vehicles, searchTerm]);
 

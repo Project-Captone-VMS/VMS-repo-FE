@@ -21,10 +21,9 @@ const Sidebar = ({ isOpen, setIsOpen, role }) => {
   const sb_menuItems = [
     { path: "/vehicle", icon: Truck, label: "Vehicle Management" },
     { path: "/driver", icon: Users, label: "Driver Management" },
-    { path: "/realtime", icon: Map, label: "Realtime Tracking" },
     { path: "/warehouse", icon: Warehouse, label: "Warehouse Management" },
     { path: "/analytics", icon: BarChart2, label: "Analytics" },
-    { path: "/notification", icon: BarChart2, label: "notification" },
+    // { path: "/notification", icon: BarChart2, label: "notification" },
     { path: "/indexNotification", icon: BellDot, label: "indexNotification" },
     // { path: "/UserReceiver", icon: BellDot, label: "UserReceiver" },
     { path: "/route", icon: Route, label: "Route Management" },
@@ -35,8 +34,7 @@ const Sidebar = ({ isOpen, setIsOpen, role }) => {
   const filteredMenuItems =
     role === "USER"
       ? sb_menuItems.filter(
-          (item) =>
-            item.path === "/realtime" || item.path === "/UserReceiver"
+          (item) => item.path === "/realtime" || item.path === "/UserReceiver"
         )
       : sb_menuItems;
 

@@ -121,7 +121,6 @@ const AddVehicleModal = ({ isOpen, onClose }) => {
     );
     setTouchedFields(allTouched);
 
-
     Object.keys(vehicleData).forEach((key) => {
       validateField(key, vehicleData[key]);
     });

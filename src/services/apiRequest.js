@@ -203,3 +203,8 @@ export const getNoti = async (username) => {
   const response = await api.get(`notifications/${username}`);
   return response.data;
 };
+
+export const getAllNoti = async () => {
+  const response = await api.get(`notifications/all`);
+  return response.data;
+};

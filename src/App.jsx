@@ -12,7 +12,6 @@ import AuthLayout from "./layout/AuthLayout";
 import VehicleManagement from "./pages/VehicleManegement/VehicleManagement";
 import DriverManagement from "./pages/DriverManagement/DriverManagement";
 import UpdateDriver from "./components/Modals/UpdateDriver";
-import RealtimeTracking from "./pages/RealtimeTracking/RealtimeTracking";
 import OverviewTab from "./pages/VehicleManegement/sub-pages/OverviewTab";
 import VehiclesTab from "./pages/VehicleManegement/sub-pages/VehiclesTab";
 import MaintenanceTab from "./pages/VehicleManegement/sub-pages/MaintenanceTab";
@@ -23,10 +22,9 @@ import ProfileInformation from "./pages/Profileinformation";
 import IndexRoute from "./pages/Route/IndexRoute";
 import OverviewRoute from "./pages/Route/sub-Route/OverviewRoute";
 import ListRoute from "./pages/Route/sub-Route/ListRoute";
-import NotificationPage from "./pages/NotificationPage";
-import IndexNotification from "./pages/SendNotification/indexNotification";
-import UserReceiver from "./pages/SendNotification/UserReceiver";
 import AdminSender from "./pages/SendNotification/AdminSender";
+import UserReceiver from "./pages/SendNotification/UserReceiver";
+
 import { Toaster } from "react-hot-toast";
 
 function App() {
@@ -58,18 +56,15 @@ function App() {
               path: "driveuser",
               element: <Dashboard />,
             },
-            {
-              path: "realtime",
-              element: <RealtimeTracking />,
-            },
+
             {
               path: "profile",
               element: <ProfileInformation />,
             },
-            // {
-            //   path: "UserReceiver",
-            //   element: <UserReceiver />,
-            // },
+            {
+              path: "UserReceiver",
+              element: <UserReceiver />,
+            },
           ],
         },
         {
@@ -83,10 +78,7 @@ function App() {
               path: "profile",
               element: <ProfileInformation />,
             },
-            {
-              path: "notification",
-              element: <NotificationPage />,
-            },
+
             {
               path: "vehicle",
               element: <VehicleManagement />,
@@ -118,10 +110,6 @@ function App() {
               element: <UpdateDriver />,
             },
             {
-              path: "realtime",
-              element: <RealtimeTracking />,
-            },
-            {
               path: "warehouse",
               element: <WarehouseManagement />,
             },
@@ -133,10 +121,7 @@ function App() {
               path: "Analytics",
               element: <Analytics />,
             },
-            // {
-            //   path: "indexNotification",
-            //   element: <IndexNotification />,
-            // },
+
             {
               path: "indexNotification",
               element: <AdminSender />,

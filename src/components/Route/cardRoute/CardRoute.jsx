@@ -24,8 +24,8 @@ const CardRoute = ({ name, isOpen, onClick, locations, notifications }) => {
             <div
               className={`px-4 py-2 w-1/3 rounded-md text-center ${
                 toggleState === 1
-                  ? "bg-custom-teal text-white"
-                  : "bg-gray-300 hover:bg-custom-teal active:bg-custom-teal text-black"
+                  ? "bg-[#E5FCF4] text-black"
+                  : "bg-gray-200 hover:bg-custom-teal active:bg-custom-teal text-black"
               }`}
               onClick={() => toggleTab(1)}
             >
@@ -34,8 +34,8 @@ const CardRoute = ({ name, isOpen, onClick, locations, notifications }) => {
             <div
               className={`px-4 py-2 w-1/3 rounded-md text-center ${
                 toggleState === 2
-                  ? "bg-custom-teal text-white"
-                  : "bg-gray-300 hover:bg-custom-teal active:bg-custom-teal text-black"
+                  ? "bg-[#E5FCF4] text-black"
+                  : "bg-gray-200 hover:bg-custom-teal active:bg-custom-teal text-black"
               }`}
               onClick={() => toggleTab(2)}
             >
@@ -45,8 +45,8 @@ const CardRoute = ({ name, isOpen, onClick, locations, notifications }) => {
             <div
               className={`px-4 py-2 w-1/3 rounded-md text-center ${
                 toggleState === 3
-                  ? "bg-custom-teal text-white"
-                  : "bg-gray-300 hover:bg-custom-teal active:bg-custom-teal text-black"
+                  ? "bg-[#E5FCF4] text-black"
+                  : "bg-gray-200 hover:bg-custom-teal active:bg-custom-teal text-black"
               }`}
               onClick={() => toggleTab(3)}
             >

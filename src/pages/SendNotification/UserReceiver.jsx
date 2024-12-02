@@ -46,6 +46,8 @@ const UserReceiver = () => {
     };
   }, [username]);
 
+  
+
   if (!username) {
     return <p>Loading user information...</p>;
   }

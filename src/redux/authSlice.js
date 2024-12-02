@@ -13,6 +13,11 @@ const authSlice = createSlice({
       error: false,
       success: false,
     },
+    infor: {
+      first_name: null,
+      last_name: null,
+      email: null,
+    },
   },
   reducers: {
     loginStart: (state) => {
@@ -42,6 +47,11 @@ const authSlice = createSlice({
     },
     logout: (state) => {
       state.login.currentUser = null;
+      state.infor = {
+        first_name: null,
+        last_name: null,
+        email: null,
+      };
     },
   },
 });

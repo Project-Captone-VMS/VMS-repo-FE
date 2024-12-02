@@ -1,8 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Check, X, AlertCircle } from "lucide-react";
 import toast from "react-hot-toast";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../../components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "../../components/ui/dialog";
 import { Label } from "../../components/ui/label";
 import { Input } from "../../components/ui/input";
 import { Button } from "../../components/ui/button";
@@ -12,14 +17,12 @@ import { createProduct } from "../../services/apiRequest";
 const validateProductData = (data) => {
   const errors = {};
 
-  // Product Name validation
   if (!data.productName?.trim()) {
     errors.productName = "Product name is required";
   } else if (data.productName.length > 100) {
     errors.productName = "Product name cannot exceed 100 characters";
   }
 
-  // Price validation
   const price = Number(data.price);
   if (!data.price) {
     errors.price = "Price is required";
@@ -31,9 +34,8 @@ const validateProductData = (data) => {
     errors.price = "Price cannot exceed 1,000,000";
   }
 
-  // Quantity validation
   const quantity = Number(data.quantity);
-  if (data.quantity === '') {
+  if (data.quantity === "") {
     errors.quantity = "Quantity is required";
   } else if (isNaN(quantity)) {
     errors.quantity = "Quantity must be a valid number";
@@ -51,46 +53,46 @@ export const AddProduct = ({ isOpen, onClose, warehouseId, onSubmit }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [fieldErrors, setFieldErrors] = useState({});
   const [touchedFields, setTouchedFields] = useState({});
-  const [alertMessage, setAlertMessage] = useState('');
+  const [alertMessage, setAlertMessage] = useState("");
 
   const [formData, setFormData] = useState({
-    productName: '',
-    price: '',
-    quantity: '',
+    productName: "",
+    price: "",
+    quantity: "",
     warehouse: {
-      warehouseId: warehouseId
-    }
+      warehouseId: warehouseId,
+    },
   });
 
   const handleInputChange = (field, value) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
-    
-    setTouchedFields(prev => ({
+
+    setTouchedFields((prev) => ({
       ...prev,
-      [field]: true
+      [field]: true,
     }));
 
     // Validate on change
     const errors = validateProductData({
       ...formData,
-      [field]: value
+      [field]: value,
     });
     setFieldErrors(errors);
   };
 
   const handleBlur = (field) => {
-    setTouchedFields(prev => ({
+    setTouchedFields((prev) => ({
       ...prev,
-      [field]: true
+      [field]: true,
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setAlertMessage('');
+    setAlertMessage("");
     setIsSubmitting(true);
 
     // Mark all fields as touched
@@ -120,8 +122,10 @@ export const AddProduct = ({ isOpen, onClose, warehouseId, onSubmit }) => {
       onSubmit(productData);
       handleClose();
     } catch (error) {
-      setAlertMessage(error.message || 'An error occurred while saving the product');
-      toast.error(error.message || 'Failed to save product');
+      setAlertMessage(
+        error.message || "An error occurred while saving the product"
+      );
+      toast.error(error.message || "Failed to save product");
     } finally {
       setIsSubmitting(false);
     }
@@ -129,16 +133,16 @@ export const AddProduct = ({ isOpen, onClose, warehouseId, onSubmit }) => {
 
   const handleClose = () => {
     setFormData({
-      productName: '',
-      price: '',
-      quantity: '',
+      productName: "",
+      price: "",
+      quantity: "",
       warehouse: {
-        warehouseId: warehouseId
-      }
+        warehouseId: warehouseId,
+      },
     });
     setFieldErrors({});
     setTouchedFields({});
-    setAlertMessage('');
+    setAlertMessage("");
     onClose();
   };
 
@@ -168,9 +172,15 @@ export const AddProduct = ({ isOpen, onClose, warehouseId, onSubmit }) => {
               <Input
                 id="productName"
                 value={formData.productName}
-                onChange={(e) => handleInputChange('productName', e.target.value)}
-                onBlur={() => handleBlur('productName')}
-                className={`pr-10 ${fieldErrors.productName && touchedFields.productName ? 'border-red-500' : ''}`}
+                onChange={(e) =>
+                  handleInputChange("productName", e.target.value)
+                }
+                onBlur={() => handleBlur("productName")}
+                className={`pr-10 ${
+                  fieldErrors.productName && touchedFields.productName
+                    ? "border-red-500"
+                    : ""
+                }`}
               />
               {touchedFields.productName && (
                 <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
@@ -198,11 +208,15 @@ export const AddProduct = ({ isOpen, onClose, warehouseId, onSubmit }) => {
                   id="price"
                   type="number"
                   value={formData.price}
-                  onChange={(e) => handleInputChange('price', e.target.value)}
-                  onBlur={() => handleBlur('price')}
+                  onChange={(e) => handleInputChange("price", e.target.value)}
+                  onBlur={() => handleBlur("price")}
                   min="0"
                   step="0.01"
-                  className={`pr-10 ${fieldErrors.price && touchedFields.price ? 'border-red-500' : ''}`}
+                  className={`pr-10 ${
+                    fieldErrors.price && touchedFields.price
+                      ? "border-red-500"
+                      : ""
+                  }`}
                 />
                 {touchedFields.price && (
                   <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
@@ -229,10 +243,16 @@ export const AddProduct = ({ isOpen, onClose, warehouseId, onSubmit }) => {
                   id="quantity"
                   type="number"
                   value={formData.quantity}
-                  onChange={(e) => handleInputChange('quantity', e.target.value)}
-                  onBlur={() => handleBlur('quantity')}
+                  onChange={(e) =>
+                    handleInputChange("quantity", e.target.value)
+                  }
+                  onBlur={() => handleBlur("quantity")}
                   min="0"
-                  className={`pr-10 ${fieldErrors.quantity && touchedFields.quantity ? 'border-red-500' : ''}`}
+                  className={`pr-10 ${
+                    fieldErrors.quantity && touchedFields.quantity
+                      ? "border-red-500"
+                      : ""
+                  }`}
                 />
                 {touchedFields.quantity && (
                   <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
@@ -254,11 +274,16 @@ export const AddProduct = ({ isOpen, onClose, warehouseId, onSubmit }) => {
           </div>
 
           <div className="flex justify-end space-x-2 pt-4">
-            <Button variant="outline" type="button" onClick={handleClose} disabled={isSubmitting}>
+            <Button
+              variant="outline"
+              type="button"
+              onClick={handleClose}
+              disabled={isSubmitting}
+            >
               Cancel
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Saving...' : 'Add Product'}
+              {isSubmitting ? "Saving..." : "Add Product"}
             </Button>
           </div>
         </form>

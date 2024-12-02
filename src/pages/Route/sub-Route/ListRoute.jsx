@@ -104,13 +104,9 @@ const DetailRoute = () => {
       : "Pending";
   };
 
-
-
-
-
   return (
     <div className="flex gap-2">
-      <div className="flex flex-col w-2/5 bg-[#0C1F1F] bg-opacity-4 p-4">
+      <div className="flex flex-col w-2/5 bg-gray-50 bg-opacity-4 p-4">
         <h2 className="text-lg font-semibold mb-4">Total Routes</h2>
         <div className="p-2 bg-white">
           <div className="space-y-2">

@@ -6,7 +6,6 @@ import {
   CardHeader,
   CardTitle,
 } from "../../../components/ui/card";
-// import StatusItem from "../../Vehicle/StatusItem";
 import { Button } from "../../../components/ui/button";
 
 const StatCard = ({ title, value, icon: Icon, trend }) => {

@@ -2,19 +2,21 @@ import React, { useEffect, useState } from "react";
 import { registerUser } from "../services/apiRequest";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { Eye, EyeOff } from "lucide-react";
 import container from "../assets/images/Container.png";
 import circle from "../assets/images/circle.png";
 import logo from "../assets/images/logo.png";
 
 const Register = () => {
   const [isSecondForm, setIsSecondForm] = useState(false);
-  const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
   const [email, setEmail] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -86,8 +88,8 @@ const Register = () => {
 
       <div className="flex-1 flex flex-col justify-center items-center bg-[white] p-10 rounded-r-[10px]">
         <div className="flex flex-col items-center mb-4 ">
-          <img src={logo} alt="VMS Logo" className="w-[70px] mb-1 mt-5" />
-          <p className="text-[#055bc7] text-4xl font-bold">VMS</p>
+          <img src={logo} alt="VMS Logo" className="w-[120px] mb-1" />
+          <p className="text-[#055bc7] text-5xl font-bold">VMS</p>
         </div>
         <div className="text-left w-full">
           <h2 className="text-3xl font-semibold mb-2">Hello</h2>
@@ -206,7 +208,7 @@ const Register = () => {
               />
             </div>
 
-            <div className="mt-2">
+            <div className="mt-2 relative">
               <label
                 for="password"
                 class="block text-sm font-normal0 text-gray-500 dark:text-gray-700"
@@ -214,16 +216,26 @@ const Register = () => {
                 Password
               </label>
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 placeholder="Password"
                 className=" text-black rounded-lg border-2 border-inherit block w-full p-2"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
+              <span
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-[70%] transform -translate-y-[50%] cursor-pointer"
+              >
+                {showPassword ? (
+                  <EyeOff size={20} className="text-gray-400" />
+                ) : (
+                  <Eye size={20} className="text-gray-400" />
+                )}
+              </span>
             </div>
 
-            <div className="mt-2">
+            <div className="mt-2 relative">
               <label
                 for="Confirm Password"
                 class="block text-sm font-normal0 text-gray-500 dark:text-gray-700"
@@ -231,12 +243,18 @@ const Register = () => {
                 Confirm Password
               </label>
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 placeholder="Confirm Password"
                 className=" text-black rounded-lg border-2 border-inherit block w-full p-2"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
               />
+              <span
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-[70%] transform -translate-y-[50%] cursor-pointer"
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </span>
             </div>
 
             <button
