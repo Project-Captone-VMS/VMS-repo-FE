@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { Button, Input, Modal } from "antd";
 import Map from "../../../components/Map/map";
+import { getAllDriver, getAllVehicle } from "../../../services/apiRequest";
 
 const Route = () => {
   const [routes, setRoutes] = useState([
@@ -33,6 +34,26 @@ const Route = () => {
 
   const [editData, setEditData] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [formDriver, setFormDriver] = useState([]);
+  const [formVehicle, setFormVehicle] = useState([]);
+  const [selectedDriver, setSelectedDriver] = useState("");
+  const [selectedVehicle, setSelectedVehicle] = useState("");
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const driverResult = await getAllDriver();
+        setFormDriver(driverResult);
+
+        const vehicleResult = await getAllVehicle();
+        console.log("formVehicle heheheh", formVehicle);
+        setFormVehicle(vehicleResult);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, [getAllDriver, getAllVehicle]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -297,24 +318,19 @@ const Route = () => {
     try {
       const originCoords = await geocode(origin);
       const destinationCoords = await geocode(destination);
-
-      // console.log("ori" + originCoords.lat +" "+ +originCoords.lng+ "des" +destinationCoords.lat +" "+ destinationCoords.lng);
-
       const intermediatePoints = selectedCoordinates;
 
       const destinations = intermediatePoints
         .map((coord) => `${coord.lat},${coord.lng}`)
         .join(",");
-
-      // console.log("Des" + destinations);
-
-      // Prepare the params for the request
       const params = {
         startLat: originCoords.lat,
         startLng: originCoords.lng,
         destinations: destinations,
         endLat: destinationCoords.lat,
         endLng: destinationCoords.lng,
+        driverId: selectedDriver,
+        vehicleId: selectedVehicle,
       };
 
       const headers = {
@@ -349,91 +365,8 @@ const Route = () => {
     }
   };
 
-  //?
-
   return (
-    <div className="">
-      {/* <div className="flex h-screen justify-between gap-4 bg-gray-100 p-4">
-        <div className="w-full md:w-2/3 bg-white shadow-lg rounded-lg">
-          <Map />
-        </div>
-        <div className="w-1/3">
-          <form
-            onSubmit={handleSubmit}
-            className="w-full max-w-md p-6 bg-white shadow-lg rounded-lg"
-          >
-            <h2 className="text-center text-xl">Create Route</h2>
-            <div className="flex flex-col mb-4">
-              <label htmlFor="start" className="font-medium text-sm">
-                Start
-              </label>
-              <Input
-                id="start"
-                name="start"
-                value={formData.start}
-                onChange={handleChange}
-                placeholder="Enter start location"
-              />
-            </div>
-            <div className="flex flex-col mb-4">
-              <label htmlFor="end" className="font-medium text-sm">
-                End
-              </label>
-              <Input
-                id="end"
-                name="end"
-                value={formData.end}
-                onChange={handleChange}
-                placeholder="Enter end location"
-              />
-            </div>
-            <div className="flex flex-col mb-4">
-              <label htmlFor="route" className="font-medium text-sm">
-                Route
-              </label>
-              <Input
-                id="route"
-                name="route"
-                value={formData.route}
-                onChange={handleChange}
-                placeholder="Enter route name"
-              />
-            </div>
-            <div className="flex flex-col mb-4">
-              <label htmlFor="date" className="font-medium text-sm">
-                Estimate Time
-              </label>
-              <Input
-                id="estimate Time"
-                type="text"
-                name="estimateTime"
-                value={formData.estimateTime}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="flex justify-center">
-              <Button type="primary" htmlType="submit" className="w-full">
-                Create Route
-              </Button>
-            </div>
-            <div className="flex flex-col mb-4">
-              <label htmlFor="location" className="font-medium text-sm">
-                Location
-              </label>
-              <textarea
-                id="location"
-                name="location"
-                value={formData.location}
-                onChange={handleChange}
-                rows={4}
-                className="border rounded p-2"
-                placeholder="Enter location details"
-              />
-            </div>
-          </form>
-        </div>
-      </div> */}
-
+    <div>
       <div className="flex justify-between">
         <div
           className="map-container"
@@ -483,6 +416,57 @@ const Route = () => {
                   />
                 </label>
               </div>
+
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700">
+                  Driver:
+                  <select
+                    value={selectedDriver}
+                    onChange={(e) => setSelectedDriver(e.target.value)}
+                    required
+                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300 focus:border-blue-500"
+                  >
+                    <option value="" disabled>
+                      Select a driver
+                    </option>
+                    {formDriver && formDriver.length > 0 ? (
+                      formDriver.map((driver) => (
+                        <option key={driver.id} value={driver.driverId}>
+                          {driver.lastName} {driver.firstName}
+                        </option>
+                      ))
+                    ) : (
+                      <option disabled>Loading drivers...</option>
+                    )}
+                  </select>
+                </label>
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700">
+                  Select Vehicle:
+                  <select
+                    value={selectedVehicle}
+                    onChange={(e) => setSelectedVehicle(e.target.value)}
+                    required
+                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300 focus:border-blue-500"
+                  >
+                    <option value="" disabled>
+                      Select a vehicle
+                    </option>
+                    {formVehicle && formVehicle.length > 0 ? (
+                      formVehicle.map((vehicle) => (
+                        <option key={vehicle.id} value={vehicle.id}>
+                          {vehicle.vehicleId}
+                        </option>
+                      ))
+                    ) : (
+                      <option disabled>Loading drivers...</option>
+                    )}
+                  </select>
+                </label>
+              </div>
+
               <div
                 className=" w-full"
                 style={{ width: "100%", padding: "10px" }}

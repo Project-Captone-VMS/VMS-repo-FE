@@ -79,7 +79,7 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
         client.subscribe(`/user/${username}/notifications`, (message) => {
           const notification = JSON.parse(message.body);
           console.log("notification:", notification);
-
+          alert("Có 1 thông báo mới!");
           getNotice();
         });
       },

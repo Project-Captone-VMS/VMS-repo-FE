@@ -1,302 +1,34 @@
-// import React, { useState, useEffect } from "react";
-// import { Modal, Input, Select, Button, Form, Table, Space } from "antd";
-// import { over } from "stompjs";
-// import SockJS from "sockjs-client";
-// import useGetAllNotice from "../../hooks/useGetAllNotice";
-
-// const { TextArea } = Input;
-
-// const AdminSender = () => {
-//   const showNotification = useGetAllNotice();
-
-//   const [isModalVisible, setIsModalVisible] = useState(false);
-//   const [filterType, setFilterType] = useState("ALL");
-//   const [notifications, setNotifications] = useState([]);
-//   const [formData, setFormData] = useState({
-//     username: "",
-//     title: "",
-//     content: "",
-//     type: "ALERT",
-//   });
-
-//   useEffect(() => {
-//     const savedNotifications = JSON.parse(
-//       localStorage.getItem("notifications")
-//     );
-//     if (savedNotifications) {
-//       setNotifications(savedNotifications);
-//     }
-//   }, []);
-
-//   useEffect(() => {
-//     if (notifications.length > 0) {
-//       localStorage.setItem("notifications", JSON.stringify(notifications));
-//     }
-//   }, [notifications]);
-
-//   const showModal = () => {
-//     setIsModalVisible(true);
-//   };
-
-//   const handleCancel = () => {
-//     setIsModalVisible(false);
-//     resetFormData();
-//   };
-
-//   const sendNotification = () => {
-//     const socket = new SockJS("http://localhost:8080/ws");
-//     const stompClient = over(socket);
-
-//     try {
-//       stompClient.connect({}, () => {
-//         stompClient.send(
-//           `/app/chat/${formData.username}`,
-//           {},
-//           JSON.stringify(formData)
-//         );
-//         console.log("Notification Sent:", formData);
-
-//         // const newNotification = {
-//         //   key: Date.now(),
-//         //   username: formData.username,
-//         //   title: formData.title,
-//         //   content: formData.content,
-//         //   type: formData.type,
-//         // };
-
-//         setNotifications(showNotification);
-
-//         alert("Thông báo đã được gửi thành công!");
-//         resetFormData();
-//         setIsModalVisible(false);
-//       });
-//     } catch (error) {
-//       console.error("Error while sending notification:", error);
-//     }
-//   };
-
-//   const handleInputChange = (key, value) => {
-//     setFormData((prevFormData) => ({
-//       ...prevFormData,
-//       [key]: value,
-//     }));
-//   };
-
-//   const resetFormData = () => {
-//     setFormData({
-//       username: "",
-//       title: "",
-//       content: "",
-//       type: "ALERT",
-//     });
-//   };
-
-//   const showDetailModal = (record) => {
-//     Modal.info({
-//       title: `Details of Notification to ${record.user.username}`,
-//       content: (
-//         <div>
-//           <p>
-//             <strong>Title:</strong> {record.notification.title}
-//           </p>
-//           <p>
-//             <strong>Content:</strong> {record.notification.content}
-//           </p>
-//           <p>
-//             <strong>Type:</strong> {record.notification.type}
-//           </p>
-//         </div>
-//       ),
-//     });
-//   };
-
-//   const confirmDeleteNotification = (record) => {
-//     Modal.confirm({
-//       title: "Xác nhận xóa",
-//       content: `Bạn chắc chắn xóa thông báo của ${record.user.username} này chứ?`,
-//       okText: "Xóa",
-//       cancelText: "Hủy",
-//       onOk: () => {
-//         deleteNotification(record.key);
-//       },
-//     });
-//   };
-
-//   const deleteNotification = (key) => {
-//     setNotifications((prev) =>
-//       prev.filter((notification) => notification.key !== key)
-//     );
-//     alert("Thông báo đã được xóa thành công!");
-//   };
-
-//   const filteredNotifications =
-//     filterType === "ALL"
-//       ? notifications
-//       : notifications.filter(
-//           (notification) => notification.notification.type === filterType
-//         );
-
-//   console.log("filteredNotifications", filteredNotifications);
-//   return (
-//     <div>
-//       <div className="flex justify-between px-2 py-4 bg-slate-200 rounded-md mb-4 items-center">
-//         <p className="text-2xl font-bold">Notification</p>
-//         <div className="flex items-center">
-//           <Select
-//             placeholder="Select type"
-//             style={{ width: 150, marginRight: 20 }}
-//             value={filterType}
-//             onChange={(value) => setFilterType(value)}
-//           >
-//             <Select.Option value="ALL">All</Select.Option>
-//             <Select.Option value="ALERT">Alert</Select.Option>
-//             <Select.Option value="Error">Error</Select.Option>
-//           </Select>
-//           <Button
-//             type="primary"
-//             onClick={showModal}
-//             className="bg-blue-500 hover:bg-blue-600"
-//           >
-//             Send Notification
-//           </Button>
-//         </div>
-//       </div>
-
-//       <Modal
-//         title="Send Notification"
-//         visible={isModalVisible}
-//         onCancel={handleCancel}
-//         footer={[
-//           <Button key="cancel" onClick={handleCancel}>
-//             Cancel
-//           </Button>,
-//           <Button key="send" type="primary" onClick={sendNotification}>
-//             Send
-//           </Button>,
-//         ]}
-//       >
-//         <Form layout="vertical">
-//           <Form.Item label="Username" required>
-//             <Input
-//               placeholder="Enter Username"
-//               value={formData.username}
-//               onChange={(e) => handleInputChange("username", e.target.value)}
-//             />
-//           </Form.Item>
-
-//           <Form.Item label="Title" required>
-//             <Input
-//               placeholder="Enter Title"
-//               value={formData.title}
-//               onChange={(e) => handleInputChange("title", e.target.value)}
-//             />
-//           </Form.Item>
-
-//           <Form.Item label="Content" required>
-//             <TextArea
-//               rows={4}
-//               placeholder="Enter Content"
-//               value={formData.content}
-//               onChange={(e) => handleInputChange("content", e.target.value)}
-//             />
-//           </Form.Item>
-
-//           <Form.Item label="Type">
-//             <Select
-//               value={formData.type}
-//               onChange={(value) => handleInputChange("type", value)}
-//             >
-//               <Select.Option value="ALERT">Alert</Select.Option>
-//               <Select.Option value="Error">Error</Select.Option>
-//             </Select>
-//           </Form.Item>
-//         </Form>
-//       </Modal>
-
-//       <Table
-//         dataSource={filteredNotifications}
-//         rowKey="key"
-//         pagination={{ pageSize: 10 }}
-//       >
-//         <Table.Column
-//           title="Username"
-//           dataIndex="user.username"
-//           key="username"
-//         />
-//         <Table.Column
-//           title="Title"
-//           dataIndex={notifications.title}
-//           key="title"
-//         />
-//         <Table.Column title="Type" dataIndex="notification.type" key="type" />
-//         <Table.Column
-//           title="Content"
-//           dataIndex="notification.content"
-//           key="content"
-//         />
-//         <Table.Column
-//           title="Action"
-//           key="action"
-//           render={(_, record) => (
-//             <Space size="middle">
-//               <Button type="link" onClick={() => showDetailModal(record)}>
-//                 Detail
-//               </Button>
-//               <Button
-//                 type="link"
-//                 danger
-//                 onClick={() => confirmDeleteNotification(record)}
-//               >
-//                 Delete
-//               </Button>
-//             </Space>
-//           )}
-//         />
-//       </Table>
-//     </div>
-//   );
-// };
-
-// export default AdminSender;
-
-import React, { useState, useEffect } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { Modal, Input, Select, Button, Form, Space, Pagination } from "antd";
 import { over } from "stompjs";
-import SockJS from "sockjs-client";
+import { getAllNoti } from "../../services/apiRequest";
 import useGetAllNotice from "../../hooks/useGetAllNotice";
+import SockJS from "sockjs-client";
+import * as Yup from "yup";
 
 const { TextArea } = Input;
+const ITEMS_PER_PAGE = 10;
+
+const formSchema = Yup.object().shape({
+  username: Yup.string().required("Username is required"),
+  title: Yup.string().required("Title is required"),
+  content: Yup.string().required("Content is required"),
+  type: Yup.string().required("Type is required"),
+});
 
 const AdminSender = () => {
-  const showNotification = useGetAllNotice();
-
+  const { notice, setNotice } = useGetAllNotice();
+  const [errors, setErrors] = useState({});
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [filterType, setFilterType] = useState("ALL");
-  const [notifications, setNotifications] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+
   const [formData, setFormData] = useState({
     username: "",
     title: "",
     content: "",
     type: "ALERT",
   });
-
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
-
-  useEffect(() => {
-    const savedNotifications = JSON.parse(
-      localStorage.getItem("notifications")
-    );
-    if (savedNotifications) {
-      setNotifications(savedNotifications);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (notifications.length > 0) {
-      localStorage.setItem("notifications", JSON.stringify(notifications));
-    }
-  }, [notifications]);
 
   const showModal = () => {
     setIsModalVisible(true);
@@ -307,36 +39,43 @@ const AdminSender = () => {
     resetFormData();
   };
 
-  const sendNotification = () => {
-    const socket = new SockJS("http://localhost:8080/ws");
-    const stompClient = over(socket);
-
+  const sendNotification = async () => {
     try {
-      stompClient.connect({}, () => {
-        stompClient.send(
+      await formSchema.validate(formData, { abortEarly: false });
+      setErrors({});
+
+      const socket = new SockJS("http://localhost:8080/ws");
+      const stompClient = over(socket);
+
+      stompClient.connect({}, async () => {
+        const res = await stompClient.send(
           `/app/chat/${formData.username}`,
           {},
           JSON.stringify(formData)
         );
-        console.log("Notification Sent:", formData);
+        console.log("res", formData);
+        // setNotice(prev => [...prev, res.data])
 
-        const newNotification = {
-          key: Date.now(),
-          username: formData.username,
-          title: formData.title,
-          content: formData.content,
-          type: formData.type,
-        };
-        setNotifications(showNotification);
-
-        alert("Thông báo đã được gửi thành công!");
         resetFormData();
         setIsModalVisible(false);
       });
-    } catch (error) {
-      console.error("Error while sending notification:", error);
+    } catch (err) {
+      const validationErrors = {};
+      err.inner.forEach((error) => {
+        validationErrors[error.path] = error.message;
+      });
+      setErrors(validationErrors);
     }
   };
+
+  useEffect(() => {
+    const fetchNotices = async () => {
+      const updateNoti = await getAllNoti();
+      setNotice(updateNoti);
+    };
+
+    fetchNotices();
+  }, []);
 
   const handleInputChange = (key, value) => {
     setFormData((prevFormData) => ({
@@ -352,6 +91,7 @@ const AdminSender = () => {
       content: "",
       type: "ALERT",
     });
+    setErrors({});
   };
 
   const showDetailModal = (record) => {
@@ -386,31 +126,33 @@ const AdminSender = () => {
   };
 
   const deleteNotification = (id) => {
-    setNotifications((prev) =>
+    setNotice((prev) =>
       prev.filter((notification) => notification.notification.id !== id)
     );
     alert("Thông báo đã được xóa thành công!");
   };
 
-  const filteredNotifications =
-    filterType === "ALL"
-      ? notifications
-      : notifications.filter(
+  const filteredNotifications = useMemo(() => {
+    return filterType === "ALL"
+      ? notice
+      : notice.filter(
           (notification) => notification.notification.type === filterType
         );
-
-  const paginatedNotifications = filteredNotifications.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+  }, [notice, filterType]);
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
 
+  const paginatedNotifications = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    const end = start + ITEMS_PER_PAGE;
+    return filteredNotifications.slice(start, end);
+  }, [filteredNotifications, currentPage]);
+
   return (
-    <div>
-      <div className="flex justify-between px-2 py-4 bg-slate-200 rounded-md mb-4 items-center">
+    <div className="overflow-auto h-[600px] ">
+      <div className="z-50 sticky  top-0 w-full flex justify-between px-2 py-4 bg-slate-200 rounded-md mb-4 items-center">
         <p className="text-2xl font-bold">Notification</p>
         <div className="flex items-center">
           <Select
@@ -447,7 +189,11 @@ const AdminSender = () => {
         ]}
       >
         <Form layout="vertical">
-          <Form.Item label="Username" required>
+          <Form.Item
+            label="Username"
+            validateStatus={errors.username ? "error" : ""}
+            help={errors.username}
+          >
             <Input
               placeholder="Enter Username"
               value={formData.username}
@@ -455,7 +201,11 @@ const AdminSender = () => {
             />
           </Form.Item>
 
-          <Form.Item label="Title" required>
+          <Form.Item
+            label="Title"
+            validateStatus={errors.title ? "error" : ""}
+            help={errors.title}
+          >
             <Input
               placeholder="Enter Title"
               value={formData.title}
@@ -463,7 +213,11 @@ const AdminSender = () => {
             />
           </Form.Item>
 
-          <Form.Item label="Content" required>
+          <Form.Item
+            label="Content"
+            validateStatus={errors.content ? "error" : ""}
+            help={errors.content}
+          >
             <TextArea
               rows={4}
               placeholder="Enter Content"
@@ -472,7 +226,11 @@ const AdminSender = () => {
             />
           </Form.Item>
 
-          <Form.Item label="Type">
+          <Form.Item
+            label="Type"
+            validateStatus={errors.type ? "error" : ""}
+            help={errors.type}
+          >
             <Select
               value={formData.type}
               onChange={(value) => handleInputChange("type", value)}
@@ -484,7 +242,7 @@ const AdminSender = () => {
         </Form>
       </Modal>
 
-      <table className="w-full border-collapse border border-gray-200">
+      <table className=" w-full border-collapse border border-gray-200">
         <thead>
           <tr>
             <th className="border border-gray-300 px-4 py-2">Username</th>
@@ -496,7 +254,7 @@ const AdminSender = () => {
         </thead>
         <tbody>
           {paginatedNotifications.map((notification) => (
-            <tr key={notification.key}>
+            <tr key={notification.key} className="text-center">
               <td className="border border-gray-300 px-4 py-2">
                 {notification.user.username}
               </td>
@@ -509,7 +267,7 @@ const AdminSender = () => {
               <td className="border border-gray-300 px-4 py-2">
                 {notification.notification.content}
               </td>
-              <td className="border border-gray-300 px-4 py-2">
+              <td className=" border border-gray-300 px-4 py-2">
                 <Space size="middle">
                   <Button
                     type="link"
@@ -530,14 +288,13 @@ const AdminSender = () => {
           ))}
         </tbody>
       </table>
-      <div className="flex justify-center mt-4">
-        <Pagination
-          current={currentPage}
-          total={filteredNotifications.length}
-          pageSize={itemsPerPage}
-          onChange={handlePageChange}
-        />
-      </div>
+      <Pagination
+        current={currentPage}
+        pageSize={ITEMS_PER_PAGE}
+        total={filteredNotifications.length}
+        onChange={handlePageChange}
+        className="sticky bottom-0 mt-4 mr-0 flex justify-end bg-white py-2"
+      />
     </div>
   );
 };

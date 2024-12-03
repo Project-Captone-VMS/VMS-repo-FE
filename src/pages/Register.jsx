@@ -1,54 +1,70 @@
-import React, { useEffect, useState } from "react";
-import { registerUser } from "../services/apiRequest";
+import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
+import { registerUser } from "../services/apiRequest";
+import { useFormik } from "formik";
 import container from "../assets/images/Container.png";
 import circle from "../assets/images/circle.png";
 import logo from "../assets/images/logo.png";
+import * as Yup from "yup";
 
 const Register = () => {
   const [isSecondForm, setIsSecondForm] = useState(false);
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const handleSecondFormSubmit = (e) => {
-    e.preventDefault();
+  const firstFormSchema = Yup.object().shape({
+    firstName: Yup.string().required("First name is required"),
+    lastName: Yup.string().required("Last name is required"),
+    email: Yup.string().email("Invalid email").required("Email is required"),
+    phoneNumber: Yup.string()
+      .matches(/^0\d{9}$/, "Phone number must start with 0 and be 10 digits")
+      // .matches(/^\d{10}$/, "Phone number must be 10 digits")
+      .required("Phone number is required"),
+  });
 
-    if (password !== confirmPassword) {
-      return;
-    }
-    const newUser = {
-      firstName,
-      lastName,
-      phoneNumber,
-      email,
-      username,
-      password,
-    };
-    registerUser(newUser, dispatch, navigate);
-  };
+  const secondFormSchema = Yup.object().shape({
+    username: Yup.string().required("Username is required"),
+    password: Yup.string()
+      .min(6, "Password must be at least 6 characters")
+      .required("Password is required"),
+    confirmPassword: Yup.string()
+      .oneOf([Yup.ref("password"), null], "Passwords must match")
+      .required("Confirm password is required"),
+  });
 
-  const handleBack = () => {
-    setIsSecondForm(false);
-  };
+  const firstFormFormik = useFormik({
+    initialValues: {
+      firstName: "",
+      lastName: "",
+      email: "",
+      phoneNumber: "",
+    },
+    validationSchema: firstFormSchema,
+    onSubmit: () => setIsSecondForm(true),
+  });
 
-  const handleFirstFormSubmit = (e) => {
-    e.preventDefault();
-    setIsSecondForm(true);
-  };
+  const secondFormFormik = useFormik({
+    initialValues: {
+      username: "",
+      password: "",
+      confirmPassword: "",
+    },
+    validationSchema: secondFormSchema,
+    onSubmit: (values) => {
+      const newUser = {
+        ...firstFormFormik.values,
+        ...values,
+      };
+      registerUser(newUser, dispatch, navigate);
+    },
+  });
 
   return (
-    <div className="bg-[rgb(243,238,250)] flex h-screen p-[30px] ">
+    <div className="bg-[rgb(243,238,250)] flex h-screen p-[30px]">
       <div
         className="flex-[2] justify-center items-center relative rounded-l-[10px] hidden md:flex"
         style={{
@@ -57,122 +73,119 @@ const Register = () => {
         }}
       >
         <div className="z-[2] absolute text-[white] left-[10%] top-[20%]">
-          <h1
-            className="text-[color:var(--White,#fff)] text-3xl lg:text-5xl not-italic font-bold leading-[normal]"
-            style={{
-              fontFamily: "Poppins",
-            }}
-          >
-            GoFinance
-          </h1>
-          <p
-            className="not-italic text-sm lg:text-xl  font-medium leading-[normal] text-[white]"
-            style={{
-              fontFamily: "Poppins",
-            }}
-          >
-            The most popular peer to peer lending at SEA
+          <h1 className="text-3xl lg:text-5xl font-bold">GoFinance</h1>
+          <p className="text-sm lg:text-xl">
+            The most popular peer-to-peer lending at SEA
           </p>
         </div>
         <img
           src={container}
-          alt="Multimodal Logistics Trade"
-          className="z-[1] absolute w-[82%] h-[95%] right-[2%] top-0"
+          alt="container"
+          className="absolute w-[82%] h-[95%] right-[2%] top-0"
         />
         <img
           src={circle}
           alt="circle"
-          className="absolute left-0 bottom-0 w-[60%] h-[40%] "
+          className="absolute left-0 bottom-0 w-[60%] h-[40%]"
         />
       </div>
 
       <div className="flex-1 flex flex-col justify-center items-center bg-[white] p-10 rounded-r-[10px]">
-        <div className="flex flex-col items-center mb-4 ">
-          <img src={logo} alt="VMS Logo" className="w-[120px] mb-1" />
-          <p className="text-[#055bc7] text-5xl font-bold">VMS</p>
-        </div>
-        <div className="text-left w-full">
-          <h2 className="text-3xl font-semibold mb-2">Hello</h2>
-          <p className="text-sm text-gray-500 mb-4">
-            {isSecondForm ? "Create your account" : "Register to Get Started"}
-          </p>
+        <div className="flex flex-col items-center mb-4">
+          <img src={logo} alt="VMS Logo" className="w-[90px] mb-1" />
+          <p className="text-[#055bc7] text-3xl font-bold">VMS</p>
         </div>
 
         {!isSecondForm ? (
           <form
-            onSubmit={handleFirstFormSubmit}
+            onSubmit={firstFormFormik.handleSubmit}
             className="w-full flex flex-col"
           >
             <div className="flex justify-between gap-3">
-              <div>
-                <label
-                  for="First Name"
-                  class="block text-sm font-normal0 text-gray-500 dark:text-gray-700"
-                >
+              <div className="mt-2">
+                <label className="block text-sm font-normal text-gray-500">
                   First Name
                 </label>
                 <input
                   type="text"
-                  placeholder="First Name"
-                  className=" text-black rounded-lg border-2 border-inherit block w-full p-2 "
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  required
+                  name="firstName"
+                  placeholder="first name"
+                  value={firstFormFormik.values.firstName}
+                  onChange={firstFormFormik.handleChange}
+                  className="text-black rounded-lg border-2 block w-full p-2"
                 />
+                {firstFormFormik.touched.firstName &&
+                  firstFormFormik.errors.firstName && (
+                    <p className="text-red-500 text-[1vw]">
+                      {firstFormFormik.errors.firstName}
+                    </p>
+                  )}
               </div>
-              <div>
-                <label
-                  for="Last Name"
-                  class="block  text-sm font-normal0 text-gray-500 dark:text-gray-700"
-                >
+
+              <div className="mt-2">
+                <label className="block text-sm font-normal text-gray-500">
                   Last Name
                 </label>
                 <input
                   type="text"
-                  placeholder="Last Name"
-                  className=" text-black rounded-lg border-2 border-inherit block w-full p-2 "
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                  required
+                  name="lastName"
+                  placeholder="last name"
+                  value={firstFormFormik.values.lastName}
+                  onChange={firstFormFormik.handleChange}
+                  className="text-black rounded-lg border-2 block w-full p-2"
                 />
+                {firstFormFormik.touched.lastName &&
+                  firstFormFormik.errors.lastName && (
+                    <p className="text-red-500 text-[1vw]">
+                      {firstFormFormik.errors.lastName}
+                    </p>
+                  )}
               </div>
             </div>
+
             <div className="mt-2">
-              <label
-                for="Email"
-                class="block text-sm font-normal0 text-gray-500 dark:text-gray-700"
-              >
+              <label className="block text-sm font-normal text-gray-500">
                 Email
               </label>
               <input
-                type="text"
-                placeholder="Email"
-                className=" text-black rounded-lg border-2 border-inherit block w-full p-2 "
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
+                type="email"
+                name="email"
+                placeholder="email"
+                value={firstFormFormik.values.email}
+                onChange={firstFormFormik.handleChange}
+                className="text-black rounded-lg border-2 block w-full p-2"
               />
+              {firstFormFormik.touched.email &&
+                firstFormFormik.errors.email && (
+                  <p className="text-red-500 text-[1vw]">
+                    {firstFormFormik.errors.email}
+                  </p>
+                )}
             </div>
+
             <div className="mt-2">
-              <label
-                for="Phone Number"
-                class="block text-sm font-normal0 text-gray-500 dark:text-gray-700"
-              >
+              <label className="block text-sm font-normal text-gray-500">
                 Phone Number
               </label>
               <input
                 type="text"
-                placeholder="Phone Number"
-                className=" text-black rounded-lg border-2 border-inherit block w-full p-2"
-                value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
-                required
+                name="phoneNumber"
+                placeholder="phone number"
+                value={firstFormFormik.values.phoneNumber}
+                onChange={firstFormFormik.handleChange}
+                className="text-black rounded-lg border-2 block w-full p-2"
               />
+              {firstFormFormik.touched.phoneNumber &&
+                firstFormFormik.errors.phoneNumber && (
+                  <p className="text-red-500 text-[1vw]">
+                    {firstFormFormik.errors.phoneNumber}
+                  </p>
+                )}
             </div>
 
             <button
               type="submit"
-              className="w-full bg-[#0073ff] text-[white] cursor-pointer text-base p-2 rounded-[5px] border-[none] hover:bg-[#005bb5] mt-6"
+              className="w-full bg-[#0073ff] hover:bg-[#005bb5] text-white p-2 rounded-lg mt-6"
             >
               Next
             </button>
@@ -188,78 +201,77 @@ const Register = () => {
           </form>
         ) : (
           <form
-            onSubmit={handleSecondFormSubmit}
+            onSubmit={secondFormFormik.handleSubmit}
             className="w-full flex flex-col"
           >
+            {/* Username */}
             <div className="mt-2">
-              <label
-                for="Username"
-                class="block text-sm font-normal0 text-gray-500 dark:text-gray-700"
-              >
-                User name
+              <label className="block text-sm font-normal text-gray-500">
+                Username
               </label>
               <input
                 type="text"
-                placeholder="Username"
-                className=" text-black rounded-lg border-2 border-inherit block w-full p-2"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                required
+                name="username"
+                value={secondFormFormik.values.username}
+                onChange={secondFormFormik.handleChange}
+                className="text-black rounded-lg border-2 block w-full p-2"
               />
+              {secondFormFormik.touched.username &&
+                secondFormFormik.errors.username && (
+                  <p className="text-red-500 text-sm">
+                    {secondFormFormik.errors.username}
+                  </p>
+                )}
             </div>
 
+            {/* Password */}
             <div className="mt-2 relative">
-              <label
-                for="password"
-                class="block text-sm font-normal0 text-gray-500 dark:text-gray-700"
-              >
+              <label className="block text-sm font-normal text-gray-500">
                 Password
               </label>
               <input
                 type={showPassword ? "text" : "password"}
-                placeholder="Password"
-                className=" text-black rounded-lg border-2 border-inherit block w-full p-2"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
+                name="password"
+                value={secondFormFormik.values.password}
+                onChange={secondFormFormik.handleChange}
+                className="text-black rounded-lg border-2 block w-full p-2"
               />
               <span
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-[70%] transform -translate-y-[50%] cursor-pointer"
-              >
-                {showPassword ? (
-                  <EyeOff size={20} className="text-gray-400" />
-                ) : (
-                  <Eye size={20} className="text-gray-400" />
-                )}
-              </span>
-            </div>
-
-            <div className="mt-2 relative">
-              <label
-                for="Confirm Password"
-                class="block text-sm font-normal0 text-gray-500 dark:text-gray-700"
-              >
-                Confirm Password
-              </label>
-              <input
-                type={showPassword ? "text" : "password"}
-                placeholder="Confirm Password"
-                className=" text-black rounded-lg border-2 border-inherit block w-full p-2"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-              />
-              <span
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-[70%] transform -translate-y-[50%] cursor-pointer"
+                className="absolute right-3 top-9 transform -translate-y-[50%] cursor-pointer"
               >
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </span>
+              {secondFormFormik.touched.password &&
+                secondFormFormik.errors.password && (
+                  <p className="text-red-500 text-sm">
+                    {secondFormFormik.errors.password}
+                  </p>
+                )}
+            </div>
+
+            <div className="mt-2">
+              <label className="block text-sm font-normal text-gray-500">
+                Confirm Password
+              </label>
+              <input
+                type="password"
+                name="confirmPassword"
+                value={secondFormFormik.values.confirmPassword}
+                onChange={secondFormFormik.handleChange}
+                className="text-black rounded-lg border-2 block w-full p-2"
+              />
+              {secondFormFormik.touched.confirmPassword &&
+                secondFormFormik.errors.confirmPassword && (
+                  <p className="text-red-500 text-sm">
+                    {secondFormFormik.errors.confirmPassword}
+                  </p>
+                )}
             </div>
 
             <button
               type="submit"
-              className="w-full mt-4 bg-[#0073ff] text-[white] cursor-pointer text-base p-3 rounded-[5px] border-[none] hover:bg-[#005bb5]"
+              className="w-full bg-[#0073ff] text-white p-2 rounded-lg mt-4"
             >
               Register
             </button>
@@ -267,12 +279,12 @@ const Register = () => {
             <div className="flex justify-between gap-12 mt-3 mb-3 w-72">
               <button
                 type="button"
-                onClick={handleBack}
+                onClick={() => setIsSecondForm(false)}
                 className=" text-[#0073ff] underline"
               >
                 Back
               </button>
-              <p className="text-center text-sm font-light text-gray-500 dark:text-gray-500">
+              <p className="text-center text-[1.3vw] font-light text-gray-500 dark:text-gray-500">
                 Already a member?{" "}
                 <a
                   href="/login"

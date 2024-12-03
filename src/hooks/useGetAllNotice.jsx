@@ -12,5 +12,5 @@ export default function useGetAllNotice() {
     getNotifications();
   }, []);
 
-  return notice;
+  return { notice, setNotice };
 }

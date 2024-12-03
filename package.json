@@ -25,6 +25,7 @@
     "antd": "^5.22.1",
     "axios": "^1.7.7",
     "class-variance-authority": "^0.7.0",
+    "formik": "^2.4.6",
     "framer-motion": "^11.11.17",
     "global": "^4.4.0",
     "init": "^0.1.2",
@@ -43,7 +44,8 @@
     "router": "^1.3.8",
     "sockjs-client": "^1.6.1",
     "stompjs": "^2.3.3",
-    "sweetalert2": "^11.14.4"
+    "sweetalert2": "^11.14.4",
+    "yup": "^1.4.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.11.1",
