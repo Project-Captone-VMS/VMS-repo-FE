@@ -2,7 +2,15 @@ import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { Button, Input, Modal } from "antd";
 import Map from "../../../components/Map/map";
-import { getAllDriver, getAllVehicle,findSequence,listRouteNoActive,getUsernameByDriverId } from "../../../services/apiRequest";
+import { over } from "stompjs";
+import SockJS from "sockjs-client";
+import {
+  getDriverNoActive,
+  getVehicleNoActive,
+  findSequence,
+  listRouteNoActive,
+  getUsernameByDriverId,
+} from "../../../services/apiRequest";
 
 const Route = () => {
   const [routes, setRoutes] = useState([]);
@@ -27,26 +35,26 @@ const Route = () => {
   const [formVehicle, setFormVehicle] = useState([]);
   const [selectedDriver, setSelectedDriver] = useState("");
   const [selectedVehicle, setSelectedVehicle] = useState("");
-  const [findUsername, setFindUserName] = useState("");
+  let socket = null;
+  let stompClient = null;
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const driverResult = await getAllDriver();
+        const driverResult = await getDriverNoActive();
         setFormDriver(driverResult);
 
-        const vehicleResult = await getAllVehicle();
+        const vehicleResult = await getVehicleNoActive();
         setFormVehicle(vehicleResult);
 
         const listRoute = await listRouteNoActive();
         setRoutes(listRoute);
-
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
 
     fetchData();
-  }, [getAllDriver, getAllVehicle]);
+  }, [getDriverNoActive, getVehicleNoActive]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -218,18 +226,21 @@ const Route = () => {
         map.removeObject(marker);
       });
       markers.current = [];
-      const response = await axios.get("http://localhost:8080/api/route/findRoute", {
-        params: {
-          originLat: originCoords.lat,
-          originLng: originCoords.lng,
-          destinationLat: destinationCoords.lat,
-          destinationLng: destinationCoords.lng,
-        },
-        headers: { 
-          Authorization: `Bearer ${token}`
+      const response = await axios.get(
+        "http://localhost:8080/api/route/findRoute",
+        {
+          params: {
+            originLat: originCoords.lat,
+            originLng: originCoords.lng,
+            destinationLat: destinationCoords.lat,
+            destinationLng: destinationCoords.lng,
+          },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
-      });
-      
+      );
+
       // const response = await findRoute(originCoords, destinationCoords);
 
       if (response.data.routes && response.data.routes.length > 0) {
@@ -297,9 +308,9 @@ const Route = () => {
             lat: 52.5308,
             lng: 13.3847,
           },
-          headers: { 
-            Authorization: `Bearer ${token}`
-          }
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
       setSuggestions(response.data.items || []);
@@ -314,17 +325,16 @@ const Route = () => {
       setError("Please select at least two points.");
       return;
     }
-    
-  
+
     try {
       const originCoords = await geocode(origin);
       const destinationCoords = await geocode(destination);
       const intermediatePoints = selectedCoordinates;
-  
+
       const destinations = intermediatePoints
         .map((coord) => `${coord.lat},${coord.lng}`)
         .join(",");
-  
+
       const formData = {
         startLat: originCoords.lat,
         startLng: originCoords.lng,
@@ -334,35 +344,43 @@ const Route = () => {
         driverId: selectedDriver,
         vehicleId: selectedVehicle,
       };
-  
-          
 
+      console.log(formData.driverId + "Vehicle " + formData.vehicleId)
 
       const headers = {
         Authorization: `Bearer eyJhbGciOiJSUzUxMiIsImN0eSI6IkpXVCIsImlzcyI6IkhFUkUiLCJhaWQiOiJZcDgxNk96UkI4M1BWTHM5UzZYZiIsImlhdCI6MTczMzI0MjA0MSwiZXhwIjoxNzMzMzI4NDQxLCJraWQiOiJqMSJ9.ZXlKaGJHY2lPaUprYVhJaUxDSmxibU1pT2lKQk1qVTJRMEpETFVoVE5URXlJbjAuLnQ1MjRxRk1CNERiVTY3c21FRVYzYUEuaWMwQWlmcUtIUHQ0WFZucS05X1JvYWkzU0ozTWxDbHBNYWtOZXJvdHRzU3VxQk9xRWRFYTh5aWZVMEpoYzBWcVdOa2VSUXAwZzhjVkxUSzVwemRVWkFvaEdyWFFkd2NNcGVqNVdubGd5U0h6YmtmQzlicEVnOWM1TWdsSEg4TjJrQVUzTjRPLTJQOFpUVjAwMkdVMGI4MndlTld5Zk9LeTlDb2l4QVJFdXlRLmJHX2F5Nk5MWFZidGs0UVdfRE1RRC1tNllDSE1yekVxU2dfVG1mM051c0k.AR1Lb6fw2fvHSONXgsHAbo_SIZ5OsXv4rrpNq98okB30JH_tG9oDasU5vLXOz1fjJDA4tuUCGUupTODkOU_pbg9TndIqgILOQARIkHibp8vtyubSjZUoiEWPFhQmRUMepuoU_m11OxUTavcet4EBynYaAU8o2_SpA8oSDBVUg6szJMfeQq6FSFKax4YQ-IEQaS9FakhfgPtRhqMFYjv66gwIB767o17s_Z2rkhI-D7qvpOi9m3NojlRO4X4wF_u7gLvTaBLlInG-6oKi3IneFdCf_vmeZSnVBo0nVKgGV67oLA7Wk880SwXblLViYhRjLI8yCnLLiIMcqEpRaIl_rQ`,
       };
-  
+
       const results = await findSequence({
         ...formData,
         headers,
       });
-      
+
+      const findUserNameByDriverId = await getUsernameByDriverId(
+        formData.driverId
+      );
+
+      if (stompClient !== null && stompClient.connected) {
+        stompClient.disconnect(() => {
+          console.log("Đã ngắt kết nối socket cũ!");
+        });
+      }else{
+        socket = new SockJS("http://localhost:8080/ws");
+        stompClient = over(socket);
+
+        stompClient.connect({}, () => {
+          stompClient.send(
+            `/app/chat/${findUserNameByDriverId}`,
+            {},
+            JSON.stringify(formDataSendNotification)
+          );
+          console.log("Notification Sent:", formDataSendNotification);
+  
+          alert("Thông báo đã được gửi thành công!");
+        });
+      }
 
       console.log("Result:", results);
-      const findUserNameByDriverId = await getUsernameByDriverId(formData.driverId);
-      setFindUserName(findUserNameByDriverId)
-      console.log("Username: " + findUsername)
-      stompClient.connect({}, () => {
-        stompClient.send(
-          `/app/chat/${findUsername}`,
-          {},
-          JSON.stringify(formDataSendNotification)
-        );
-        console.log("Notification Sent:", formDataSendNotification);
-
-        alert("Thông báo đã được gửi thành công!");
-      });
-
 
     } catch (error) {
       if (error.response && error.response.data) {
@@ -372,7 +390,6 @@ const Route = () => {
       }
     }
   };
-  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -513,7 +530,7 @@ const Route = () => {
                 </button>
                 <button
                   type="button"
-                  onClick={handleFindSequence }
+                  onClick={handleFindSequence}
                   className="bg-green-600 text-white p-2 rounded-md hover:bg-green-700 h-10"
                 >
                   Find Sequence
@@ -543,13 +560,13 @@ const Route = () => {
                 Time
               </th>{" "}
               <th scope="col" className="px-6 py-3">
-                  Distance
+                Distance
               </th>
               <th scope="col" className="px-6 py-3">
-              Fullname Driver
+                Fullname Driver
               </th>
               <th scope="col" className="px-6 py-3">
-              License Plate 
+                License Plate
               </th>
               <th scope="col" className="px-6 py-3">
                 <span className="sr-only">Edit</span>
@@ -562,12 +579,16 @@ const Route = () => {
                 key={route.id}
                 className="bg-white border-b dark:bg-white dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
               >
-                <td className="px-6 py-4">{route.startLat},{route.startLng}</td>
-                <td className="px-6 py-4">{route.endLat},{route.endLng}</td>
+                <td className="px-6 py-4">
+                  {route.startLat},{route.startLng}
+                </td>
+                <td className="px-6 py-4">
+                  {route.endLat},{route.endLng}
+                </td>
                 <td className="px-6 py-4">{route.totalTime} s</td>
                 <td className="px-6 py-4 ">{route.totalDistance} m</td>
-                {/* <td className="px-6 py-4 ">{route.driverId} {route.driver.lastName}</td> */}
-                {/* <td className="px-6 py-4 ">{route.vehicle.licensePlate}</td> */}
+                <td className="px-6 py-4 ">{route.driver.firstName} {route.driver.lastName}</td>
+                <td className="px-6 py-4 ">{route.vehicle.licensePlate}</td>
                 <td className="px-6 py-4 text-right">
                   <Button type="link" onClick={() => handleEdit(route)}>
                     Edit

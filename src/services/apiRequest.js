@@ -221,6 +221,17 @@ export const listRouteNoActive = async() => {
 
 export const getUsernameByDriverId = async (driverId) => {
   const response = await api.get(`driver/findUsername/${driverId}`);
-  console.log("Respone data driver: " + response.data)
+  return response.data;
+};
+
+
+export const getDriverNoActive = async () => {
+  const response = await api.get(`driver/No-Active`);
+  return response.data;
+};
+
+
+export const getVehicleNoActive = async () => {
+  const response = await api.get(`vehicle/No-Active`);
   return response.data;
 };

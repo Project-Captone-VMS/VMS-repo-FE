@@ -16,7 +16,6 @@ const AddVehicleModal = ({ isOpen, onClose }) => {
     licensePlate: "",
     type: "",
     capacity: "",
-    status: "",
     maintenanceSchedule: "",
   });
 
@@ -25,7 +24,6 @@ const AddVehicleModal = ({ isOpen, onClose }) => {
       licensePlate: "",
       type: "",
       capacity: "",
-      status: "",
       maintenanceSchedule: "",
     });
     setFieldErrors({});
@@ -80,13 +78,6 @@ const AddVehicleModal = ({ isOpen, onClose }) => {
         }
         break;
 
-      case "status":
-        if (!value) {
-          errors.status = "Status is required";
-        } else {
-          delete errors.status;
-        }
-        break;
 
       case "maintenanceSchedule":
         if (!value) {
@@ -282,46 +273,7 @@ const AddVehicleModal = ({ isOpen, onClose }) => {
               )}
             </div>
 
-            {/* Status Field */}
-            <div className="relative">
-              <Label
-                htmlFor="status"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Status
-              </Label>
-              <div className="mt-1 relative">
-                <Input
-                  id="status"
-                  name="status"
-                  value={vehicleData.status}
-                  onChange={handleInputChange}
-                  className={`block w-full pr-10 bg-white ${
-                    getInputStatus("status") === "error"
-                      ? "border-red-300 focus:border-red-500 focus:ring-red-500"
-                      : getInputStatus("status") === "success"
-                      ? "border-green-300 focus:border-green-500 focus:ring-green-500"
-                      : "border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                  }`}
-                  placeholder="Enter status"
-                />
-                {touchedFields.status && (
-                  <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                    {getInputStatus("status") === "error" ? (
-                      <X className="h-5 w-5 text-red-500" />
-                    ) : getInputStatus("status") === "success" ? (
-                      <Check className="h-5 w-5 text-green-500" />
-                    ) : null}
-                  </div>
-                )}
-              </div>
-              {fieldErrors.status && touchedFields.status && (
-                <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
-                  <AlertCircle className="h-4 w-4" />
-                  {fieldErrors.status}
-                </p>
-              )}
-            </div>
+            
 
             {/* Maintenance Schedule Field */}
             <div className="relative">
