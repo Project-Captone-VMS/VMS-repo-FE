@@ -123,9 +123,6 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
     setSelectedNotification(null);
   };
 
-  console.log("hahahahah", notifications);
-  console.log("do dai ", notifications.length);
-
   return (
     <header className="sticky top-0 z-50 flex w-full bg-white shadow-md">
       <div className="flex flex-grow items-center justify-between px-4 py-4 md:px-6 2xl:px-11">

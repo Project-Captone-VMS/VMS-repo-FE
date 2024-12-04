@@ -208,3 +208,19 @@ export const getAllNoti = async () => {
   const response = await api.get(`notifications/all`);
   return response.data;
 };
+
+export const findSequence = async (formData) => {
+  const response = await api.post(`route/find-sequence`, formData);
+  return response.data;
+};
+
+export const listRouteNoActive = async() => {
+  const response = await api.get("route")
+  return response.data;
+}
+
+export const getUsernameByDriverId = async (driverId) => {
+  const response = await api.get(`driver/findUsername/${driverId}`);
+  console.log("Respone data driver: " + response.data)
+  return response.data;
+};

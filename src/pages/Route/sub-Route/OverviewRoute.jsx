@@ -2,37 +2,51 @@ import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { Button, Input, Modal } from "antd";
 import Map from "../../../components/Map/map";
+import { getAllDriver, getAllVehicle,findSequence,listRouteNoActive,getUsernameByDriverId } from "../../../services/apiRequest";
 
 const Route = () => {
-  const [routes, setRoutes] = useState([
-    {
-      id: 1,
-      route: "Route 1",
-      start: "Đà Nẵng",
-      end: "Huế",
-      time: "7:00:00",
-      estimateTime: "10",
-    },
-    {
-      id: 2,
-      route: "Route 2",
-      start: "Quảng Nam",
-      end: "Huế",
-      time: "8:00:00",
-      estimateTime: "10",
-    },
-  ]);
+  const [routes, setRoutes] = useState([]);
 
-  const [formData, setFormData] = useState({
-    route: "",
-    start: "",
-    end: "",
-    estimateTime: "",
-    location: "",
+  // const [formData, setFormData] = useState({
+  //   route: "",
+  //   start: "",
+  //   end: "",
+  //   estimateTime: "",
+  //   location: "",
+  // });
+
+  const [formDataSendNotification, setFormDataSendNotification] = useState({
+    title: "You have a new route",
+    content: "Please check your route and estimate the time",
+    type: "SYSTEM",
   });
 
   const [editData, setEditData] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [formDriver, setFormDriver] = useState([]);
+  const [formVehicle, setFormVehicle] = useState([]);
+  const [selectedDriver, setSelectedDriver] = useState("");
+  const [selectedVehicle, setSelectedVehicle] = useState("");
+  const [findUsername, setFindUserName] = useState("");
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const driverResult = await getAllDriver();
+        setFormDriver(driverResult);
+
+        const vehicleResult = await getAllVehicle();
+        setFormVehicle(vehicleResult);
+
+        const listRoute = await listRouteNoActive();
+        setRoutes(listRoute);
+
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, [getAllDriver, getAllVehicle]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -91,7 +105,7 @@ const Route = () => {
   const markers = useRef([]);
   const [textareaValue, setTextareaValue] = useState("");
   const [selectedCoordinates, setSelectedCoordinates] = useState([]);
-
+  const token = localStorage.getItem("jwtToken");
   const apiKey = "jlBGGMAGg54YwZpieijupQwJpNMeGd9uwXDfRbjf-ag";
 
   useEffect(() => {
@@ -204,15 +218,19 @@ const Route = () => {
         map.removeObject(marker);
       });
       markers.current = [];
-
-      const response = await axios.get("http://localhost:8080/route", {
+      const response = await axios.get("http://localhost:8080/api/route/findRoute", {
         params: {
           originLat: originCoords.lat,
           originLng: originCoords.lng,
           destinationLat: destinationCoords.lat,
           destinationLng: destinationCoords.lng,
         },
+        headers: { 
+          Authorization: `Bearer ${token}`
+        }
       });
+      
+      // const response = await findRoute(originCoords, destinationCoords);
 
       if (response.data.routes && response.data.routes.length > 0) {
         const route = response.data.routes[0];
@@ -272,13 +290,16 @@ const Route = () => {
     }
     try {
       const response = await axios.get(
-        "http://localhost:8080/search-suggestions",
+        "http://localhost:8080/api/route/search-suggestions",
         {
           params: {
             query,
             lat: 52.5308,
             lng: 13.3847,
           },
+          headers: { 
+            Authorization: `Bearer ${token}`
+          }
         }
       );
       setSuggestions(response.data.items || []);
@@ -288,50 +309,70 @@ const Route = () => {
     }
   };
 
-  const findSequence = async () => {
+  const handleFindSequence = async () => {
     if (selectedCoordinates.length < 2) {
       setError("Please select at least two points.");
       return;
     }
-
+    
+  
     try {
       const originCoords = await geocode(origin);
       const destinationCoords = await geocode(destination);
-
-      // console.log("ori" + originCoords.lat +" "+ +originCoords.lng+ "des" +destinationCoords.lat +" "+ destinationCoords.lng);
-
       const intermediatePoints = selectedCoordinates;
-
+  
       const destinations = intermediatePoints
         .map((coord) => `${coord.lat},${coord.lng}`)
         .join(",");
-
-      // console.log("Des" + destinations);
-
-      // Prepare the params for the request
-      const params = {
+  
+      const formData = {
         startLat: originCoords.lat,
         startLng: originCoords.lng,
         destinations: destinations,
         endLat: destinationCoords.lat,
         endLng: destinationCoords.lng,
+        driverId: selectedDriver,
+        vehicleId: selectedVehicle,
       };
+  
+          
+
 
       const headers = {
-        Authorization: `Bearer  eyJhbGciOiJSUzUxMiIsImN0eSI6IkpXVCIsImlzcyI6IkhFUkUiLCJhaWQiOiJZcDgxNk96UkI4M1BWTHM5UzZYZiIsImlhdCI6MTczMDk5MjM1MSwiZXhwIjoxNzMxMDc4NzUxLCJraWQiOiJqMSJ9.ZXlKaGJHY2lPaUprYVhJaUxDSmxibU1pT2lKQk1qVTJRMEpETFVoVE5URXlJbjAuLjcyeFN6anVVem42TDBiMThvOHRNM0EuTHNsRzNRU2dtZUJiM2VYdHZXRWRaT1pYa19xTDhkTG9BT2R4WWJmRXFLbXE5QlBJRjloSzN5ZGx3THU5ZU1xMVgyeTRXOXE3SUQ1R2VKZl9fSFB5OUVaNnZyYTAwZktORnNQd2w1QXVNZFdidXhPOWZTU2gtVjNzWWhHekV2cXB3bklYMnBtQUg3YV91NGQ2S2J1LURlSk0yeDlveVNsYks1Y1h2aVJZZUhFLmkyQ0w2RkRGUkk0c2hLZW9FODVCSHZPLVlReGY2VFJwejJPclZmbWZ1ZEk.SoG2xAly9ZnCDODbE-eaSTn7CxmpGZi83qrqMiZWQ0I4r1IvpMB74P0m9H9Jbu7ilm5kfwglSL87UbdJIIt9LtioCbZsEQECmNSGfxDG5Tm0k7CZTWJ1ZxEdyEUA8y5GW8sntTW86QaGeRpfLtDH2LAPp-MiLjkJzua9dzZzakFlsTkOm8U_cKTwQAuog7xdFD-ikTiJQp9NqlEPF1eYiXISKNCGim8n6SKxPDpexgGD9fqxv5lc1gmAJSko74D494DjQyXAX3rpgd1d8bV6_NXUZLb6w11DJxPXbihi91ch0ffU7Tx6hFLg5u_wemQZlzEIAebXcB6TWFqmvaXUfA`,
+        Authorization: `Bearer eyJhbGciOiJSUzUxMiIsImN0eSI6IkpXVCIsImlzcyI6IkhFUkUiLCJhaWQiOiJZcDgxNk96UkI4M1BWTHM5UzZYZiIsImlhdCI6MTczMzI0MjA0MSwiZXhwIjoxNzMzMzI4NDQxLCJraWQiOiJqMSJ9.ZXlKaGJHY2lPaUprYVhJaUxDSmxibU1pT2lKQk1qVTJRMEpETFVoVE5URXlJbjAuLnQ1MjRxRk1CNERiVTY3c21FRVYzYUEuaWMwQWlmcUtIUHQ0WFZucS05X1JvYWkzU0ozTWxDbHBNYWtOZXJvdHRzU3VxQk9xRWRFYTh5aWZVMEpoYzBWcVdOa2VSUXAwZzhjVkxUSzVwemRVWkFvaEdyWFFkd2NNcGVqNVdubGd5U0h6YmtmQzlicEVnOWM1TWdsSEg4TjJrQVUzTjRPLTJQOFpUVjAwMkdVMGI4MndlTld5Zk9LeTlDb2l4QVJFdXlRLmJHX2F5Nk5MWFZidGs0UVdfRE1RRC1tNllDSE1yekVxU2dfVG1mM051c0k.AR1Lb6fw2fvHSONXgsHAbo_SIZ5OsXv4rrpNq98okB30JH_tG9oDasU5vLXOz1fjJDA4tuUCGUupTODkOU_pbg9TndIqgILOQARIkHibp8vtyubSjZUoiEWPFhQmRUMepuoU_m11OxUTavcet4EBynYaAU8o2_SpA8oSDBVUg6szJMfeQq6FSFKax4YQ-IEQaS9FakhfgPtRhqMFYjv66gwIB767o17s_Z2rkhI-D7qvpOi9m3NojlRO4X4wF_u7gLvTaBLlInG-6oKi3IneFdCf_vmeZSnVBo0nVKgGV67oLA7Wk880SwXblLViYhRjLI8yCnLLiIMcqEpRaIl_rQ`,
       };
-
-      const response = await axios.get("http://localhost:8080/find-sequence", {
-        params,
+  
+      const results = await findSequence({
+        ...formData,
         headers,
       });
+      
 
-      const results = response.data;
+      console.log("Result:", results);
+      const findUserNameByDriverId = await getUsernameByDriverId(formData.driverId);
+      setFindUserName(findUserNameByDriverId)
+      console.log("Username: " + findUsername)
+      stompClient.connect({}, () => {
+        stompClient.send(
+          `/app/chat/${findUsername}`,
+          {},
+          JSON.stringify(formDataSendNotification)
+        );
+        console.log("Notification Sent:", formDataSendNotification);
+
+        alert("Thông báo đã được gửi thành công!");
+      });
+
+
     } catch (error) {
-      console.error("Failed to fetch sequence:", error);
-      setError("Failed to fetch sequence. Please try again later.");
+      if (error.response && error.response.data) {
+        setError(`Error: ${error.response.data.message}`);
+      } else {
+        setError("Failed to fetch sequence. Please try again later.");
+      }
     }
   };
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -349,91 +390,8 @@ const Route = () => {
     }
   };
 
-  //?
-
   return (
-    <div className="">
-      {/* <div className="flex h-screen justify-between gap-4 bg-gray-100 p-4">
-        <div className="w-full md:w-2/3 bg-white shadow-lg rounded-lg">
-          <Map />
-        </div>
-        <div className="w-1/3">
-          <form
-            onSubmit={handleSubmit}
-            className="w-full max-w-md p-6 bg-white shadow-lg rounded-lg"
-          >
-            <h2 className="text-center text-xl">Create Route</h2>
-            <div className="flex flex-col mb-4">
-              <label htmlFor="start" className="font-medium text-sm">
-                Start
-              </label>
-              <Input
-                id="start"
-                name="start"
-                value={formData.start}
-                onChange={handleChange}
-                placeholder="Enter start location"
-              />
-            </div>
-            <div className="flex flex-col mb-4">
-              <label htmlFor="end" className="font-medium text-sm">
-                End
-              </label>
-              <Input
-                id="end"
-                name="end"
-                value={formData.end}
-                onChange={handleChange}
-                placeholder="Enter end location"
-              />
-            </div>
-            <div className="flex flex-col mb-4">
-              <label htmlFor="route" className="font-medium text-sm">
-                Route
-              </label>
-              <Input
-                id="route"
-                name="route"
-                value={formData.route}
-                onChange={handleChange}
-                placeholder="Enter route name"
-              />
-            </div>
-            <div className="flex flex-col mb-4">
-              <label htmlFor="date" className="font-medium text-sm">
-                Estimate Time
-              </label>
-              <Input
-                id="estimate Time"
-                type="text"
-                name="estimateTime"
-                value={formData.estimateTime}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="flex justify-center">
-              <Button type="primary" htmlType="submit" className="w-full">
-                Create Route
-              </Button>
-            </div>
-            <div className="flex flex-col mb-4">
-              <label htmlFor="location" className="font-medium text-sm">
-                Location
-              </label>
-              <textarea
-                id="location"
-                name="location"
-                value={formData.location}
-                onChange={handleChange}
-                rows={4}
-                className="border rounded p-2"
-                placeholder="Enter location details"
-              />
-            </div>
-          </form>
-        </div>
-      </div> */}
-
+    <div>
       <div className="flex justify-between">
         <div
           className="map-container"
@@ -471,7 +429,7 @@ const Route = () => {
                   />
                 </label>
               </div>
-              <div className="mb-4">
+              {/* <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700">
                   Route:
                   <input
@@ -482,7 +440,58 @@ const Route = () => {
                     className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300 focus:border-blue-500"
                   />
                 </label>
+              </div> */}
+
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700">
+                  Driver:
+                  <select
+                    value={selectedDriver}
+                    onChange={(e) => setSelectedDriver(e.target.value)}
+                    // required
+                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300 focus:border-blue-500"
+                  >
+                    <option value="" disabled>
+                      Select a driver
+                    </option>
+                    {formDriver && formDriver.length > 0 ? (
+                      formDriver.map((driver) => (
+                        <option key={driver.id} value={driver.driverId}>
+                          {driver.lastName} {driver.firstName}
+                        </option>
+                      ))
+                    ) : (
+                      <option disabled>Loading drivers...</option>
+                    )}
+                  </select>
+                </label>
               </div>
+
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700">
+                  Select Vehicle:
+                  <select
+                    value={selectedVehicle}
+                    onChange={(e) => setSelectedVehicle(e.target.value)}
+                    // required
+                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300 focus:border-blue-500"
+                  >
+                    <option value="" disabled>
+                      Select a vehicle
+                    </option>
+                    {formVehicle && formVehicle.length > 0 ? (
+                      formVehicle.map((vehicle) => (
+                        <option key={vehicle.id} value={vehicle.vehicleId}>
+                          {vehicle.licensePlate}
+                        </option>
+                      ))
+                    ) : (
+                      <option disabled>Loading drivers...</option>
+                    )}
+                  </select>
+                </label>
+              </div>
+
               <div
                 className=" w-full"
                 style={{ width: "100%", padding: "10px" }}
@@ -504,7 +513,7 @@ const Route = () => {
                 </button>
                 <button
                   type="button"
-                  onClick={findSequence}
+                  onClick={handleFindSequence }
                   className="bg-green-600 text-white p-2 rounded-md hover:bg-green-700 h-10"
                 >
                   Find Sequence
@@ -514,13 +523,6 @@ const Route = () => {
 
             {loading && <p>Loading route...</p>}
             {error && <p className="text-red-600">{error}</p>}
-            {routeInfo.distance && (
-              <div className="route-info mt-4 p-4 border border-gray-200 rounded-md">
-                <h3 className="text-lg font-semibold">Route Information</h3>
-                <p>Distance: {routeInfo.distance} meters</p>
-                <p>Duration: {routeInfo.duration} seconds</p>
-              </div>
-            )}
           </div>
           <hr className="mt-4" />
         </div>
@@ -532,9 +534,6 @@ const Route = () => {
           <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
             <tr>
               <th scope="col" className="px-6 py-3">
-                Route
-              </th>
-              <th scope="col" className="px-6 py-3">
                 Start
               </th>
               <th scope="col" className="px-6 py-3">
@@ -544,7 +543,13 @@ const Route = () => {
                 Time
               </th>{" "}
               <th scope="col" className="px-6 py-3">
-                Estimate Time
+                  Distance
+              </th>
+              <th scope="col" className="px-6 py-3">
+              Fullname Driver
+              </th>
+              <th scope="col" className="px-6 py-3">
+              License Plate 
               </th>
               <th scope="col" className="px-6 py-3">
                 <span className="sr-only">Edit</span>
@@ -557,16 +562,12 @@ const Route = () => {
                 key={route.id}
                 className="bg-white border-b dark:bg-white dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
               >
-                <th
-                  scope="row"
-                  className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-black "
-                >
-                  {route.route}
-                </th>
-                <td className="px-6 py-4">{route.start}</td>
-                <td className="px-6 py-4">{route.end}</td>
-                <td className="px-6 py-4">{route.time}</td>
-                <td className="px-6 py-4 ">{route.estimateTime}</td>
+                <td className="px-6 py-4">{route.startLat},{route.startLng}</td>
+                <td className="px-6 py-4">{route.endLat},{route.endLng}</td>
+                <td className="px-6 py-4">{route.totalTime} s</td>
+                <td className="px-6 py-4 ">{route.totalDistance} m</td>
+                {/* <td className="px-6 py-4 ">{route.driverId} {route.driver.lastName}</td> */}
+                {/* <td className="px-6 py-4 ">{route.vehicle.licensePlate}</td> */}
                 <td className="px-6 py-4 text-right">
                   <Button type="link" onClick={() => handleEdit(route)}>
                     Edit
