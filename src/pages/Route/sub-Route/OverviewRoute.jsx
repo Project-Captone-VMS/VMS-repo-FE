@@ -1,9 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
-import axios from "axios";
 import { Button, Input, Modal } from "antd";
 import { over } from "stompjs";
-import SockJS from "sockjs-client";
 import {
+  getInterConnections,
   getDriverNoActive,
   getVehicleNoActive,
   findSequence,
@@ -11,10 +10,13 @@ import {
   getUsernameByDriverId,
   getWayPoint,
 } from "../../../services/apiRequest";
+import axios from "axios";
+import SockJS from "sockjs-client";
 
 const Route = () => {
   const [routes, setRoutes] = useState([]);
   const [wayPoints, setWayPoints] = useState([]);
+  const [InterConnections, setInterConnection] = useState([]);
 
   const [editData, setEditData] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -67,7 +69,11 @@ const Route = () => {
     const res = await getWayPoint(id);
     setWayPoints(res);
 
+    const response = await getInterConnections(id);
+    setInterConnection(response);
+
     console.log("res", res);
+    console.log("response", response);
     setIsDetailModalVisible(true);
   };
 
@@ -520,8 +526,8 @@ const Route = () => {
         <h2 className="text-slate-950 text-lg mb-4 font-bold">
           Information List Route
         </h2>
-        <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 rounded-lg">
-          <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+        <table className="w-full text-sm text-left rtl:text-right text-black dark:text-black font-normal rounded-lg">
+          <thead className="text-xs text-black uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
             <tr>
               <th scope="col" className="px-6 py-3">
                 Start
@@ -550,7 +556,7 @@ const Route = () => {
             {routes.map((route) => (
               <tr
                 key={route.routeId}
-                className="bg-white border-b dark:bg-white dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+                className="bg-white border-b dark:bg-white dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-200"
               >
                 <td className="px-6 py-4">
                   {route.startLat},{route.startLng}
@@ -649,7 +655,7 @@ const Route = () => {
           <div className="bg-gray-50 p-4 rounded-lg">
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+                <thead className="bg-gray-50 ">
                   <tr>
                     <th className="px-4 py-2 text-xs font-medium text-gray-500">
                       From
@@ -658,24 +664,37 @@ const Route = () => {
                       To
                     </th>
                     <th className="px-4 py-2 text-xs font-medium text-gray-500">
+                      Distance (m)
+                    </th>
+                    <th className="px-4 py-2 text-xs font-medium text-gray-500">
                       Time Waypoint (s)
                     </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200 ">
-                  {wayPoints.map((wayPoint) => (
-                    <tr key={wayPoint.waypointId} className="hover:bg-gray-50">
-                      <td className="px-4 py-2 text-sm text-gray-900">
-                        {wayPoint.lat}
-                      </td>
-                      <td className="px-4 py-2 text-sm text-gray-900">
-                        {wayPoint.lng}
-                      </td>
-                      <td className="px-4 py-2 text-sm text-gray-900">
-                        {wayPoint.estimatedDeparture}
-                      </td>
-                    </tr>
-                  ))}
+                  {wayPoints.map((wayPoint, index) => {
+                    const interConnection = InterConnections[index] || {};
+                    return (
+                      <tr
+                        key={wayPoint.waypointId}
+                        className="hover:bg-gray-50 text-start"
+                      >
+                        <td className="px-4 py-2 text-sm text-gray-900">
+                          {wayPoint.lat}
+                        </td>
+                        <td className="px-4 py-2 text-sm text-gray-900">
+                          {wayPoint.lng}
+                        </td>
+
+                        <td className="px-4 py-2 text-sm text-gray-900">
+                          {interConnection.distance || "N/A"}m
+                        </td>
+                        <td className="px-4 py-2 text-sm text-gray-900">
+                          {interConnection.timeWaypoint || "N/A"}s
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

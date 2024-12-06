@@ -234,6 +234,11 @@ export const getWayPoint = async (id) => {
   return response.data;
 };
 
+export const getInterConnections = async (id) => {
+  const response = await api.get(`interconnections/route/${id}`);
+  return response.data;
+};
+
 export const getVehicleNoActive = async () => {
   const response = await api.get(`vehicle/No-Active`);
   return response.data;

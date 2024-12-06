@@ -21,6 +21,7 @@ const Sidebar = ({ isOpen, setIsOpen, role }) => {
   const sb_menuItems = [
     { path: "/vehicle", icon: Truck, label: "Vehicle Management" },
     { path: "/driver", icon: Users, label: "Driver Management" },
+    { path: "/realtime", icon: Map, label: "Realtime Tracking" },
     { path: "/warehouse", icon: Warehouse, label: "Warehouse Management" },
     { path: "/analytics", icon: BarChart2, label: "Analytics" },
     // { path: "/notification", icon: BarChart2, label: "notification" },

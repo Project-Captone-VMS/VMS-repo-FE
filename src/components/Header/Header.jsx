@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+
 import { useNavigate, Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { logout } from "../../redux/authSlice";
@@ -68,7 +69,9 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
         setNotificationCount(res.length);
       }
     };
+
     getNotice();
+
     const socket = new SockJS("http://localhost:8080/ws");
     const client = over(socket);
 
@@ -76,9 +79,17 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
       {},
       () => {
         console.log(`Connected to WebSocket as ${username}`);
+        toast.info("Logged in successfully");
+
         client.subscribe(`/user/${username}/notifications`, (message) => {
           const notification = JSON.parse(message.body);
           console.log("notification:", notification);
+
+          toast.success(
+            `New notification: ${
+              notification.title || "You have a new message!"
+            }`
+          );
 
           getNotice();
         });
