@@ -730,7 +730,7 @@ const Route = () => {
                 <tbody className="bg-white divide-y divide-gray-200 ">
                   {wayPoints.map(
                     (wayPoint, index) =>
-                      index < wayPoints.length - 1 && ( // Chỉ lấy đến waypoint áp chót
+                      index < wayPoints.length - 1 && ( 
                         <tr
                           key={wayPoint.waypointId}
                           className="hover:bg-gray-50"
