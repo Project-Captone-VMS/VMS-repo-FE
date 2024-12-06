@@ -16,7 +16,8 @@ import SockJS from "sockjs-client";
 const Route = () => {
   const [routes, setRoutes] = useState([]);
   const [wayPoints, setWayPoints] = useState([]);
-  const [InterConnections, setInterConnection] = useState([]);
+  const [interconnect, setInterconnect] = useState([]);
+  const [selectedRouteDetails, setSelectedRouteDetails] = useState(null);
 
   const [editData, setEditData] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -70,14 +71,11 @@ const Route = () => {
     setWayPoints(res);
 
     const response = await getInterConnections(id);
-    setInterConnection(response);
+    setInterconnect(response);
 
-    console.log("res", res);
-    console.log("response", response);
     setIsDetailModalVisible(true);
   };
 
-  console.log("wayPoints", wayPoints);
 
   const handleEdit = (route) => {
     setEditData(route);
@@ -92,6 +90,12 @@ const Route = () => {
     );
     setIsModalVisible(false);
   };
+
+  function formatTime(seconds) {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    return `About ${hours}h ${minutes}m`;
+  }
 
   const mapRef = useRef(null);
   const [map, setMap] = useState(null);
@@ -349,9 +353,6 @@ const Route = () => {
         formData.driverId
       );
 
-      const getWayPointResult = await getWayPoint();
-      console.log("getWayPointResult", getWayPointResult);
-
       if (stompClient !== null && stompClient.connected) {
         stompClient.disconnect(() => {
           console.log("Đã ngắt kết nối socket cũ!");
@@ -373,6 +374,7 @@ const Route = () => {
       }
 
       console.log("Result:", results);
+      window.location.reload();
     } catch (error) {
       if (error.response && error.response.data) {
         setError(`Error: ${error.response.data.message}`);
@@ -652,7 +654,58 @@ const Route = () => {
         width={700}
       >
         <div className="space-y-6">
-          <div className="bg-gray-50 p-4 rounded-lg">
+          {selectedRouteDetails && (
+            <div>
+              <div className="bg-gray-200 p-4 rounded-lg">
+                <h3 className="text-lg font-semibold mb-4">Route Overview</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <h4 className="font-medium text-sm text-gray-500">
+                      Total Distance
+                    </h4>
+                    <p className="text-lg text-black">
+                      {selectedRouteDetails.route?.routeId} meters
+                    </p>
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-sm text-gray-500">
+                      Total Time
+                    </h4>
+                    <p className="text-lg">
+                      {/* {selectedRouteDetails.totalTime.toLocaleString()} seconds */}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-gray-200 p-4 rounded-lg mt-4">
+                <h3 className="text-lg font-semibold mb-4">
+                  Assignment Details
+                </h3>
+                {/* <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <h4 className="font-medium text-sm text-gray-500">
+                      Driver
+                    </h4>
+                    <p className="text-lg">
+                      {selectedRouteDetails.driver?.firstName}{" "}
+                      {selectedRouteDetails.driver?.lastName}
+                    </p>
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-sm text-gray-500">
+                      Vehicle
+                    </h4>
+                    <p className="text-lg">
+                      {selectedRouteDetails.vehicle?.licensePlate}
+                    </p>
+                  </div>
+                </div> */}
+              </div>
+            </div>
+          )}
+
+          <div className="bg-gray-200 p-4 rounded-lg">
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50 ">
@@ -669,32 +722,51 @@ const Route = () => {
                     <th className="px-4 py-2 text-xs font-medium text-gray-500">
                       Time Waypoint (s)
                     </th>
+                    <th className="px-4 py-2 text-xs font-medium text-gray-500">
+                      Coordinates
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200 ">
-                  {wayPoints.map((wayPoint, index) => {
-                    const interConnection = InterConnections[index] || {};
-                    return (
-                      <tr
-                        key={wayPoint.waypointId}
-                        className="hover:bg-gray-50 text-start"
-                      >
-                        <td className="px-4 py-2 text-sm text-gray-900">
-                          {wayPoint.lat}
-                        </td>
-                        <td className="px-4 py-2 text-sm text-gray-900">
-                          {wayPoint.lng}
-                        </td>
-
-                        <td className="px-4 py-2 text-sm text-gray-900">
-                          {interConnection.distance || "N/A"}m
-                        </td>
-                        <td className="px-4 py-2 text-sm text-gray-900">
-                          {interConnection.timeWaypoint || "N/A"}s
-                        </td>
-                      </tr>
-                    );
-                  })}
+                  {wayPoints.map(
+                    (wayPoint, index) =>
+                      index < wayPoints.length - 1 && ( // Chỉ lấy đến waypoint áp chót
+                        <tr
+                          key={wayPoint.waypointId}
+                          className="hover:bg-gray-50"
+                        >
+                          <td className="px-4 py-2 text-sm text-gray-900">
+                            {interconnect[index]
+                              ? interconnect[index].fromWaypoint
+                              : ""}
+                          </td>
+                          <td className="px-4 py-2 text-sm text-gray-900">
+                            {interconnect[index]
+                              ? interconnect[index].toWaypoint
+                              : ""}
+                          </td>
+                          <td className="px-4 py-2 text-sm text-gray-900">
+                            {interconnect[index]
+                              ? interconnect[index].distance
+                              : ""}
+                          </td>
+                          <td className="px-4 py-2 text-sm text-gray-900">
+                            {interconnect[index]
+                              ? formatTime(interconnect[index].timeWaypoint)
+                              : ""}
+                          </td>
+                          <td className="px-4 py-2 text-sm text-gray-900">
+                            From {wayPoint.lat.toFixed(4)},{" "}
+                            {wayPoint.lng.toFixed(4)}
+                            <>
+                              {" "}
+                              To {wayPoints[index + 1].lat.toFixed(4)},{" "}
+                              {wayPoints[index + 1].lng.toFixed(4)}
+                            </>
+                          </td>
+                        </tr>
+                      )
+                  )}
                 </tbody>
               </table>
             </div>
