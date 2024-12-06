@@ -4,8 +4,8 @@ import { Button, Input, Modal } from "antd";
 import { over } from "stompjs";
 import SockJS from "sockjs-client";
 import {
-  getAllDriver,
-  getAllVehicle,
+  getDriverNoActive,
+  getVehicleNoActive,
   findSequence,
   listRouteNoActive,
   getUsernameByDriverId,
@@ -35,10 +35,10 @@ const Route = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const driverResult = await getAllDriver();
+        const driverResult = await getDriverNoActive();
         setFormDriver(driverResult);
 
-        const vehicleResult = await getAllVehicle();
+        const vehicleResult = await getVehicleNoActive();
         setFormVehicle(vehicleResult);
 
         const listRoute = await listRouteNoActive();
@@ -51,7 +51,7 @@ const Route = () => {
     };
 
     fetchData();
-  }, [getAllDriver, getAllVehicle]);
+  }, [getDriverNoActive, getVehicleNoActive]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
