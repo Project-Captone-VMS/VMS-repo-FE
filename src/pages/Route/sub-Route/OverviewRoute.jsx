@@ -1,33 +1,20 @@
 import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { Button, Input, Modal } from "antd";
-import Map from "../../../components/Map/map";
 import { over } from "stompjs";
 import SockJS from "sockjs-client";
 import {
-  getDriverNoActive,
-  getVehicleNoActive,
+  getAllDriver,
+  getAllVehicle,
   findSequence,
   listRouteNoActive,
   getUsernameByDriverId,
+  getWayPoint,
 } from "../../../services/apiRequest";
 
 const Route = () => {
   const [routes, setRoutes] = useState([]);
-
-  // const [formData, setFormData] = useState({
-  //   route: "",
-  //   start: "",
-  //   end: "",
-  //   estimateTime: "",
-  //   location: "",
-  // });
-
-  const [formDataSendNotification, setFormDataSendNotification] = useState({
-    title: "You have a new route",
-    content: "Please check your route and estimate the time",
-    type: "SYSTEM",
-  });
+  const [wayPoints, setWayPoints] = useState([]);
 
   const [editData, setEditData] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -35,18 +22,28 @@ const Route = () => {
   const [formVehicle, setFormVehicle] = useState([]);
   const [selectedDriver, setSelectedDriver] = useState("");
   const [selectedVehicle, setSelectedVehicle] = useState("");
+  const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
+  const [formDataSendNotification, setFormDataSendNotification] = useState({
+    title: "You have a new route",
+    content: "Please check your route and estimate the time",
+    type: "SYSTEM",
+  });
+
   let socket = null;
   let stompClient = null;
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const driverResult = await getDriverNoActive();
+        const driverResult = await getAllDriver();
         setFormDriver(driverResult);
 
-        const vehicleResult = await getVehicleNoActive();
+        const vehicleResult = await getAllVehicle();
         setFormVehicle(vehicleResult);
 
         const listRoute = await listRouteNoActive();
+        const routeIds = listRoute.map((route) => route.routeId);
+
         setRoutes(listRoute);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -54,7 +51,7 @@ const Route = () => {
     };
 
     fetchData();
-  }, [getDriverNoActive, getVehicleNoActive]);
+  }, [getAllDriver, getAllVehicle]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -66,25 +63,15 @@ const Route = () => {
     setEditData({ ...editData, [name]: value });
   };
 
-  // const handleSubmit = (e) => {
-  //   e.preventDefault();
-  //   const newRoute = {
-  //     id: routes.length + 1,
-  //     route: formData.route,
-  //     start: formData.start,
-  //     end: formData.end,
-  //     estimateTime: formData.estimateTime,
-  //     time: new Date(formData.date).toLocaleTimeString(),
-  //   };
-  //   setRoutes([...routes, newRoute]);
-  //   setFormData({
-  //     route: "",
-  //     start: "",
-  //     end: "",
-  //     estimateTime: "",
-  //     location: "",
-  //   });
-  // };
+  const handleViewDetails = async (id) => {
+    const res = await getWayPoint(id);
+    setWayPoints(res);
+
+    console.log("res", res);
+    setIsDetailModalVisible(true);
+  };
+
+  console.log("wayPoints", wayPoints);
 
   const handleEdit = (route) => {
     setEditData(route);
@@ -100,7 +87,6 @@ const Route = () => {
     setIsModalVisible(false);
   };
 
-  //?
   const mapRef = useRef(null);
   const [map, setMap] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -241,8 +227,6 @@ const Route = () => {
         }
       );
 
-      // const response = await findRoute(originCoords, destinationCoords);
-
       if (response.data.routes && response.data.routes.length > 0) {
         const route = response.data.routes[0];
         const section = route.sections[0];
@@ -345,8 +329,6 @@ const Route = () => {
         vehicleId: selectedVehicle,
       };
 
-      console.log(formData.driverId + "Vehicle " + formData.vehicleId)
-
       const headers = {
         Authorization: `Bearer eyJhbGciOiJSUzUxMiIsImN0eSI6IkpXVCIsImlzcyI6IkhFUkUiLCJhaWQiOiJZcDgxNk96UkI4M1BWTHM5UzZYZiIsImlhdCI6MTczMzI0MjA0MSwiZXhwIjoxNzMzMzI4NDQxLCJraWQiOiJqMSJ9.ZXlKaGJHY2lPaUprYVhJaUxDSmxibU1pT2lKQk1qVTJRMEpETFVoVE5URXlJbjAuLnQ1MjRxRk1CNERiVTY3c21FRVYzYUEuaWMwQWlmcUtIUHQ0WFZucS05X1JvYWkzU0ozTWxDbHBNYWtOZXJvdHRzU3VxQk9xRWRFYTh5aWZVMEpoYzBWcVdOa2VSUXAwZzhjVkxUSzVwemRVWkFvaEdyWFFkd2NNcGVqNVdubGd5U0h6YmtmQzlicEVnOWM1TWdsSEg4TjJrQVUzTjRPLTJQOFpUVjAwMkdVMGI4MndlTld5Zk9LeTlDb2l4QVJFdXlRLmJHX2F5Nk5MWFZidGs0UVdfRE1RRC1tNllDSE1yekVxU2dfVG1mM051c0k.AR1Lb6fw2fvHSONXgsHAbo_SIZ5OsXv4rrpNq98okB30JH_tG9oDasU5vLXOz1fjJDA4tuUCGUupTODkOU_pbg9TndIqgILOQARIkHibp8vtyubSjZUoiEWPFhQmRUMepuoU_m11OxUTavcet4EBynYaAU8o2_SpA8oSDBVUg6szJMfeQq6FSFKax4YQ-IEQaS9FakhfgPtRhqMFYjv66gwIB767o17s_Z2rkhI-D7qvpOi9m3NojlRO4X4wF_u7gLvTaBLlInG-6oKi3IneFdCf_vmeZSnVBo0nVKgGV67oLA7Wk880SwXblLViYhRjLI8yCnLLiIMcqEpRaIl_rQ`,
       };
@@ -355,16 +337,20 @@ const Route = () => {
         ...formData,
         headers,
       });
+      console.log("results", results);
 
       const findUserNameByDriverId = await getUsernameByDriverId(
         formData.driverId
       );
 
+      const getWayPointResult = await getWayPoint();
+      console.log("getWayPointResult", getWayPointResult);
+
       if (stompClient !== null && stompClient.connected) {
         stompClient.disconnect(() => {
           console.log("Đã ngắt kết nối socket cũ!");
         });
-      }else{
+      } else {
         socket = new SockJS("http://localhost:8080/ws");
         stompClient = over(socket);
 
@@ -375,13 +361,12 @@ const Route = () => {
             JSON.stringify(formDataSendNotification)
           );
           console.log("Notification Sent:", formDataSendNotification);
-  
+
           alert("Thông báo đã được gửi thành công!");
         });
       }
 
       console.log("Result:", results);
-
     } catch (error) {
       if (error.response && error.response.data) {
         setError(`Error: ${error.response.data.message}`);
@@ -446,18 +431,6 @@ const Route = () => {
                   />
                 </label>
               </div>
-              {/* <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">
-                  Route:
-                  <input
-                    type="text"
-                    value={Route}
-                    onChange={(e) => setDestination(e.target.value)}
-                    required
-                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300 focus:border-blue-500"
-                  />
-                </label>
-              </div> */}
 
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700">
@@ -465,7 +438,6 @@ const Route = () => {
                   <select
                     value={selectedDriver}
                     onChange={(e) => setSelectedDriver(e.target.value)}
-                    // required
                     className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300 focus:border-blue-500"
                   >
                     <option value="" disabled>
@@ -490,7 +462,6 @@ const Route = () => {
                   <select
                     value={selectedVehicle}
                     onChange={(e) => setSelectedVehicle(e.target.value)}
-                    // required
                     className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300 focus:border-blue-500"
                   >
                     <option value="" disabled>
@@ -546,7 +517,9 @@ const Route = () => {
       </div>
 
       <div className="relative overflow-x-auto shadow-md sm:rounded-lg mt-2 p-4 bg-gray-100">
-        <h2 className="text-slate-950 text-lg">Total Route</h2>
+        <h2 className="text-slate-950 text-lg mb-4 font-bold">
+          Information List Route
+        </h2>
         <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 rounded-lg">
           <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
             <tr>
@@ -569,14 +542,14 @@ const Route = () => {
                 License Plate
               </th>
               <th scope="col" className="px-6 py-3">
-                <span className="sr-only">Edit</span>
+                Action
               </th>
             </tr>
           </thead>
           <tbody>
             {routes.map((route) => (
               <tr
-                key={route.id}
+                key={route.routeId}
                 className="bg-white border-b dark:bg-white dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
               >
                 <td className="px-6 py-4">
@@ -587,11 +560,20 @@ const Route = () => {
                 </td>
                 <td className="px-6 py-4">{route.totalTime} s</td>
                 <td className="px-6 py-4 ">{route.totalDistance} m</td>
-                <td className="px-6 py-4 ">{route.driver.firstName} {route.driver.lastName}</td>
+                <td className="px-6 py-4 ">
+                  {route.driverId} {route.driver.firstName}{" "}
+                  {route.driver.lastName}{" "}
+                </td>
                 <td className="px-6 py-4 ">{route.vehicle.licensePlate}</td>
-                <td className="px-6 py-4 text-right">
+                <td className="px-2 py-4 ">
                   <Button type="link" onClick={() => handleEdit(route)}>
                     Edit
+                  </Button>
+                  <Button
+                    type="link"
+                    onClick={() => handleViewDetails(route.routeId)}
+                  >
+                    Detail
                   </Button>
                 </td>
               </tr>
@@ -649,6 +631,55 @@ const Route = () => {
             value={editData?.estimateTime || ""}
             onChange={handleEditChange}
           />
+        </div>
+      </Modal>
+
+      <Modal
+        title="Route Details"
+        open={isDetailModalVisible}
+        onCancel={() => setIsDetailModalVisible(false)}
+        footer={[
+          <Button key="close" onClick={() => setIsDetailModalVisible(false)}>
+            Close
+          </Button>,
+        ]}
+        width={700}
+      >
+        <div className="space-y-6">
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-4 py-2 text-xs font-medium text-gray-500">
+                      From
+                    </th>
+                    <th className="px-4 py-2 text-xs font-medium text-gray-500">
+                      To
+                    </th>
+                    <th className="px-4 py-2 text-xs font-medium text-gray-500">
+                      Time Waypoint (s)
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200 ">
+                  {wayPoints.map((wayPoint) => (
+                    <tr key={wayPoint.waypointId} className="hover:bg-gray-50">
+                      <td className="px-4 py-2 text-sm text-gray-900">
+                        {wayPoint.lat}
+                      </td>
+                      <td className="px-4 py-2 text-sm text-gray-900">
+                        {wayPoint.lng}
+                      </td>
+                      <td className="px-4 py-2 text-sm text-gray-900">
+                        {wayPoint.estimatedDeparture}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </Modal>
     </div>

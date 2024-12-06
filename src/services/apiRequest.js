@@ -214,22 +214,25 @@ export const findSequence = async (formData) => {
   return response.data;
 };
 
-export const listRouteNoActive = async() => {
-  const response = await api.get("route")
+export const listRouteNoActive = async () => {
+  const response = await api.get("route");
   return response.data;
-}
+};
 
 export const getUsernameByDriverId = async (driverId) => {
   const response = await api.get(`driver/findUsername/${driverId}`);
   return response.data;
 };
 
-
 export const getDriverNoActive = async () => {
   const response = await api.get(`driver/No-Active`);
   return response.data;
 };
 
+export const getWayPoint = async (id) => {
+  const response = await api.get(`waypoint/route/${id}`);
+  return response.data;
+};
 
 export const getVehicleNoActive = async () => {
   const response = await api.get(`vehicle/No-Active`);
