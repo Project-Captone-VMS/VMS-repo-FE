@@ -8,7 +8,7 @@ import EditWarehouse from '../../components/Modals/EditWarehouse';
 import SearchAndFilter from '../../components/Warehouse/SearchAndFilter';
 import getFilteredWarehouses from '../../components/Warehouse/getFilteredWarehouses';
 
-import { getAllWarehouses, deleteWarehouse, createWarehouse, updateWarehouse } from "../../services/apiRequest";
+import { getAllWarehouses, deleteWarehouse, createWarehouse, updateWarehouse, totalWarehouses, totalLocations, totalOvers, totalLesss } from "../../services/apiRequest";
 import Swal from "sweetalert2";
 
 const WarehouseManagement = () => {
@@ -17,6 +17,10 @@ const WarehouseManagement = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingWarehouse, setEditingWarehouse] = useState(null);
   const [warehouses, setWarehouses] = useState([]);
+  const [totalWarehouse,setTotalWarehouse] = useState(0);
+  const [totalLocation,setTotalLocation] = useState(0);
+  const [totalOver,setTotalOver] = useState(0);
+  const [totalLess,setTotalLess] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [showFilters, setShowFilters] = useState(false);
@@ -63,6 +67,42 @@ const WarehouseManagement = () => {
   // Load initial data
   useEffect(() => {
     fetchWarehouses();
+  }, []);
+
+  useEffect(() => {
+    async function fetchData() {
+      const result = await totalWarehouses(); 
+      setTotalWarehouse(result);
+    }
+    
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    async function fetchData() {
+      const result = await totalLocations(); 
+      setTotalLocation(result);
+    }
+    
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    async function fetchData() {
+      const result = await totalOvers(); 
+      setTotalOver(result);
+    }
+    
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    async function fetchData() {
+      const result = await totalLesss(); 
+      setTotalLess(result);
+    }
+    
+    fetchData();
   }, []);
 
   // Handle Add Warehouse
@@ -222,14 +262,14 @@ const WarehouseManagement = () => {
         />
 
         {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <div className="bg-white rounded-lg shadow-sm p-6 flex items-center gap-4">
             <div className="p-3 bg-blue-100 rounded-lg">
               <Package className="h-6 w-6 text-blue-600" />
             </div>
             <div>
               <p className="text-sm text-gray-600">Total Warehouses</p>
-              <p className="text-2xl font-bold text-gray-900">{warehouses.length}</p>
+              <p className="text-2xl font-bold text-gray-900">{totalWarehouse}</p>
             </div>
           </div>
           <div className="bg-white rounded-lg shadow-sm p-6 flex items-center gap-4">
@@ -237,8 +277,18 @@ const WarehouseManagement = () => {
               <BarChart2 className="h-6 w-6 text-green-600" />
             </div>
             <div>
-              <p className="text-sm text-gray-600">Average Utilization</p>
-              <p className="text-2xl font-bold text-gray-900">75%</p>
+              <p className="text-sm text-gray-600">Capacity over 10000 </p>
+              <p className="text-2xl font-bold text-gray-900">{totalOver}</p>
+            </div>
+          </div>
+          <div className="bg-white rounded-lg shadow-sm p-6 flex items-center gap-4">
+            <div className="p-3 bg-purple-100 rounded-lg">
+              <BarChart2 className="h-6 w-6 text-red-600" />
+            </div>
+
+            <div>
+              <p className="text-sm text-gray-600">Capacity less than 10000 </p>
+              <p className="text-2xl font-bold text-gray-900">{totalLess}</p>
             </div>
           </div>
           <div className="bg-white rounded-lg shadow-sm p-6 flex items-center gap-4">
@@ -247,7 +297,7 @@ const WarehouseManagement = () => {
             </div>
             <div>
               <p className="text-sm text-gray-600">Active Locations</p>
-              <p className="text-2xl font-bold text-gray-900">{warehouses.length}</p>
+              <p className="text-2xl font-bold text-gray-900">{totalLocation}</p>
             </div>
           </div>
         </div>
@@ -255,18 +305,6 @@ const WarehouseManagement = () => {
         {/* Warehouse Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {warehouses.map(warehouse => (
-            <WarehouseCard
-              key={warehouse.warehouseId}
-              warehouse={warehouse}
-              onSelect={() => navigate(`/warehouse/${warehouse.warehouseId}`)}
-              onEdit={handleEditWarehouse}
-              onDelete={() => handleDeleteWarehouse(warehouse.warehouseId)}
-              disabled={isLoading}
-            />
-          ))}
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredWarehouses.map(warehouse => (
             <WarehouseCard
               key={warehouse.warehouseId}
               warehouse={warehouse}

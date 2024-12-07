@@ -6,7 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from "../../../components/ui/card";
-import { Table, TableRow } from "../../../components/Tabs/Vehicle/Table";
+import { Table, TableRow } from "../../../components/Vehicle/Table";
 import { Button } from "../../../components/ui/button";
 import { Input } from "../../../components/ui/input";
 import Pagination from "../../../components/Pagination";

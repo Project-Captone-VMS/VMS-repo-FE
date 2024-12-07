@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { Search, ChevronDown, Edit, Trash2 } from "lucide-react";
 import { Button } from "../../../components/ui/button";
 import { Input } from "../../../components/ui/input";
-import { Table, TableRow } from "../../../components/Tabs/Vehicle/Table";
+import { Table, TableRow } from "../../../components/Vehicle/Table";
 import { formatDate } from "../../../lib/formatDate";
 import {
   Card,
@@ -39,12 +39,12 @@ const VehiclesTable = ({
       <div>
         <span
           className={`px-2 py-1 rounded-full text-xs font-medium ${
-            vehicle.status === "Active"
+            !vehicle.status
               ? "bg-green-100 text-green-800"
               : "bg-red-100 text-red-800"
           }`}
         >
-          {vehicle.status}
+          {vehicle.status ? "Busy (On Delivery)" : "Active (Available)"}
         </span>
       </div>
       <div className="font-medium">{vehicle.capacity}</div>

@@ -3,11 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { Check, X, AlertCircle } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
 import { Button } from "../../components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { createVehicle } from "../../services/apiRequest";
 
+// Modal thêm xe
 const AddVehicleModal = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const [fieldErrors, setFieldErrors] = useState({});
@@ -16,6 +18,7 @@ const AddVehicleModal = ({ isOpen, onClose }) => {
     licensePlate: "",
     type: "",
     capacity: "",
+    status: "false",
     maintenanceSchedule: "",
   });
 
@@ -24,6 +27,7 @@ const AddVehicleModal = ({ isOpen, onClose }) => {
       licensePlate: "",
       type: "",
       capacity: "",
+      status: "false",
       maintenanceSchedule: "",
     });
     setFieldErrors({});
@@ -78,6 +82,13 @@ const AddVehicleModal = ({ isOpen, onClose }) => {
         }
         break;
 
+      case "status":
+        if (!value) {
+          errors.status = "Status is required";
+        } else {
+          delete errors.status;
+        }
+        break;
 
       case "maintenanceSchedule":
         if (!value) {
@@ -121,8 +132,14 @@ const AddVehicleModal = ({ isOpen, onClose }) => {
       return;
     }
 
+    // Convert status to boolean before sending to backend
+    const vehicleDataToSend = {
+      ...vehicleData,
+      status: vehicleData.status === "true",
+    };
+
     try {
-      await createVehicle(vehicleData);
+      await createVehicle(vehicleDataToSend);
       toast.success("Vehicle created successfully!");
       navigate("/vehicle");
     } catch (error) {
@@ -273,7 +290,51 @@ const AddVehicleModal = ({ isOpen, onClose }) => {
               )}
             </div>
 
-            
+            {/* Status Field */}
+            <div className="relative">
+              <Label
+                htmlFor="status"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Status
+              </Label>
+              <div className="mt-1 relative">
+                <Select
+                  name="status"
+                  value={vehicleData.status}
+                  onValueChange={(value) => handleInputChange({ target: { name: 'status', value } })}
+                >
+                  <SelectTrigger className={`w-full ${
+                    getInputStatus("status") === "error"
+                      ? "border-red-300 focus:border-red-500 focus:ring-red-500"
+                      : getInputStatus("status") === "success"
+                      ? "border-green-300 focus:border-green-500 focus:ring-green-500"
+                      : "border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                  }`}>
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="false">Active (Available)</SelectItem>
+                    <SelectItem value="true">Busy (On Delivery)</SelectItem>
+                  </SelectContent>
+                </Select>
+                {touchedFields.status && (
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                    {getInputStatus("status") === "error" ? (
+                      <X className="h-5 w-5 text-red-500" />
+                    ) : getInputStatus("status") === "success" ? (
+                      <Check className="h-5 w-5 text-green-500" />
+                    ) : null}
+                  </div>
+                )}
+              </div>
+              {fieldErrors.status && touchedFields.status && (
+                <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                  <AlertCircle className="h-4 w-4" />
+                  {fieldErrors.status}
+                </p>
+              )}
+            </div>
 
             {/* Maintenance Schedule Field */}
             <div className="relative">

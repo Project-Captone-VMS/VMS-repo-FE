@@ -59,25 +59,21 @@ const OverviewTab = () => (
         title="Total Vehicles"
         value="15"
         icon={Car}
-        trend={{ type: "up", value: "+2 from last month" }}
       />
       <StatCard
         title="Vehicles in Maintenance"
         value="3"
         icon={Settings}
-        trend={{ type: "down", value: "-1 from last week" }}
       />
       <StatCard
-        title="Scheduled Maintenance"
+        title="Vehicles is incident"
         value="5"
-        icon={Calendar}
-        trend={{ type: "up", value: "+3 upcoming" }}
+        icon={Car}
       />
       <StatCard
         title="Total Distance"
         value="125,000 km"
         icon={Car}
-        trend={{ type: "up", value: "+12% this month" }}
       />
     </div>
 

@@ -1,5 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { AlertCircle } from 'lucide-react';
 
 const EditVehicleModal = ({ vehicle, onClose, onSave }) => {
   const [vehicleData, setVehicleData] = useState({
@@ -7,7 +11,7 @@ const EditVehicleModal = ({ vehicle, onClose, onSave }) => {
     capacity: "",
     licensePlate: "",
     maintenanceSchedule: "",
-    status: "",
+    status: false,
   });
 
   const [fieldErrors, setFieldErrors] = useState({});
@@ -19,7 +23,7 @@ const EditVehicleModal = ({ vehicle, onClose, onSave }) => {
         capacity: vehicle.capacity || "",
         licensePlate: vehicle.licensePlate || "",
         maintenanceSchedule: vehicle.maintenanceSchedule || "",
-        status: vehicle.status || "",
+        status: vehicle.status || false,
       });
     }
   }, [vehicle]);
@@ -57,7 +61,7 @@ const EditVehicleModal = ({ vehicle, onClose, onSave }) => {
         break;
 
       case "status":
-        if (!value) {
+        if (value === undefined || value === null) {
           errors.status = "Status is required.";
         } else {
           delete errors.status;
@@ -90,7 +94,7 @@ const EditVehicleModal = ({ vehicle, onClose, onSave }) => {
     const { name, value } = e.target;
     setVehicleData((prevData) => ({
       ...prevData,
-      [name]: value,
+      [name]: name === 'status' ? value === 'true' : value,
     }));
     validateField(name, value);
   };
@@ -111,14 +115,14 @@ const EditVehicleModal = ({ vehicle, onClose, onSave }) => {
         <form onSubmit={handleSubmit}>
           <label className="block mb-2">
             Plate Number
-            <input
+            <Input
               type="text"
               name="licensePlate"
               value={vehicleData.licensePlate}
               onChange={handleChange}
-              className={`border ${
+              className={`w-full ${
                 fieldErrors.licensePlate ? "border-red-500" : "border-gray-300"
-              } rounded p-2 w-full`}
+              }`}
               required
             />
             {fieldErrors.licensePlate && (
@@ -129,14 +133,14 @@ const EditVehicleModal = ({ vehicle, onClose, onSave }) => {
           </label>
           <label className="block mb-2">
             Type
-            <input
+            <Input
               type="text"
               name="type"
               value={vehicleData.type}
               onChange={handleChange}
-              className={`border ${
+              className={`w-full ${
                 fieldErrors.type ? "border-red-500" : "border-gray-300"
-              } rounded p-2 w-full`}
+              }`}
               required
             />
             {fieldErrors.type && (
@@ -145,30 +149,35 @@ const EditVehicleModal = ({ vehicle, onClose, onSave }) => {
           </label>
           <label className="block mb-2">
             Status
-            <input
-              type="text"
+            <Select
               name="status"
-              value={vehicleData.status}
-              onChange={handleChange}
-              className={`border ${
+              value={vehicleData.status.toString()}
+              onValueChange={(value) => handleChange({ target: { name: 'status', value } })}
+            >
+              <SelectTrigger className={`w-full ${
                 fieldErrors.status ? "border-red-500" : "border-gray-300"
-              } rounded p-2 w-full`}
-              required
-            />
+              }`}>
+                <SelectValue placeholder="Select status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="false">Active (Available)</SelectItem>
+                <SelectItem value="true">Busy (On Delivery)</SelectItem>
+              </SelectContent>
+            </Select>
             {fieldErrors.status && (
               <span className="text-red-500 text-sm">{fieldErrors.status}</span>
             )}
           </label>
           <label className="block mb-2">
             Capacity
-            <input
+            <Input
               type="number"
               name="capacity"
               value={vehicleData.capacity}
               onChange={handleChange}
-              className={`border ${
+              className={`w-full ${
                 fieldErrors.capacity ? "border-red-500" : "border-gray-300"
-              } rounded p-2 w-full`}
+              }`}
               required
             />
             {fieldErrors.capacity && (
@@ -179,16 +188,16 @@ const EditVehicleModal = ({ vehicle, onClose, onSave }) => {
           </label>
           <label className="block mb-2">
             Maintenance Schedule
-            <input
+            <Input
               type="date"
               name="maintenanceSchedule"
               value={vehicleData.maintenanceSchedule}
               onChange={handleChange}
-              className={`border ${
+              className={`w-full ${
                 fieldErrors.maintenanceSchedule
                   ? "border-red-500"
                   : "border-gray-300"
-              } rounded p-2 w-full`}
+              }`}
               required
             />
             {fieldErrors.maintenanceSchedule && (
@@ -212,3 +221,4 @@ const EditVehicleModal = ({ vehicle, onClose, onSave }) => {
 };
 
 export default EditVehicleModal;
+

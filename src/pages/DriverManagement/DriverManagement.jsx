@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from 'react-router-dom';
-import { getAllDriver, deleteDriver } from "../../services/apiRequest";
+import { useNavigate, Link } from 'react-router-dom';
+import { getAllDrivers, deleteDriver } from "../../services/apiRequest";
 import Swal from "sweetalert2";
 import DriverTable from "../../components/Driver/DriverTable";
 import SearchAndFilter from "../../components/Driver/SearchAndFilter";
@@ -33,11 +33,25 @@ const DriverManagement = () => {
   // Fetch drivers data
   const fetchDrivers = async () => {
     try {
-      const data = await getAllDriver();
-      setDrivers(data);
+      const data = await getAllDrivers();
+      console.log(data);
+      if (Array.isArray(data)) {
+        setDrivers(data);
+      } else {
+        console.error('Unexpected data format:', data);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Received unexpected data format from server'
+        });
+      }
     } catch (error) {
-      console.error("Error fetching drivers:", error);
-      Swal.fire("Error!", "Failed to fetch drivers.", "error");
+      console.error('Error fetching drivers:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error.response?.data?.message || 'Failed to fetch drivers'
+      });
     }
   };
 
@@ -107,43 +121,53 @@ const DriverManagement = () => {
   };
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
-      <h1 className="text-3xl font-bold mb-4">Driver Management</h1>
+    <div className="bg-gray-100 min-h-screen">
+      <nav className="bg-blue-600 p-4 mb-6">
+        <div className="container mx-auto flex justify-between items-center">
+          <div className="text-white font-bold text-xl">Fleet Management</div>
+          <div>
+            <Link to="/driver" className="text-white hover:text-blue-200 mr-4">Drivers</Link>
+            <Link to="/expenses" className="text-white hover:text-blue-200">Expenses</Link>
+          </div>
+        </div>
+      </nav>
+      <div className="p-6">
+        <h1 className="text-3xl font-bold mb-4">Driver Management</h1>
 
-      {/* Truyền danh sách drivers vào Stats */}
-      <Stats drivers={drivers} />
+        <Stats drivers={drivers} />
 
-      <SearchAndFilter
-        searchTerm={searchTerm}
-        onSearchChange={handleSearchChange}
-        showFilters={showFilters}
-        setShowFilters={setShowFilters}
-        filters={filters}
-        onFilterChange={handleFilterChange}
-      />
-
-      <DriverTable
-        drivers={paginatedDrivers}
-        onEditClick={handleEditClick}
-        onDelete={handleDeleteDriver}
-      />
-
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        itemsPerPage={itemsPerPage}
-        totalItems={filteredDrivers.length}
-        onPageChange={handlePageChange}
-      />
-
-      {selectedDriver && (
-        <UpdateDriver
-          isOpen={isUpdateModalOpen}
-          onClose={handleCloseUpdateModal}
-          driver={selectedDriver}
-          onDriverUpdated={handleDriverUpdated}
+        <SearchAndFilter
+          searchTerm={searchTerm}
+          onSearchChange={handleSearchChange}
+          showFilters={showFilters}
+          setShowFilters={setShowFilters}
+          filters={filters}
+          onFilterChange={handleFilterChange}
         />
-      )}
+
+        <DriverTable
+          drivers={paginatedDrivers}
+          onEditClick={handleEditClick}
+          onDelete={handleDeleteDriver}
+        />
+
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          itemsPerPage={itemsPerPage}
+          totalItems={filteredDrivers.length}
+          onPageChange={handlePageChange}
+        />
+
+        {selectedDriver && (
+          <UpdateDriver
+            isOpen={isUpdateModalOpen}
+            onClose={handleCloseUpdateModal}
+            driver={selectedDriver}
+            onDriverUpdated={handleDriverUpdated}
+          />
+        )}
+      </div>
     </div>
   );
 };

@@ -4,7 +4,10 @@ import { updateDriver } from "../../services/apiRequest";
 import { AlertCircle } from "lucide-react";
 import Swal from "sweetalert2";
 
-const STATUS_OPTIONS = ["On duty", "On Leave", "Available"];
+const STATUS_OPTIONS = [
+  { value: "false", label: "Active (Available)" },
+  { value: "true", label: "Busy (On Delivery)" }
+];
 const SCHEDULE_OPTIONS = ["Monday-Friday", "Weekend", "Night Shift"];
 
 const UpdateDriver = ({ isOpen, onClose, driver, onDriverUpdated }) => {
@@ -29,7 +32,7 @@ const UpdateDriver = ({ isOpen, onClose, driver, onDriverUpdated }) => {
     const { name, value } = e.target;
     setUpdatedDriver((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: name === 'status' ? value === 'true' : value,
     }));
     validateField(name, value);
   };
@@ -200,16 +203,16 @@ const UpdateDriver = ({ isOpen, onClose, driver, onDriverUpdated }) => {
             </label>
             <select
               name="status"
-              value={updatedDriver.status}
+              value={updatedDriver.status.toString()}
               onChange={handleChange}
               className={`w-full p-2 border bg-gray-100 rounded-lg focus:ring focus:ring-blue-500 ${
                 fieldErrors.status ? "border-red-500" : ""
               }`}
             >
               <option value="">Select Status</option>
-              {STATUS_OPTIONS.map((status) => (
-                <option key={status} value={status}>
-                  {status}
+              {STATUS_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
                 </option>
               ))}
             </select>

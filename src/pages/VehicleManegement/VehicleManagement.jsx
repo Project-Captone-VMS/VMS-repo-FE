@@ -39,6 +39,9 @@ const VehicleManagement = () => {
         <Link to="MaintenanceTab" className="px-4 py-2">
           Maintenance
         </Link>
+        <Link to="IncidentTab" className="px-4 py-2">
+          IncidentTab
+        </Link>
       </div>
 
       <Outlet />
