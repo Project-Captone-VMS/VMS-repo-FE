@@ -10,16 +10,16 @@ import circle from "../assets/images/circle.png";
 import logo from "../assets/images/logo.png";
 
 const Login = () => {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-
+  const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [isSubmitted, setIsSubmitted] = useState(false);
   const [formData, setFormData] = useState({
     username: "",
     password: "",
   });
-  const [showPassword, setShowPassword] = useState(false);
-  const [errors, setErrors] = useState({});
-  const [isSubmitted, setIsSubmitted] = useState(false);
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -61,6 +61,7 @@ const Login = () => {
     if (!validateInputs()) return;
 
     const { username, password } = formData;
+    // const user = { username: username.trim().toLowerCase(), password };
     const user = { username, password };
 
     dispatch(loginStart());

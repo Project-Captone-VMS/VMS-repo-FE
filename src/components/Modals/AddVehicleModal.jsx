@@ -22,7 +22,8 @@ const AddVehicleModal = ({ isOpen, onClose }) => {
     maintenanceSchedule: "",
   });
 
-  const handleCancel = () => {
+  // Reset the state (refresh the modal)
+  const resetState = () => {
     setVehicleData({
       licensePlate: "",
       type: "",
@@ -32,6 +33,10 @@ const AddVehicleModal = ({ isOpen, onClose }) => {
     });
     setFieldErrors({});
     setTouchedFields({});
+  };
+
+  const handleCancel = () => {
+    resetState();
     onClose();
   };
 
@@ -141,7 +146,11 @@ const AddVehicleModal = ({ isOpen, onClose }) => {
     try {
       await createVehicle(vehicleDataToSend);
       toast.success("Vehicle created successfully!");
-      navigate("/vehicle");
+      resetState(); // Reset state after successful save
+      onClose(); // Close modal after saving
+
+      // Refresh the page by using window.location.reload()
+      window.location.reload();
     } catch (error) {
       toast.error("Failed to create vehicle");
     }

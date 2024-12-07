@@ -79,7 +79,7 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
         client.subscribe(`/user/${username}/notifications`, (message) => {
           const notification = JSON.parse(message.body);
           console.log("notification:", notification);
-
+          alert("Có 1 thông báo mới!");
           getNotice();
         });
       },
@@ -122,6 +122,9 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
   const handleClosePopUp = () => {
     setSelectedNotification(null);
   };
+
+  console.log("hahahahah", notifications);
+  console.log("do dai ", notifications.length);
 
   return (
     <header className="sticky top-0 z-50 flex w-full bg-white shadow-md">
