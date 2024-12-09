@@ -53,8 +53,6 @@ const AdminSender = () => {
           {},
           JSON.stringify(formData)
         );
-        console.log("res", formData);
-        // setNotice(prev => [...prev, res.data])
 
         resetFormData();
         setIsModalVisible(false);

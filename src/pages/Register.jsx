@@ -75,7 +75,7 @@ const Register = () => {
         <div className="z-[2] absolute text-[white] left-[10%] top-[20%]">
           <h1 className="text-3xl lg:text-5xl font-bold">GoFinance</h1>
           <p className="text-sm lg:text-xl">
-            The most popular peer-to-peer lending at SEA
+            Vehicle Monitoring System for Logistics Operations
           </p>
         </div>
         <img

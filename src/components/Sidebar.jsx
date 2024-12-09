@@ -26,6 +26,7 @@ const Sidebar = ({ isOpen, setIsOpen, role }) => {
     // { path: "/notification", icon: BarChart2, label: "notification" },
     { path: "/indexNotification", icon: BellDot, label: "indexNotification" },
     // { path: "/UserReceiver", icon: BellDot, label: "UserReceiver" },
+    { path: "/routeDetail", icon: Route, label: "Route User" },
     { path: "/route", icon: Route, label: "Route Management" },
     { path: "/chat", icon: MessageSquare, label: "Chat" },
     { path: "/reports", icon: FileText, label: "Reports" },
@@ -34,7 +35,10 @@ const Sidebar = ({ isOpen, setIsOpen, role }) => {
   const filteredMenuItems =
     role === "USER"
       ? sb_menuItems.filter(
-          (item) => item.path === "/realtime" || item.path === "/UserReceiver"
+          (item) =>
+            item.path === "/realtime" ||
+            item.path === "/UserReceiver" ||
+            item.path === "/routeDetail"
         )
       : sb_menuItems;
 
@@ -48,7 +52,6 @@ const Sidebar = ({ isOpen, setIsOpen, role }) => {
         isOpen ? "w-60" : "w-16"
       } sticky top-0 left-0`}
     >
-      {/* Logo Section */}
       <div className="flex flex-col">
         <NavLink
           to="/dashboard"

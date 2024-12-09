@@ -24,6 +24,7 @@ import OverviewRoute from "./pages/Route/sub-Route/OverviewRoute";
 import ListRoute from "./pages/Route/sub-Route/ListRoute";
 import AdminSender from "./pages/SendNotification/AdminSender";
 import UserReceiver from "./pages/SendNotification/UserReceiver";
+import RouteDetailUser from "./pages/RouteDetailUser";
 
 import { Toaster } from "react-hot-toast";
 
@@ -64,6 +65,10 @@ function App() {
             {
               path: "UserReceiver",
               element: <UserReceiver />,
+            },
+            {
+              path: "routeDetail",
+              element: <RouteDetailUser />,
             },
           ],
         },

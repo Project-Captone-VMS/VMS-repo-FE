@@ -98,7 +98,7 @@ const Login = () => {
             className="not-italic text-sm lg:text-xl font-medium leading-[normal] text-[white]"
             style={{ fontFamily: "Poppins" }}
           >
-            The most popular peer to peer lending at SEA
+            Vehicle Monitoring System for Logistics Operations
           </p>
         </div>
         <img
@@ -125,13 +125,13 @@ const Login = () => {
         </div>
 
         <form
-          className="space-y-4 md:space-y-2 w-full flex flex-col gap-1"
+          className="space-y-4 md:space-y-2 w-full flex flex-col "
           onSubmit={handleLogin}
         >
           <div>
             <label
               htmlFor="username"
-              className="block mb-1 text-ms font-normal text-gray-500 dark:text-gray-700"
+              className="block text-ms font-normal text-gray-500 dark:text-gray-700"
             >
               User name
             </label>
@@ -146,7 +146,7 @@ const Login = () => {
               onChange={handleChange}
             />
             <p
-              className="text-red-500 text-[.7vw] mt-1"
+              className="text-red-500 text-[0.7vw] mt-1"
               style={{ minHeight: "16px" }}
             >
               {errors.username}
