@@ -128,7 +128,7 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
 
   return (
     <header className="sticky top-0 z-50 flex w-full bg-white shadow-md">
-      <div className="flex flex-grow items-center justify-between px-4 py-4 md:px-6 2xl:px-11">
+      <div className="flex flex-grow items-center justify-between px-4 py-2 md:px-6 2xl:px-11">
         <div className="flex items-center gap-3">
           <button
             className="lg:hidden"

@@ -23,8 +23,8 @@ const DefaultLayout = () => {
             setSidebarOpen={setSidebarOpen}
             className="sticky top-0 z-50 bg-white dark:bg-boxdark"
           />
-          <div className="flex-1 overflow-y-auto overflow-x-hidden">
-            <div className="mx-auto max-w-screen p-4 md:p-6 2xl:p-10">
+          <div className="flex-1 overflow-y-auto overflow-x-hidden bg-[#f5f7fa]">
+            <div className="mx-auto max-w-screen p-2 md:p-4 2xl:p-8">
               <Outlet />
             </div>
           </div>
