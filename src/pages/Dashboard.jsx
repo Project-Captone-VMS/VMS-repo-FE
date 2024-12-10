@@ -57,7 +57,7 @@ const Dashboard = () => {
   ];
 
   const deliveryData = [
-    { name: "Mon", deliveries: 20 },
+    { name: "Mon", deliveries: 10 },
     { name: "Tue", deliveries: 30 },
     { name: "Wed", deliveries: 25 },
     { name: "Thu", deliveries: 40 },

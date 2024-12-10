@@ -13,7 +13,13 @@ import { Label } from "../../components/ui/label";
 import { Input } from "../../components/ui/input";
 import { Button } from "../../components/ui/button";
 import { Alert, AlertDescription } from "../../components/ui/alert";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../../components/ui/select";
 import { createMaintenance } from "../../services/apiRequest";
 
 // Hàm định dạng ngày
@@ -79,7 +85,10 @@ const AddMaintenanceModal = ({ isOpen, onClose, vehicleId, onSubmit }) => {
     setFormData((prev) => ({ ...prev, [field]: formattedValue }));
     setTouchedFields((prev) => ({ ...prev, [field]: true }));
 
-    const errors = validateMaintenanceData({ ...formData, [field]: formattedValue });
+    const errors = validateMaintenanceData({
+      ...formData,
+      [field]: formattedValue,
+    });
     setFieldErrors(errors);
   };
 
@@ -142,7 +151,7 @@ const AddMaintenanceModal = ({ isOpen, onClose, vehicleId, onSubmit }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md mx-auto">
+      <DialogContent className="mx-auto w-full max-w-md rounded-lg bg-white p-6 shadow-lg">
         <DialogHeader>
           <DialogTitle>Add Maintenance Record</DialogTitle>
         </DialogHeader>
@@ -241,7 +250,9 @@ const AddMaintenanceModal = ({ isOpen, onClose, vehicleId, onSubmit }) => {
             <Select
               id="status"
               value={formData.status}
-              onValueChange={(value) => setFormData((prev) => ({ ...prev, status: value }))}
+              onValueChange={(value) =>
+                setFormData((prev) => ({ ...prev, status: value }))
+              }
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select status" />
@@ -254,7 +265,12 @@ const AddMaintenanceModal = ({ isOpen, onClose, vehicleId, onSubmit }) => {
           </div>
 
           <div className="flex justify-end space-x-2 pt-4">
-            <Button variant="outline" type="button" onClick={handleClose} disabled={isSubmitting}>
+            <Button
+              variant="outline"
+              type="button"
+              onClick={handleClose}
+              disabled={isSubmitting}
+            >
               Cancel
             </Button>
             <Button type="submit" disabled={isSubmitting}>

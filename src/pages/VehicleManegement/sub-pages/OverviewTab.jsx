@@ -66,7 +66,7 @@ const OverviewTab = () => (
         icon={Settings}
       />
       <StatCard
-        title="Vehicles is incident"
+        title="Vehicles in incident"
         value="5"
         icon={Car}
       />

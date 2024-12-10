@@ -2,8 +2,14 @@ import React, { useEffect, useState } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { AlertCircle } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+import { AlertCircle } from "lucide-react";
 
 const EditVehicleModal = ({ vehicle, onClose, onSave }) => {
   const [vehicleData, setVehicleData] = useState({
@@ -94,7 +100,7 @@ const EditVehicleModal = ({ vehicle, onClose, onSave }) => {
     const { name, value } = e.target;
     setVehicleData((prevData) => ({
       ...prevData,
-      [name]: name === 'status' ? value === 'true' : value,
+      [name]: name === "status" ? value === "true" : value,
     }));
     validateField(name, value);
   };
@@ -110,10 +116,10 @@ const EditVehicleModal = ({ vehicle, onClose, onSave }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white p-8 rounded-lg w-96">
-        <h2 className="text-xl font-bold mb-4">Edit Vehicle</h2>
+      <div className="w-96 rounded-lg bg-white p-8">
+        <h2 className="mb-4 text-xl font-bold">Edit Vehicle</h2>
         <form onSubmit={handleSubmit}>
-          <label className="block mb-2">
+          <label className="mb-2 block">
             Plate Number
             <Input
               type="text"
@@ -126,12 +132,12 @@ const EditVehicleModal = ({ vehicle, onClose, onSave }) => {
               required
             />
             {fieldErrors.licensePlate && (
-              <span className="text-red-500 text-sm">
+              <span className="text-sm text-red-500">
                 {fieldErrors.licensePlate}
               </span>
             )}
           </label>
-          <label className="block mb-2">
+          <label className="mb-2 block">
             Type
             <Input
               type="text"
@@ -144,31 +150,20 @@ const EditVehicleModal = ({ vehicle, onClose, onSave }) => {
               required
             />
             {fieldErrors.type && (
-              <span className="text-red-500 text-sm">{fieldErrors.type}</span>
+              <span className="text-sm text-red-500">{fieldErrors.type}</span>
             )}
           </label>
-          <label className="block mb-2">
+          <Label className="block mb-2">
             Status
-            <Select
+            <Input
+              type="text"
               name="status"
-              value={vehicleData.status.toString()}
-              onValueChange={(value) => handleChange({ target: { name: 'status', value } })}
-            >
-              <SelectTrigger className={`w-full ${
-                fieldErrors.status ? "border-red-500" : "border-gray-300"
-              }`}>
-                <SelectValue placeholder="Select status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="false">Active (Available)</SelectItem>
-                <SelectItem value="true">Busy (On Delivery)</SelectItem>
-              </SelectContent>
-            </Select>
-            {fieldErrors.status && (
-              <span className="text-red-500 text-sm">{fieldErrors.status}</span>
-            )}
-          </label>
-          <label className="block mb-2">
+              value={vehicle.status ? "Busy (On Delivery)" : "Active (Available)"}
+              readOnly
+              className="w-full mt-1 bg-gray-100 cursor-not-allowed"
+            />
+          </Label>
+          <label className="mb-2 block">
             Capacity
             <Input
               type="number"
@@ -181,12 +176,12 @@ const EditVehicleModal = ({ vehicle, onClose, onSave }) => {
               required
             />
             {fieldErrors.capacity && (
-              <span className="text-red-500 text-sm">
+              <span className="text-sm text-red-500">
                 {fieldErrors.capacity}
               </span>
             )}
           </label>
-          <label className="block mb-2">
+          <label className="mb-2 block">
             Maintenance Schedule
             <Input
               type="date"
@@ -201,12 +196,12 @@ const EditVehicleModal = ({ vehicle, onClose, onSave }) => {
               required
             />
             {fieldErrors.maintenanceSchedule && (
-              <span className="text-red-500 text-sm">
+              <span className="text-sm text-red-500">
                 {fieldErrors.maintenanceSchedule}
               </span>
             )}
           </label>
-          <div className="flex justify-end mt-4">
+          <div className="mt-4 flex justify-end">
             <Button variant="outline" onClick={onClose} className="mr-2">
               Cancel
             </Button>
@@ -221,4 +216,3 @@ const EditVehicleModal = ({ vehicle, onClose, onSave }) => {
 };
 
 export default EditVehicleModal;
-

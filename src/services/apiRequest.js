@@ -505,25 +505,23 @@ export const findSequence = async (formData) => {
   return response.data;
 };
 
-export const listRouteNoActive = async() => {
-  const response = await api.get("route")
+export const listRouteNoActive = async () => {
+  const response = await api.get("route");
   return response.data;
-}
+};
+
+export const getRouteByUserName = async (username) => {
+  const response = await api.get(`route/user/${username}`);
+  return response.data;
+};
 
 export const getUsernameByDriverId = async (driverId) => {
   const response = await api.get(`driver/findUsername/${driverId}`);
   return response.data;
 };
 
-
 export const getDriverNoActive = async () => {
   const response = await api.get(`driver/No-Active`);
-  return response.data;
-};
-
-
-export const getVehicleNoActive = async () => {
-  const response = await api.get(`vehicle/No-Active`);
   return response.data;
 };
 
@@ -534,5 +532,20 @@ export const getWayPoint = async (id) => {
 
 export const getInterConnections = async (id) => {
   const response = await api.get(`interconnections/route/${id}`);
+  return response.data;
+};
+
+export const getVehicleNoActive = async () => {
+  const response = await api.get(`vehicle/No-Active`);
+  return response.data;
+};
+
+export const updateEstimateTime = async (id,formData) =>{
+  const response = await api.put(`interconnections/timeEstimate/${id}`,formData);
+  return response.data;
+};
+
+export const updateActualTime = async (id,formData) =>{
+  const response = await api.put(`interconnections/timeActual/${id}`,formData);
   return response.data;
 };

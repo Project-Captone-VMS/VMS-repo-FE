@@ -13,6 +13,7 @@ import {
   Menu,
   Route,
   BellDot,
+  MoveHorizontal ,
 } from "lucide-react";
 
 const Sidebar = ({ isOpen, setIsOpen, role }) => {
@@ -21,6 +22,8 @@ const Sidebar = ({ isOpen, setIsOpen, role }) => {
   const sb_menuItems = [
     { path: "/vehicle", icon: Truck, label: "Vehicle Management" },
     { path: "/driver", icon: Users, label: "Driver Management" },
+    { path: "/realtime", icon: Map, label: "Realtime Tracking" },
+    // { path: "/movement", icon: MoveHorizontal , label: "Movement Map" },
     { path: "/warehouse", icon: Warehouse, label: "Warehouse Management" },
     { path: "/analytics", icon: BarChart2, label: "Analytics" },
     // { path: "/notification", icon: BarChart2, label: "notification" },
@@ -34,7 +37,7 @@ const Sidebar = ({ isOpen, setIsOpen, role }) => {
   const filteredMenuItems =
     role === "USER"
       ? sb_menuItems.filter(
-          (item) => item.path === "/realtime" || item.path === "/UserReceiver"
+          (item) => item.path === "/realtime"|| item.path === "/movement" || item.path === "/UserReceiver"
         )
       : sb_menuItems;
 

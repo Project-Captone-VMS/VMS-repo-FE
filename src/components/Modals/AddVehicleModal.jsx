@@ -240,7 +240,7 @@ const AddVehicleModal = ({ isOpen, onClose }) => {
                   placeholder="Enter vehicle type"
                 />
                 {touchedFields.type && (
-                  <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                  <div className="absolute  inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                     {getInputStatus("type") === "error" ? (
                       <X className="h-5 w-5 text-red-500" />
                     ) : getInputStatus("type") === "success" ? (
@@ -301,48 +301,24 @@ const AddVehicleModal = ({ isOpen, onClose }) => {
 
             {/* Status Field */}
             <div className="relative">
-              <Label
+            <Label
                 htmlFor="status"
                 className="block text-sm font-medium text-gray-700"
               >
                 Status
               </Label>
               <div className="mt-1 relative">
-                <Select
+                <Input
+                  id="status"
                   name="status"
-                  value={vehicleData.status}
-                  onValueChange={(value) => handleInputChange({ target: { name: 'status', value } })}
-                >
-                  <SelectTrigger className={`w-full ${
-                    getInputStatus("status") === "error"
-                      ? "border-red-300 focus:border-red-500 focus:ring-red-500"
-                      : getInputStatus("status") === "success"
-                      ? "border-green-300 focus:border-green-500 focus:ring-green-500"
-                      : "border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                  }`}>
-                    <SelectValue placeholder="Select status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="false">Active (Available)</SelectItem>
-                    <SelectItem value="true">Busy (On Delivery)</SelectItem>
-                  </SelectContent>
-                </Select>
-                {touchedFields.status && (
-                  <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                    {getInputStatus("status") === "error" ? (
-                      <X className="h-5 w-5 text-red-500" />
-                    ) : getInputStatus("status") === "success" ? (
-                      <Check className="h-5 w-5 text-green-500" />
-                    ) : null}
-                  </div>
-                )}
+                  value="Active (Available)"
+                  readOnly
+                  className="block w-full bg-gray-100 cursor-not-allowed"
+                />
+                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                  <Check className="h-5 w-5 text-green-500" />
+                </div>
               </div>
-              {fieldErrors.status && touchedFields.status && (
-                <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
-                  <AlertCircle className="h-4 w-4" />
-                  {fieldErrors.status}
-                </p>
-              )}
             </div>
 
             {/* Maintenance Schedule Field */}
