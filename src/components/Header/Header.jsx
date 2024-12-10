@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
+
 import { useNavigate, Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { logout } from "../../redux/authSlice";
-import { toast } from "react-toastify";
 import { getUserByUsername, getNoti } from "../../services/apiRequest";
 import { over } from "stompjs";
 import {
@@ -24,7 +24,6 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
   const [notifications, setNotifications] = useState([]);
   const [notificationCount, setNotificationCount] = useState(0);
   const [selectedNotification, setSelectedNotification] = useState(null);
-  const [hasNewNotification, setHasNewNotification] = useState(false);
 
   const username = localStorage.getItem("username");
   const userRole = localStorage.getItem("userRole");
@@ -68,20 +67,29 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
       if (res) {
         setNotifications(res);
         setNotificationCount(res.length);
-        setHasNewNotification(true); // ++
       }
     };
+
     getNotice();
+
     const socket = new SockJS("http://localhost:8080/ws");
     const client = over(socket);
 
     client.connect(
+      {},
       () => {
         console.log(`Connected to WebSocket as ${username}`);
-        toast.success("Có 1 thông báo mới!");
+
         client.subscribe(`/user/${username}/notifications`, (message) => {
-          alert("Có 1 thông báo mới!");
           const notification = JSON.parse(message.body);
+          console.log("notification:", notification);
+
+          toast.success(
+            `New notification: ${
+              notification.title || "You have a new message!"
+            }`
+          );
+
           getNotice();
         });
       },
@@ -102,7 +110,6 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
   const toggleNotifications = () => {
     setShowNotifications(!showNotifications);
     setNotificationCount(0);
-    setHasNewNotification(false);
   };
 
   const toggleDropdown = () => {
@@ -146,22 +153,17 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
 
         <div className="flex items-center gap-3">
           <div className="relative">
-            <div className="relative">
-              <button
-                onClick={toggleNotifications}
-                className="p-2 rounded-full hover:bg-gray-100 flex"
-              >
-                <Bell className="w-5 h-5 text-gray-600" />
-                {notificationCount.length > 0 && (
-                  <p className="absolute top-1 right-1 inline-flex items-center justify-center w-4 h-4 text-xs font-bold text-black bg-red-500 rounded-full">
-                    {notificationCount.length}
-                  </p>
-                )}
-              </button>
-              {hasNewNotification && (
-                <p className="absolute h-3 w-3 rounded-full bg-green-400 top-1 right-1 animate-ping"></p>
-              )}{" "}
-            </div>
+            <button
+              onClick={toggleNotifications}
+              className="p-2 rounded-full hover:bg-gray-100 flex"
+            >
+              <Bell className="w-5 h-5 text-gray-600" />
+              {notificationCount.length > 0 && (
+                <p className="absolute top-1 right-1 inline-flex items-center justify-center w-4 h-4 text-xs font-bold text-black bg-red-500 rounded-full">
+                  {notificationCount.length}
+                </p>
+              )}
+            </button>
 
             {showNotifications && (
               <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg  z-50 max-h-96 overflow-y-auto">

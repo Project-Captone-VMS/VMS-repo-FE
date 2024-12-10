@@ -7,7 +7,6 @@ import Dashboard from "./pages/Dashboard";
 import AuthLayout from "./layout/AuthLayout";
 import VehicleManagement from "./pages/VehicleManegement/VehicleManagement";
 import DriverManagement from "./pages/DriverManagement/DriverManagement";
-import RealtimeTracking from "./pages/RealtimeTracking/RealtimeTracking";
 import UpdateDriver from "./components/Modals/UpdateDriver";
 import OverviewTab from "./pages/VehicleManegement/sub-pages/OverviewTab";
 import VehiclesTab from "./pages/VehicleManegement/sub-pages/VehiclesTab";
@@ -25,8 +24,8 @@ import ExpenseManagement from "./pages/ExpenseManagement";
 import AdminSender from "./pages/SendNotification/AdminSender";
 import UserReceiver from "./pages/SendNotification/UserReceiver";
 import RouteDetailUser from "./pages/RouteDetailUser";
-import MovementMap from "./pages/RealtimeTracking/MovementMap";
-import RealtimeTrackingDashboard from "./pages/RealtimeTracking/TrackingUser";
+import RealtimeTrackingUser from "./pages/RealtimeTrackingUser/RealtimeTrackingUser";
+import ShowTrackingUser from "./pages/RealtimeTrackingUser/ShowTrackingUser";
 
 import { Toaster } from "react-hot-toast";
 
@@ -60,12 +59,12 @@ function App() {
               element: <Dashboard />,
             },
             {
-              path: "realtime",
-              element: <RealtimeTrackingDashboard />,
+              path: "RealtimeTrackingUser",
+              element: <RealtimeTrackingUser />,
             },
             {
-              path: "movement",
-              element: <MovementMap />,
+              path: "showTrackingUser",
+              element: <ShowTrackingUser />,
             },
             {
               path: "profile",
@@ -91,10 +90,6 @@ function App() {
             {
               path: "profile",
               element: <ProfileInformation />,
-            },
-            {
-              path: "realtime",
-              element: <RealtimeTracking />,
             },
             {
               path: "vehicle",

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import { getInterConnections, updateActualTime } from "../../services/apiRequest";
+import { getInterConnections, updateActualTime } from "../services/apiRequest";
 
 const MovementMap = () => {
   const [position, setPosition] = useState({ lat: 10.8231, lng: 106.6297 });

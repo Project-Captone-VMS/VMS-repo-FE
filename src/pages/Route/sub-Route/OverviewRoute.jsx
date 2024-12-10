@@ -10,6 +10,7 @@ import {
   getUsernameByDriverId,
   getWayPoint,
 } from "../../../services/apiRequest";
+
 import axios from "axios";
 import SockJS from "sockjs-client";
 
@@ -26,6 +27,7 @@ const Route = () => {
   const [selectedDriver, setSelectedDriver] = useState("");
   const [selectedVehicle, setSelectedVehicle] = useState("");
   const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
+
   const [formDataSendNotification, setFormDataSendNotification] = useState({
     title: "You have a new route",
     content: "Please check your route and estimate the time",
@@ -45,7 +47,7 @@ const Route = () => {
         setFormVehicle(vehicleResult);
 
         const listRoute = await listRouteNoActive();
-        const routeIds = listRoute.map((route) => route.routeId);
+        // const routeIds = listRoute.map((route) => route.routeId);
 
         setRoutes(listRoute);
       } catch (error) {
@@ -75,7 +77,6 @@ const Route = () => {
 
     setIsDetailModalVisible(true);
   };
-
 
   const handleEdit = (route) => {
     setEditData(route);
@@ -374,7 +375,7 @@ const Route = () => {
       }
 
       console.log("Result:", results);
-      // window.location.reload();
+      window.location.reload();
     } catch (error) {
       if (error.response && error.response.data) {
         setError(`Error: ${error.response.data.message}`);
@@ -730,7 +731,7 @@ const Route = () => {
                 <tbody className="bg-white divide-y divide-gray-200 ">
                   {wayPoints.map(
                     (wayPoint, index) =>
-                      index < wayPoints.length - 1 && ( 
+                      index < wayPoints.length - 1 && (
                         <tr
                           key={wayPoint.waypointId}
                           className="hover:bg-gray-50"

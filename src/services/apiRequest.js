@@ -510,11 +510,6 @@ export const listRouteNoActive = async () => {
   return response.data;
 };
 
-export const getRouteByUserName = async (username) => {
-  const response = await api.get(`route/user/${username}`);
-  return response.data;
-};
-
 export const getUsernameByDriverId = async (driverId) => {
   const response = await api.get(`driver/findUsername/${driverId}`);
   return response.data;
@@ -540,12 +535,30 @@ export const getVehicleNoActive = async () => {
   return response.data;
 };
 
-export const updateEstimateTime = async (id,formData) =>{
-  const response = await api.put(`interconnections/timeEstimate/${id}`,formData);
+export const updateEstimateTime = async (id, formData) => {
+  const response = await api.put(
+    `interconnections/timeEstimate/${id}`,
+    formData
+  );
   return response.data;
 };
 
-export const updateActualTime = async (id,formData) =>{
-  const response = await api.put(`interconnections/timeActual/${id}`,formData);
+export const updateActualTime = async (id, formData) => {
+  const response = await api.put(`interconnections/timeActual/${id}`, formData);
   return response.data;
 };
+
+export const getRouteByUserName = async (username) => {
+  const response = await api.get(`route/user/${username}`);
+  return response.data;
+};
+
+export const getRouteById = async (id) => {
+  const response = await api.get(`route/${id}`);
+  return response.data;
+};
+
+export const updateRoute = async (id) =>{
+  const response = await api.put(`route/update/${id}`);
+  return response.data;
+}
