@@ -13,6 +13,7 @@ import {
   Menu,
   Route,
   BellDot,
+  ChartSpline,
 } from "lucide-react";
 
 const Sidebar = ({ isOpen, setIsOpen, role }) => {
@@ -21,21 +22,36 @@ const Sidebar = ({ isOpen, setIsOpen, role }) => {
   const sb_menuItems = [
     { path: "/vehicle", icon: Truck, label: "Vehicle Management" },
     { path: "/driver", icon: Users, label: "Driver Management" },
-    { path: "/realtime", icon: Map, label: "Realtime Tracking" },
     { path: "/warehouse", icon: Warehouse, label: "Warehouse Management" },
     { path: "/analytics", icon: BarChart2, label: "Analytics" },
-    // { path: "/notification", icon: BarChart2, label: "notification" },
     { path: "/indexNotification", icon: BellDot, label: "indexNotification" },
-    // { path: "/UserReceiver", icon: BellDot, label: "UserReceiver" },
     { path: "/route", icon: Route, label: "Route Management" },
     { path: "/chat", icon: MessageSquare, label: "Chat" },
     { path: "/reports", icon: FileText, label: "Reports" },
+
+    { path: "/RealtimeTrackingUser", icon: Map, label: "RealtimeTrackingUser" },
+    { path: "/showTrackingUser", icon: ChartSpline, label: "ShowTracking" },
   ];
 
   const filteredMenuItems =
     role === "USER"
       ? sb_menuItems.filter(
-          (item) => item.path === "/realtime" || item.path === "/UserReceiver"
+          (item) =>
+            item.path === "/UserReceiver" ||
+            item.path === "/RealtimeTrackingUser" ||
+            item.path === "/showTrackingUser"
+        )
+      : role === "ADMIN"
+      ? sb_menuItems.filter(
+          (item) =>
+            item.path === "/vehicle" ||
+            item.path === "/driver" ||
+            item.path === "/warehouse" ||
+            item.path === "/analytics" ||
+            item.path === "/indexNotification" ||
+            item.path === "/route" ||
+            item.path === "/chat" ||
+            item.path === "/reports"
         )
       : sb_menuItems;
 

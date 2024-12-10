@@ -79,7 +79,6 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
       {},
       () => {
         console.log(`Connected to WebSocket as ${username}`);
-        toast.info("Logged in successfully");
 
         client.subscribe(`/user/${username}/notifications`, (message) => {
           const notification = JSON.parse(message.body);
