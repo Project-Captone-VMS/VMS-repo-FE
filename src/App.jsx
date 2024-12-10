@@ -24,6 +24,7 @@ import IncidentTab from "./pages/VehicleManegement/sub-pages/IncidentTab";
 import ExpenseManagement from "./pages/ExpenseManagement";
 import AdminSender from "./pages/SendNotification/AdminSender";
 import UserReceiver from "./pages/SendNotification/UserReceiver";
+import RouteDetailUser from "./pages/RouteDetailUser";
 import MovementMap from "./pages/RealtimeTracking/MovementMap";
 import RealtimeTrackingDashboard from "./pages/RealtimeTracking/TrackingUser";
 
@@ -73,6 +74,10 @@ function App() {
             {
               path: "UserReceiver",
               element: <UserReceiver />,
+            },
+            {
+              path: "routeDetail",
+              element: <RouteDetailUser />,
             },
           ],
         },

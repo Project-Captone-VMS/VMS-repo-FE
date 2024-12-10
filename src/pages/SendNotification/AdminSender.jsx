@@ -263,7 +263,7 @@ import React, { useState, useEffect } from "react";
 import { Modal, Input, Select, Button, Form, Space, Pagination } from "antd";
 import { over } from "stompjs";
 import SockJS from "sockjs-client";
-import useGetAllNotice from "../../hooks/useGetAllNotice";
+import useGetAllNotice from "../../components/hooks/useGetAllNotice";
 
 const { TextArea } = Input;
 

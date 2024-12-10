@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getAllNoti } from "../services/apiRequest";
+import { getAllNoti } from "../../services/apiRequest";
 
 export default function useGetAllNotice() {
   const [notice, setNotice] = useState([]);
