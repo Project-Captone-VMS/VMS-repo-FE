@@ -13,18 +13,18 @@ const DefaultLayout = () => {
   }, []);
 
   return (
-    <div className="dark:bg-boxdark-2 dark:text-bodydark h-screen">
-      <div className="flex h-full overflow-hidden">
+    <div className="dark:bg-box-dark-2 dark:text-body-dark h-screen bg-gray-100">
+      <div className="flex h-full overflow-hidden ">
         <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} role={role} />
 
-        <div className={`flex flex-col flex-1`}>
+        <div className="my-3 mr-3 flex flex-1 flex-col">
           <Header
             sidebarOpen={sidebarOpen}
             setSidebarOpen={setSidebarOpen}
-            className="sticky top-0 z-50 bg-white dark:bg-boxdark"
+            className="dark:bg-box-dark sticky top-0 z-50 border-2"
           />
           <div className="flex-1 overflow-y-auto overflow-x-hidden">
-            <div className="mx-auto max-w-screen p-4 md:p-6 2xl:p-10">
+            <div className="max-w-screen mx-auto bg-gray-100 py-4">
               <Outlet />
             </div>
           </div>

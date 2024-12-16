@@ -47,7 +47,6 @@ const Route = () => {
         setFormVehicle(vehicleResult);
 
         const listRoute = await listRouteNoActive();
-        // const routeIds = listRoute.map((route) => route.routeId);
 
         setRoutes(listRoute);
       } catch (error) {
@@ -86,8 +85,8 @@ const Route = () => {
   const handleSave = () => {
     setRoutes((prevRoutes) =>
       prevRoutes.map((route) =>
-        route.id === editData.id ? { ...editData } : route
-      )
+        route.id === editData.id ? { ...editData } : route,
+      ),
     );
     setIsModalVisible(false);
   };
@@ -123,11 +122,11 @@ const Route = () => {
         center: { lat: 52.5308, lng: 13.3847 },
         zoom: 14,
         pixelRatio: window.devicePixelRatio || 1,
-      }
+      },
     );
 
     const behavior = new H.mapevents.Behavior(
-      new H.mapevents.MapEvents(mapInstance)
+      new H.mapevents.MapEvents(mapInstance),
     );
     H.ui.UI.createDefault(mapInstance, defaultLayers);
     setMap(mapInstance);
@@ -136,7 +135,7 @@ const Route = () => {
       map.addEventListener("tap", function (evt) {
         const coord = map.screenToGeo(
           evt.currentPointer.viewportX,
-          evt.currentPointer.viewportY
+          evt.currentPointer.viewportY,
         );
         const clickedMarker = new H.map.Marker({
           lat: coord.lat,
@@ -146,7 +145,7 @@ const Route = () => {
         markers.current.push(clickedMarker);
 
         const coordinatesText = `${coord.lat.toFixed(4)}, ${coord.lng.toFixed(
-          4
+          4,
         )}`;
         setTextareaValue((prev) => prev + coordinatesText + "\n");
         setSelectedCoordinates((prev) => [
@@ -176,7 +175,7 @@ const Route = () => {
     const newCoordinates = [];
     lines.forEach((line) => {
       const matches = line.match(
-        /([-+]?[0-9]*\.?[0-9]+),\s*([-+]?[0-9]*\.?[0-9]+)/
+        /([-+]?[0-9]*\.?[0-9]+),\s*([-+]?[0-9]*\.?[0-9]+)/,
       );
       if (matches) {
         const lat = parseFloat(matches[1]);
@@ -199,7 +198,7 @@ const Route = () => {
             q: address,
             apikey: apiKey,
           },
-        }
+        },
       );
       if (response.data.items.length > 0) {
         return response.data.items[0].position;
@@ -235,7 +234,7 @@ const Route = () => {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       if (response.data.routes && response.data.routes.length > 0) {
@@ -306,7 +305,7 @@ const Route = () => {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
       setSuggestions(response.data.items || []);
     } catch (error) {
@@ -351,7 +350,7 @@ const Route = () => {
       console.log("results", results);
 
       const findUserNameByDriverId = await getUsernameByDriverId(
-        formData.driverId
+        formData.driverId,
       );
 
       if (stompClient !== null && stompClient.connected) {
@@ -366,7 +365,7 @@ const Route = () => {
           stompClient.send(
             `/app/chat/${findUserNameByDriverId}`,
             {},
-            JSON.stringify(formDataSendNotification)
+            JSON.stringify(formDataSendNotification),
           );
           console.log("Notification Sent:", formDataSendNotification);
 
@@ -411,7 +410,7 @@ const Route = () => {
         ></div>
         <div className="gap-3" style={{ width: "28%" }}>
           <div className="form-container">
-            <h2 className="text-2xl font-bold mb-4">Route on HERE Map</h2>
+            <h2 className="mb-4 text-2xl font-bold">Route on HERE Map</h2>
             <form onSubmit={handleSubmit} className="mb-4">
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700">
@@ -424,7 +423,7 @@ const Route = () => {
                       fetchSuggestions(e.target.value);
                     }}
                     required
-                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300 focus:border-blue-500"
+                    className="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300"
                   />
                 </label>
               </div>
@@ -436,7 +435,7 @@ const Route = () => {
                     value={destination}
                     onChange={(e) => setDestination(e.target.value)}
                     required
-                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300 focus:border-blue-500"
+                    className="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300"
                   />
                 </label>
               </div>
@@ -447,7 +446,7 @@ const Route = () => {
                   <select
                     value={selectedDriver}
                     onChange={(e) => setSelectedDriver(e.target.value)}
-                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300 focus:border-blue-500"
+                    className="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300"
                   >
                     <option value="" disabled>
                       Select a driver
@@ -471,7 +470,7 @@ const Route = () => {
                   <select
                     value={selectedVehicle}
                     onChange={(e) => setSelectedVehicle(e.target.value)}
-                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300 focus:border-blue-500"
+                    className="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300"
                   >
                     <option value="" disabled>
                       Select a vehicle
@@ -490,7 +489,7 @@ const Route = () => {
               </div>
 
               <div
-                className=" w-full"
+                className="w-full"
                 style={{ width: "100%", padding: "10px" }}
               >
                 <h3 className="text-lg">Coordinate Information</h3>
@@ -498,20 +497,20 @@ const Route = () => {
                   value={textareaValue}
                   onChange={handleTextareaChange}
                   rows={10}
-                  className="mt-4 w-full border border-gray-300 rounded-md "
+                  className="mt-4 w-full rounded-md border border-gray-300"
                 />
               </div>
-              <div className="flex w-full  items-center gap-5">
+              <div className="flex w-full items-center gap-5">
                 <button
                   type="submit"
-                  className="bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700 h-10 "
+                  className="h-10 rounded-md bg-blue-600 p-2 text-white hover:bg-blue-700"
                 >
                   Get Route
                 </button>
                 <button
                   type="button"
                   onClick={handleFindSequence}
-                  className="bg-green-600 text-white p-2 rounded-md hover:bg-green-700 h-10"
+                  className="h-10 rounded-md bg-green-600 p-2 text-white hover:bg-green-700"
                 >
                   Find Sequence
                 </button>
@@ -525,12 +524,12 @@ const Route = () => {
         </div>
       </div>
 
-      <div className="relative overflow-x-auto shadow-md sm:rounded-lg mt-2 p-4 bg-gray-100">
-        <h2 className="text-slate-950 text-lg mb-4 font-bold">
+      <div className="relative mt-2 overflow-x-auto bg-gray-100 p-4 shadow-md sm:rounded-lg">
+        <h2 className="mb-4 text-lg font-bold text-slate-950">
           Information List Route
         </h2>
-        <table className="w-full text-sm text-left rtl:text-right text-black dark:text-black font-normal rounded-lg">
-          <thead className="text-xs text-black uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+        <table className="w-full rounded-lg text-left text-sm font-normal text-black dark:text-black rtl:text-right">
+          <thead className="bg-gray-50 text-xs uppercase text-black dark:bg-gray-700 dark:text-gray-400">
             <tr>
               <th scope="col" className="px-6 py-3">
                 Start
@@ -559,7 +558,7 @@ const Route = () => {
             {routes.map((route) => (
               <tr
                 key={route.routeId}
-                className="bg-white border-b dark:bg-white dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-200"
+                className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-white dark:hover:bg-gray-200"
               >
                 <td className="px-6 py-4">
                   {route.startLat},{route.startLng}
@@ -568,13 +567,13 @@ const Route = () => {
                   {route.endLat},{route.endLng}
                 </td>
                 <td className="px-6 py-4">{route.totalTime} s</td>
-                <td className="px-6 py-4 ">{route.totalDistance} m</td>
-                <td className="px-6 py-4 ">
+                <td className="px-6 py-4">{route.totalDistance} m</td>
+                <td className="px-6 py-4">
                   {route.driverId} {route.driver.firstName}{" "}
                   {route.driver.lastName}{" "}
                 </td>
-                <td className="px-6 py-4 ">{route.vehicle.licensePlate}</td>
-                <td className="px-2 py-4 ">
+                <td className="px-6 py-4">{route.vehicle.licensePlate}</td>
+                <td className="px-2 py-4">
                   <Button type="link" onClick={() => handleEdit(route)}>
                     Edit
                   </Button>
@@ -597,8 +596,8 @@ const Route = () => {
         onOk={handleSave}
         onCancel={() => setIsModalVisible(false)}
       >
-        <div className="flex flex-col mb-4">
-          <label htmlFor="editRoute" className="font-medium text-sm">
+        <div className="mb-4 flex flex-col">
+          <label htmlFor="editRoute" className="text-sm font-medium">
             Route
           </label>
           <Input
@@ -608,8 +607,8 @@ const Route = () => {
             onChange={handleEditChange}
           />
         </div>
-        <div className="flex flex-col mb-4">
-          <label htmlFor="editStart" className="font-medium text-sm">
+        <div className="mb-4 flex flex-col">
+          <label htmlFor="editStart" className="text-sm font-medium">
             Start
           </label>
           <Input
@@ -619,8 +618,8 @@ const Route = () => {
             onChange={handleEditChange}
           />
         </div>
-        <div className="flex flex-col mb-4">
-          <label htmlFor="editEnd" className="font-medium text-sm">
+        <div className="mb-4 flex flex-col">
+          <label htmlFor="editEnd" className="text-sm font-medium">
             End
           </label>
           <Input
@@ -630,8 +629,8 @@ const Route = () => {
             onChange={handleEditChange}
           />
         </div>
-        <div className="flex flex-col mb-4">
-          <label htmlFor="editEstimateTime" className="font-medium text-sm">
+        <div className="mb-4 flex flex-col">
+          <label htmlFor="editEstimateTime" className="text-sm font-medium">
             End
           </label>
           <Input
@@ -657,11 +656,11 @@ const Route = () => {
         <div className="space-y-6">
           {selectedRouteDetails && (
             <div>
-              <div className="bg-gray-200 p-4 rounded-lg">
-                <h3 className="text-lg font-semibold mb-4">Route Overview</h3>
+              <div className="rounded-lg bg-gray-200 p-4">
+                <h3 className="mb-4 text-lg font-semibold">Route Overview</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <h4 className="font-medium text-sm text-gray-500">
+                    <h4 className="text-sm font-medium text-gray-500">
                       Total Distance
                     </h4>
                     <p className="text-lg text-black">
@@ -669,7 +668,7 @@ const Route = () => {
                     </p>
                   </div>
                   <div>
-                    <h4 className="font-medium text-sm text-gray-500">
+                    <h4 className="text-sm font-medium text-gray-500">
                       Total Time
                     </h4>
                     <p className="text-lg">
@@ -679,8 +678,8 @@ const Route = () => {
                 </div>
               </div>
 
-              <div className="bg-gray-200 p-4 rounded-lg mt-4">
-                <h3 className="text-lg font-semibold mb-4">
+              <div className="mt-4 rounded-lg bg-gray-200 p-4">
+                <h3 className="mb-4 text-lg font-semibold">
                   Assignment Details
                 </h3>
                 {/* <div className="grid grid-cols-2 gap-4">
@@ -706,10 +705,10 @@ const Route = () => {
             </div>
           )}
 
-          <div className="bg-gray-200 p-4 rounded-lg">
+          <div className="rounded-lg bg-gray-200 p-4">
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50 ">
+                <thead className="bg-gray-50">
                   <tr>
                     <th className="px-4 py-2 text-xs font-medium text-gray-500">
                       From
@@ -728,7 +727,7 @@ const Route = () => {
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200 ">
+                <tbody className="divide-y divide-gray-200 bg-white">
                   {wayPoints.map(
                     (wayPoint, index) =>
                       index < wayPoints.length - 1 && (
@@ -766,7 +765,7 @@ const Route = () => {
                             </>
                           </td>
                         </tr>
-                      )
+                      ),
                   )}
                 </tbody>
               </table>

@@ -149,8 +149,8 @@ const AdminSender = () => {
   }, [filteredNotifications, currentPage]);
 
   return (
-    <div className="h-[600px] overflow-auto">
-      <div className="sticky top-0 z-50 mb-4 flex w-full items-center justify-between rounded-md bg-slate-200 px-2 py-4">
+    <div >
+      <div className=" top-0 z-50 mb-4 flex w-full items-center justify-between rounded-md bg-slate-200 px-2 py-4">
         <p className="text-2xl font-bold">Notification</p>
         <div className="flex items-center">
           <Select

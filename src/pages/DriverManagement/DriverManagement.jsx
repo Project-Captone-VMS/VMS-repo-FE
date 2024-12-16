@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link } from "react-router-dom";
 import { getAllDrivers, deleteDriver } from "../../services/apiRequest";
 import Swal from "sweetalert2";
 import DriverTable from "../../components/Driver/DriverTable";
@@ -38,19 +38,19 @@ const DriverManagement = () => {
       if (Array.isArray(data)) {
         setDrivers(data);
       } else {
-        console.error('Unexpected data format:', data);
+        console.error("Unexpected data format:", data);
         Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'Received unexpected data format from server'
+          icon: "error",
+          title: "Error",
+          text: "Received unexpected data format from server",
         });
       }
     } catch (error) {
-      console.error('Error fetching drivers:', error);
+      console.error("Error fetching drivers:", error);
       Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: error.response?.data?.message || 'Failed to fetch drivers'
+        icon: "error",
+        title: "Error",
+        text: error.response?.data?.message || "Failed to fetch drivers",
       });
     }
   };
@@ -112,7 +112,7 @@ const DriverManagement = () => {
   const filteredDrivers = getFilteredDrivers(drivers, searchTerm, filters);
   const paginatedDrivers = filteredDrivers.slice(
     (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
+    currentPage * itemsPerPage,
   );
 
   // Pagination handler
@@ -121,53 +121,58 @@ const DriverManagement = () => {
   };
 
   return (
-    <div className="bg-gray-100 min-h-screen">
-      <nav className="bg-blue-600 p-4 mb-6">
-        <div className="container mx-auto flex justify-between items-center">
-          <div className="text-white font-bold text-xl">Fleet Management</div>
-          <div>
-            <Link to="/driver" className="text-white hover:text-blue-200 mr-4">Drivers</Link>
-            <Link to="/expenses" className="text-white hover:text-blue-200">Expenses</Link>
-          </div>
+    <div className="min-h-screen">
+      <h1 className="mb-4 flex items-center justify-between text-3xl font-bold text-gray-900">
+        <span className="text-text-Default">Driver Management</span>
+        <div className="ml-auto flex space-x-4">
+          <Link
+            to="/driver"
+            className="rounded-lg bg-blue-600 px-3 py-1 text-sm text-white transition duration-300 hover:bg-blue-700"
+          >
+            Drivers
+          </Link>
+          <Link
+            to="/expenses"
+            className="rounded-lg bg-blue-600 px-3 py-1 text-sm text-white transition duration-300 hover:bg-blue-700"
+          >
+            Expenses
+          </Link>
         </div>
-      </nav>
-      <div className="p-6">
-        <h1 className="text-3xl font-bold mb-4">Driver Management</h1>
+      </h1>
 
-        <Stats drivers={drivers} />
+      <Stats drivers={drivers} />
 
-        <SearchAndFilter
-          searchTerm={searchTerm}
-          onSearchChange={handleSearchChange}
-          showFilters={showFilters}
-          setShowFilters={setShowFilters}
-          filters={filters}
-          onFilterChange={handleFilterChange}
+      <SearchAndFilter
+        searchTerm={searchTerm}
+        onSearchChange={handleSearchChange}
+        showFilters={showFilters}
+        setShowFilters={setShowFilters}
+        filters={filters}
+        onFilterChange={handleFilterChange}
+      />
+
+      <DriverTable
+        drivers={paginatedDrivers}
+        onEditClick={handleEditClick}
+        onDelete={handleDeleteDriver}
+      />
+
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        itemsPerPage={itemsPerPage}
+        totalItems={filteredDrivers.length}
+        onPageChange={handlePageChange}
+      />
+
+      {selectedDriver && (
+        <UpdateDriver
+          isOpen={isUpdateModalOpen}
+          onClose={handleCloseUpdateModal}
+          driver={selectedDriver}
+          onDriverUpdated={handleDriverUpdated}
         />
-
-        <DriverTable
-          drivers={paginatedDrivers}
-          onEditClick={handleEditClick}
-          onDelete={handleDeleteDriver}
-        />
-
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          itemsPerPage={itemsPerPage}
-          totalItems={filteredDrivers.length}
-          onPageChange={handlePageChange}
-        />
-
-        {selectedDriver && (
-          <UpdateDriver
-            isOpen={isUpdateModalOpen}
-            onClose={handleCloseUpdateModal}
-            driver={selectedDriver}
-            onDriverUpdated={handleDriverUpdated}
-          />
-        )}
-      </div>
+      )}
     </div>
   );
 };

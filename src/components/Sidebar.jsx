@@ -22,13 +22,13 @@ const Sidebar = ({ isOpen, setIsOpen, role }) => {
   const sb_menuItems = [
     { path: "/vehicle", icon: Truck, label: "Vehicle Management" },
     { path: "/driver", icon: Users, label: "Driver Management" },
+    { path: "/routeDetail", icon: Users, label: "routeDetail" },
     { path: "/warehouse", icon: Warehouse, label: "Warehouse Management" },
     { path: "/analytics", icon: BarChart2, label: "Analytics" },
     { path: "/indexNotification", icon: BellDot, label: "indexNotification" },
     { path: "/route", icon: Route, label: "Route Management" },
     { path: "/chat", icon: MessageSquare, label: "Chat" },
     { path: "/reports", icon: FileText, label: "Reports" },
-
     { path: "/RealtimeTrackingUser", icon: Map, label: "RealtimeTrackingUser" },
     { path: "/showTrackingUser", icon: ChartSpline, label: "ShowTracking" },
   ];
@@ -39,21 +39,22 @@ const Sidebar = ({ isOpen, setIsOpen, role }) => {
           (item) =>
             item.path === "/UserReceiver" ||
             item.path === "/RealtimeTrackingUser" ||
-            item.path === "/showTrackingUser"
+            item.path === "/showTrackingUser" ||
+            item.path === "/routeDetail",
         )
       : role === "ADMIN"
-      ? sb_menuItems.filter(
-          (item) =>
-            item.path === "/vehicle" ||
-            item.path === "/driver" ||
-            item.path === "/warehouse" ||
-            item.path === "/analytics" ||
-            item.path === "/indexNotification" ||
-            item.path === "/route" ||
-            item.path === "/chat" ||
-            item.path === "/reports"
-        )
-      : sb_menuItems;
+        ? sb_menuItems.filter(
+            (item) =>
+              item.path === "/vehicle" ||
+              item.path === "/driver" ||
+              item.path === "/warehouse" ||
+              item.path === "/analytics" ||
+              item.path === "/indexNotification" ||
+              item.path === "/route" ||
+              item.path === "/chat" ||
+              item.path === "/reports",
+          )
+        : sb_menuItems;
 
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
@@ -61,12 +62,11 @@ const Sidebar = ({ isOpen, setIsOpen, role }) => {
 
   return (
     <aside
-      className={`h-screen bg-black transition-all duration-300 ease-linear dark:bg-boxdark ${
+      className={`dark:bg-box-dark my-3 mx-2 rounded-md bg-black transition-all duration-300 ease-linear ${
         isOpen ? "w-60" : "w-16"
-      } sticky top-0 left-0`}
+      } sticky left-0 top-0`}
     >
-      {/* Logo Section */}
-      <div className="flex flex-col">
+      <div className="flex flex-col items-center p-1">
         <NavLink
           to="/dashboard"
           className={`flex items-center ${
@@ -77,30 +77,32 @@ const Sidebar = ({ isOpen, setIsOpen, role }) => {
             src={Logo}
             alt="Logo"
             className={`transition-all duration-300 ${
-              isOpen ? "w-12 h-9" : "w-10 h-8"
+              isOpen ? "h-9 w-12" : "h-6 w-8"
             }`}
           />
           <div
-            className={`transition-all duration-300 overflow-hidden ${
+            className={`overflow-hidden transition-all duration-300 ${
               isOpen ? "ml-2 w-auto opacity-100" : "w-0 opacity-0"
             }`}
           >
-            <p className="text-white text-2xl font-bold whitespace-nowrap">
+            <p className="whitespace-nowrap text-xl font-bold text-white">
               VMS
             </p>
           </div>
         </NavLink>
+      </div>
+      {/* Menu Toggle Button */}
 
-        {/* Menu Toggle Button */}
+      <div className="p-1">
         <button
           onClick={toggleSidebar}
           className={`flex items-center ${
-            isOpen ? "px-4" : "justify-center"
-          } py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-all duration-200 ease-in-out border-b border-gray-800`}
+            isOpen ? "px-2" : "justify-center"
+          } w-full border-b border-gray-800 py-1 text-sm text-gray-300 transition-all duration-200 ease-in-out hover:bg-gray-800 hover:text-white`}
         >
-          <Menu className={`w-5 h-5 ${isOpen ? "mr-3" : ""} text-gray-400`} />
+          <Menu className={`h-6 w-6 ${isOpen ? "mr-2" : ""} text-gray-400`} />
           <span
-            className={`font-medium transition-all duration-300 overflow-hidden ${
+            className={`overflow-hidden font-medium transition-all duration-300 ${
               isOpen ? "w-auto opacity-100" : "w-0 opacity-0"
             }`}
           >
@@ -111,7 +113,7 @@ const Sidebar = ({ isOpen, setIsOpen, role }) => {
 
       {/* Menu Items */}
       <nav className="flex-grow overflow-y-auto">
-        <ul className="text-white py-2">
+        <ul className="py-2 text-white">
           {filteredMenuItems.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.path;
@@ -120,24 +122,20 @@ const Sidebar = ({ isOpen, setIsOpen, role }) => {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`
-                  flex items-center ${isOpen ? "px-4" : "justify-center"} py-2
-                  transition-all duration-200 ease-in-out
-                  ${
-                    isActive
-                      ? "bg-blue-600 text-white"
-                      : "text-gray-300 hover:bg-gray-800 hover:text-white"
-                  }
-                `}
+                className={`flex items-center ${isOpen ? "px-4 py-2" : "justify-center py-1"} text-sm transition-all duration-200 ease-out ${
+                  isActive
+                    ? "bg-blue-800 text-white"
+                    : "text-gray-300 hover:bg-gray-800 hover:text-white"
+                } `}
                 title={!isOpen ? item.label : ""}
               >
                 <Icon
-                  className={`w-5 h-5 ${isOpen ? "mr-3" : ""} ${
+                  className={`h-5 w-5 ${isOpen ? "mr-3 mt-1" : "mt-3"} ${
                     isActive ? "text-white" : "text-gray-400"
                   }`}
                 />
                 <span
-                  className={`font-medium transition-all duration-300 overflow-hidden ${
+                  className={`overflow-hidden font-medium transition-all duration-300 ${
                     isOpen ? "w-auto opacity-100" : "w-0 opacity-0"
                   }`}
                 >
@@ -152,16 +150,16 @@ const Sidebar = ({ isOpen, setIsOpen, role }) => {
       {/* Settings */}
       <div className="border-t border-gray-800">
         <button
-          className={`w-full flex items-center ${
+          className={`flex w-full items-center ${
             isOpen ? "px-4" : "justify-center"
-          } py-3 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors duration-200`}
+          } py-3 text-sm text-gray-300 transition-colors duration-200 hover:bg-gray-800 hover:text-white`}
           title={!isOpen ? "Settings" : ""}
         >
           <Settings
-            className={`w-5 h-5 ${isOpen ? "mr-3" : ""} text-gray-400`}
+            className={`h-5 w-5 ${isOpen ? "mr-3" : ""} text-gray-400`}
           />
           <span
-            className={`font-medium transition-all duration-300 overflow-hidden ${
+            className={`overflow-hidden font-medium transition-all duration-300 ${
               isOpen ? "w-auto opacity-100" : "w-0 opacity-0"
             }`}
           >

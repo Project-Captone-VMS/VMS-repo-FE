@@ -4,16 +4,14 @@ import { useSelector } from "react-redux";
 
 const PrivateRouter = ({ allowedRoles }) => {
   const currentUser = useSelector((state) => state.auth.login.currentUser);
-  // const role = useSelector(
-  //   (state) => state.auth.login.currentUser?.result.roles[0]
-  // );
+
   const userRole = localStorage.getItem("userRole");
 
   if (!currentUser) {
     return <Navigate to="/login" />;
   }
 
-  if (userRole === "ADMIN") {
+  if (userRole === "admin") {
     return <Outlet />;
   }
 

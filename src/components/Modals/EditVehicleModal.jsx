@@ -40,9 +40,13 @@ const EditVehicleModal = ({ vehicle, onClose, onSave }) => {
     switch (name) {
       case "licensePlate":
         if (!value) {
-          errors.licensePlate = "License plate is required.";
+          errors.licensePlate = "License plate is required";
+          2;
         } else if (value.length > 15) {
-          errors.licensePlate = "License plate cannot exceed 15 characters.";
+          errors.licensePlate = "License plate cannot exceed 15 characters";
+        } else if (!/^[0-9]{2}[A-Z]{1}-\d{4,5}$/.test(value)) {
+          errors.licensePlate =
+            "License plate must be in the format XXA-1234 or XX-12345 (2 digits, 1 letter, 4-5 digits)";
         } else {
           delete errors.licensePlate;
         }
@@ -123,13 +127,10 @@ const EditVehicleModal = ({ vehicle, onClose, onSave }) => {
             Plate Number
             <Input
               type="text"
-              name="licensePlate"
-              value={vehicleData.licensePlate}
-              onChange={handleChange}
-              className={`w-full ${
-                fieldErrors.licensePlate ? "border-red-500" : "border-gray-300"
-              }`}
-              required
+              name="status"
+              value={vehicle.licensePlate}
+              readOnly
+              className="mt-1 w-full cursor-not-allowed bg-gray-100"
             />
             {fieldErrors.licensePlate && (
               <span className="text-sm text-red-500">
@@ -153,14 +154,16 @@ const EditVehicleModal = ({ vehicle, onClose, onSave }) => {
               <span className="text-sm text-red-500">{fieldErrors.type}</span>
             )}
           </label>
-          <Label className="block mb-2">
+          <Label className="mb-2 block">
             Status
             <Input
               type="text"
               name="status"
-              value={vehicle.status ? "Busy (On Delivery)" : "Active (Available)"}
+              value={
+                vehicle.status ? "Busy (On Delivery)" : "Active (Available)"
+              }
               readOnly
-              className="w-full mt-1 bg-gray-100 cursor-not-allowed"
+              className="mt-1 w-full cursor-not-allowed bg-gray-100"
             />
           </Label>
           <label className="mb-2 block">

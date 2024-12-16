@@ -26,7 +26,7 @@ api.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 export default api;
@@ -39,13 +39,15 @@ export const loginUser = async (user, dispatch, navigate) => {
       const userRole = res.data.result.roles[0];
       const token = res.data.result.token;
 
+      console.log("res", res);
+
       localStorage.setItem("userRole", userRole);
       localStorage.setItem("jwtToken", token);
       localStorage.setItem("username", user.username);
 
-      if (userRole === "ADMIN") {
+      if (userRole === "admin") {
         navigate("/dashboard");
-      } else if (userRole === "USER") {
+      } else if (userRole === "user") {
         navigate("/driveuser");
       }
       toast.success("Logged in successfully");
@@ -95,7 +97,7 @@ export const getAllVehicle = async () => {
   } catch (error) {
     console.error(
       "Error fetching vehicles:",
-      error.response ? error.response.data : error.message
+      error.response ? error.response.data : error.message,
     );
     throw error;
   }
@@ -107,7 +109,7 @@ export const getAllVehicles = async () => {
   } catch (error) {
     console.error(
       "Error fetching vehicles:",
-      error.response ? error.response.data : error.message
+      error.response ? error.response.data : error.message,
     );
     throw error;
   }
@@ -140,7 +142,7 @@ export const getAllDrivers = async () => {
   } catch (error) {
     console.error(
       "Error fetching drivers:",
-      error.response ? error.response.data : error.message
+      error.response ? error.response.data : error.message,
     );
     throw error;
   }
@@ -162,27 +164,27 @@ export const deleteDriver = async (driverId) => {
 };
 
 // api để lấy dữ liệu show lên các bảng
-export const totalDrivers  = async () => {
+export const totalDrivers = async () => {
   const response = await api.get(`driver/totalDriver`);
   return response.data;
 };
 
-export const totalAvailables  = async () => {
+export const totalAvailables = async () => {
   const response = await api.get(`driver/totalAvailable`);
   return response.data;
 };
 
-export const totalOndeliverys  = async () => {
+export const totalOndeliverys = async () => {
   const response = await api.get(`driver/totalOndelivery`);
   return response.data;
 };
 
-export const totalWeeks  = async () => {
+export const totalWeeks = async () => {
   const response = await api.get(`driver/totalWeek`);
   return response.data;
 };
 
-export const totalWarehouses  = async () => {
+export const totalWarehouses = async () => {
   const response = await api.get(`warehouse/totalWarehouse`);
   return response.data;
 };
@@ -212,7 +214,7 @@ export const totalProducts = async () => {
   return response.data;
 };
 
-/// hết 
+/// hết
 export const getUserByUsername = async (username) => {
   const response = await api.get(`user/username/${username}`);
   return response.data;
@@ -225,7 +227,7 @@ export const createWarehouse = async (warehouseDTO) => {
 export const updateWarehouse = async (warehouseId, warehouseData) => {
   const response = await api.put(
     `warehouse/update/${warehouseId}`,
-    warehouseData
+    warehouseData,
   );
   return response.data;
 };
@@ -285,10 +287,10 @@ export const deleteInvoice = async (invoiceId) => {
 // API gọi Incidents
 export const getAllIncidents = async () => {
   try {
-    const response = await api.get('incidents');
+    const response = await api.get("incidents");
     return response.data;
   } catch (error) {
-    console.error('Error fetching incidents:', error);
+    console.error("Error fetching incidents:", error);
     throw error;
   }
 };
@@ -304,7 +306,7 @@ export const getIncidentById = async (id) => {
 
 export const addIncident = async (incidentData) => {
   try {
-    const response = await api.post('incidents', incidentData);
+    const response = await api.post("incidents", incidentData);
     return response.data;
   } catch (error) {
     throw error;
@@ -314,12 +316,12 @@ export const addIncident = async (incidentData) => {
 export const updateIncident = async (id, updatedIncident) => {
   try {
     if (!id) {
-      throw new Error('Incident ID is required');
+      throw new Error("Incident ID is required");
     }
     const response = await api.put(`incidents/${id}`, updatedIncident);
     return response.data;
   } catch (error) {
-    console.error('Error updating incident:', error);
+    console.error("Error updating incident:", error);
     throw error;
   }
 };
@@ -344,7 +346,9 @@ export const getIncidentsByType = async (type) => {
 
 export const getIncidentsByDateRange = async (startDate, endDate) => {
   try {
-    const response = await api.get(`incidents/date-range?startDate=${startDate}&endDate=${endDate}`);
+    const response = await api.get(
+      `incidents/date-range?startDate=${startDate}&endDate=${endDate}`,
+    );
     return response.data;
   } catch (error) {
     throw error;
@@ -381,12 +385,15 @@ export const getMaintenanceById = async (maintenanceId) => {
 };
 
 export const createMaintenance = async (maintenanceDTO) => {
-  const response = await api.post('maintenance/add', maintenanceDTO);
+  const response = await api.post("maintenance/add", maintenanceDTO);
   return response.data;
 };
 
 export const updateMaintenance = async (maintenanceId, maintenanceData) => {
-  const response = await api.put(`maintenance/update/${maintenanceId}`, maintenanceData);
+  const response = await api.put(
+    `maintenance/update/${maintenanceId}`,
+    maintenanceData,
+  );
   return response.data;
 };
 
@@ -398,10 +405,10 @@ export const deleteMaintenance = async (maintenanceId) => {
 // Expense API endpoints
 export const getAllExpenses = async () => {
   try {
-    const response = await api.get('expenses');
+    const response = await api.get("expenses");
     return response.data;
   } catch (error) {
-    console.error('Error fetching expenses:', error);
+    console.error("Error fetching expenses:", error);
     throw error;
   }
 };
@@ -411,7 +418,7 @@ export const getExpenseById = async (expenseId) => {
     const response = await api.get(`expenses/${expenseId}`);
     return response.data;
   } catch (error) {
-    console.error('Error fetching expense:', error);
+    console.error("Error fetching expense:", error);
     throw error;
   }
 };
@@ -419,34 +426,38 @@ export const getExpenseById = async (expenseId) => {
 export const createExpense = async (expenseDTO) => {
   try {
     // Log dữ liệu đầu vào
-    console.log('Original expense data:', expenseDTO);
+    console.log("Original expense data:", expenseDTO);
 
     const formattedData = {
       description: expenseDTO.description,
       amount: parseFloat(expenseDTO.amount),
       date: expenseDTO.date,
       category: expenseDTO.category.toUpperCase(),
-      vehicle: expenseDTO.vehicle ? {
-        vehicleId: parseInt(expenseDTO.vehicle)
-      } : null,
-      driver: expenseDTO.driver ? {
-        driverId: parseInt(expenseDTO.driver)
-      } : null
+      vehicle: expenseDTO.vehicle
+        ? {
+            vehicleId: parseInt(expenseDTO.vehicle),
+          }
+        : null,
+      driver: expenseDTO.driver
+        ? {
+            driverId: parseInt(expenseDTO.driver),
+          }
+        : null,
     };
 
     // Log dữ liệu đã format
-    console.log('Formatted expense data:', formattedData);
+    console.log("Formatted expense data:", formattedData);
 
-    const response = await api.post('expenses', formattedData);
+    const response = await api.post("expenses", formattedData);
     return response.data;
   } catch (error) {
     // Log chi tiết lỗi
-    console.error('Error details:', {
+    console.error("Error details:", {
       message: error.message,
       response: error.response?.data,
       status: error.response?.status,
       headers: error.response?.headers,
-      data: error.response?.config?.data
+      data: error.response?.config?.data,
     });
     throw error;
   }
@@ -459,18 +470,22 @@ export const updateExpense = async (expenseId, expenseData) => {
       amount: parseFloat(expenseData.amount),
       date: expenseData.date,
       category: expenseData.category,
-      vehicle: expenseData.vehicle ? {
-        vehicleId: parseInt(expenseData.vehicle)
-      } : null,
-      driver: expenseData.driver ? {
-        driverId: parseInt(expenseData.driver)
-      } : null
+      vehicle: expenseData.vehicle
+        ? {
+            vehicleId: parseInt(expenseData.vehicle),
+          }
+        : null,
+      driver: expenseData.driver
+        ? {
+            driverId: parseInt(expenseData.driver),
+          }
+        : null,
     };
 
     const response = await api.put(`expenses/${expenseId}`, formattedData);
     return response.data;
   } catch (error) {
-    console.error('Error updating expense:', error);
+    console.error("Error updating expense:", error);
     throw error;
   }
 };
@@ -480,7 +495,7 @@ export const deleteExpense = async (expenseId) => {
     const response = await api.delete(`expenses/${expenseId}`);
     return response.data;
   } catch (error) {
-    console.error('Error deleting expense:', error);
+    console.error("Error deleting expense:", error);
     throw error;
   }
 };
@@ -538,7 +553,7 @@ export const getVehicleNoActive = async () => {
 export const updateEstimateTime = async (id, formData) => {
   const response = await api.put(
     `interconnections/timeEstimate/${id}`,
-    formData
+    formData,
   );
   return response.data;
 };
@@ -558,7 +573,7 @@ export const getRouteById = async (id) => {
   return response.data;
 };
 
-export const updateRoute = async (id) =>{
+export const updateRoute = async (id) => {
   const response = await api.put(`route/update/${id}`);
   return response.data;
-}
+};

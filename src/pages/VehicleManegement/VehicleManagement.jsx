@@ -12,45 +12,45 @@ const VehicleManagement = () => {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-2 ">
-        <div>
+      <div className="mb-2 flex items-center justify-between px-2">
+        <div className="">
           <h1 className="text-2xl font-bold">Vehicle Management</h1>
-          <p className="text-gray-600">Manage your fleet efficiently</p>
+          <p className="text-sm text-gray-600">Manage your fleet efficiently</p>
         </div>
 
         <button
           onClick={() => {
             setIsModalOpen(true);
           }}
-          className="bg-black text-white px-4 py-2 rounded-lg flex items-center"
+          className="flex items-center rounded-md bg-black px-4 py-2 text-white hover:bg-slate-900"
         >
           + ADD NEW VEHICLE
         </button>
       </div>
 
-      <hr className="my-6 md:my-4 border-gray-200 dark:border-gray-300 " />
-      <div className="flex border-b mb-4">
-        <Link to="OverviewTab" className="px-4 py-2">
-          Overview
-        </Link>
-        <Link to="VehiclesTab" className="px-4 py-2">
-          Vehicles
-        </Link>
-        <Link to="MaintenanceTab" className="px-4 py-2">
-          Maintenance
-        </Link>
-        <Link to="IncidentTab" className="px-4 py-2">
-          IncidentTab
-        </Link>
-      </div>
-
-      <Outlet />
-  
       <AddVehicleModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSave={handleAddVehicle}
       />
+
+      {/* <hr className=" border-gray-200 dark:border-gray-300 md:my-4" /> */}
+      <div className="border-1 my-6 py-1 flex rounded-md border-b bg-white">
+        <Link to="OverviewTab" className="px-2 py-2 hover:bg-slate-200">
+          Overview
+        </Link>
+        <Link to="VehiclesTab" className="px-4 py-2 hover:bg-slate-200">
+          Vehicles
+        </Link>
+        <Link to="MaintenanceTab" className="px-4 py-2 hover:bg-slate-200">
+          Maintenance
+        </Link>
+        <Link to="IncidentTab" className="px-4 py-2 hover:bg-slate-200">
+          IncidentTab
+        </Link>
+      </div>
+
+      <Outlet />
     </div>
   );
 };

@@ -38,7 +38,6 @@ export default function RealtimeTrackingDashboard() {
   const [isMoving, setIsMoving] = useState(false);
   const [stepIndex, setStepIndex] = useState(0);
   const [path, setPath] = useState([]);
-  const [waypoints, setWaypoints] = useState([]);
   const [startPoint, setStartPoint] = useState({ lat: "", lng: "" });
   const [endPoint, setEndPoint] = useState({ lat: "", lng: "" });
   const [elapsedTime, setElapsedTime] = useState(0);
