@@ -12,8 +12,8 @@ const SearchAndFilter = ({
   filters,
   onFilterChange,
 }) => (
-  <div className="mb-6">
-    <div className="mb-4 flex gap-4">
+  <div className="mb-6 px-1 rounded-lg bg-white p-4 ">
+    <div className=" flex gap-4 px-4">
       <div className="relative flex-1">
         <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
         <input

@@ -46,14 +46,16 @@ const VehiclesTable = ({
             : "bg-red-100 text-red-800"
         }`}
       >
-        <p className=" text-sm">{vehicle.status ? "Busy (On Delivery)" : "Active (Available)"}</p>
+        <p className="text-sm">
+          {vehicle.status ? "Busy (On Delivery)" : "Active (Available)"}
+        </p>
       </div>
       <div className="my-auto border-r p-3 text-sm">{vehicle.capacity}</div>
       <div className="my-auto border-r p-3 text-sm">
         {formatDate(vehicle.maintenanceSchedule)}
       </div>
 
-      <div className="my-auto flex gap-2">
+      <div className="mx-auto my-auto flex gap-2">
         <Button
           variant="outline"
           size="icon"

@@ -570,7 +570,7 @@ const RouteDetailUser = () => {
           <div className="flex justify-between rounded-t-lg border-b-2 bg-gray-100 px-4 py-2">
             <p>List Route </p>
           </div>
-          <div className="flex flex-col gap-1 px-2">
+          <div className="px-2">
             {routes.map((route) => (
               <RouteItem
                 key={route.routeId}
@@ -580,6 +580,8 @@ const RouteDetailUser = () => {
                 totalDistance={route.totalDistance}
                 startLng={route.startLng}
                 startLat={route.startLat}
+                endLat={route.endLat}
+                endLng={route.endLng}
                 licensePlate={route.vehicle.licensePlate}
                 interconnect={interconnect}
                 status={route.status}

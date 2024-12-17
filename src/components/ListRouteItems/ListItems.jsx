@@ -1,26 +1,21 @@
 import React, { useState, useEffect } from "react";
-import {
-  getInterConnections,
-  updateEstimateTime,
-} from "../../services/apiRequest";
+import { getInterConnections } from "../../services/apiRequest";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import Swal from "sweetalert2";
 import {
   Timeline,
   TimelineDescription,
   TimelineHeader,
   TimelineItem,
   TimelineTitle,
-} from "../../components/ui/timeline";
+} from "../ui/timeline";
 
-const RouteItem = ({
+const ListItems = ({
   routeId,
-  loading,
   totalTime,
   totalDistance,
   startLng,
@@ -49,48 +44,6 @@ const RouteItem = ({
     });
   };
 
-  const handleUpdate = async (id) => {
-    try {
-      const time = timeByInterconnection[id] || {
-        hours: 0,
-        minutes: 0,
-      };
-
-      const payload = {
-        routeId: id,
-        hours: time.hours || 0,
-        minutes: time.minutes || 0,
-      };
-
-      const timeE = payload.hours * 3600 + payload.minutes * 60;
-      const formData = {
-        timeEstimate: timeE,
-      };
-
-      const res = await updateEstimateTime(payload.routeId, formData);
-      setInterconnect((prev) =>
-        prev.map((item) =>
-          item.interconnectionId === id
-            ? { ...item, timeEstimate: timeE }
-            : item,
-        ),
-      );
-
-      if (res != null) {
-        Swal.fire("Success!", "Time updated successfully.", "success");
-      }
-
-      setTimeByInterconnection((prevTime) => {
-        return {
-          ...prevTime,
-          [id]: { hours: 0, minutes: 0 },
-        };
-      });
-    } catch (error) {
-      console.error("Lỗi khi cập nhật thời gian:", error);
-    }
-  };
-
   useEffect(() => {
     const fetchData = async (id) => {
       try {
@@ -104,8 +57,6 @@ const RouteItem = ({
     fetchData(routeId);
   }, [getInterConnections]);
 
-  console.log("interconnect", interconnect);
-
   return (
     <Accordion type="single" collapsible>
       <AccordionItem
@@ -114,9 +65,11 @@ const RouteItem = ({
       >
         <AccordionTrigger className="no-underline">
           <div className="flex w-full flex-col">
+            <p className="mb-2 rounded-lg border bg-white text-black">
+              {first_name}
+            </p>
             <div className="flex items-center justify-between">
               <div className="flex flex-col">
-                <p>{first_name}</p>
                 <p className="text-[0.8vw]">
                   Start :{startLat}, {startLng}
                 </p>
@@ -158,55 +111,6 @@ const RouteItem = ({
                 <TimelineDescription>
                   timeEstimate: {route.timeEstimate}
                 </TimelineDescription>
-                <TimelineDescription>
-                  <div className="flex justify-between">
-                    <div className="flex items-center">
-                      {" "}
-                      <input
-                        type="number"
-                        name="hours"
-                        value={
-                          timeByInterconnection[route.interconnectionId]
-                            ?.hours || ""
-                        }
-                        onChange={(e) =>
-                          handleChange(e, route.interconnectionId)
-                        }
-                        placeholder="HH"
-                        className="w-14 rounded border border-gray-300 px-2 py-2 text-center"
-                        min="0"
-                        max="23"
-                      />
-                      <span>:</span>
-                      <input
-                        type="number"
-                        name="minutes"
-                        value={
-                          timeByInterconnection[route.interconnectionId]
-                            ?.minutes || ""
-                        }
-                        onChange={(e) =>
-                          handleChange(e, route.interconnectionId)
-                        }
-                        placeholder="MM"
-                        className="w-14 rounded border border-gray-300 px-2 py-2 text-center"
-                        min="0"
-                        max="59"
-                      />
-                    </div>
-                    <button
-                      onClick={() => handleUpdate(route.interconnectionId)}
-                      className={`rounded px-2 py-2 text-white ${
-                        loading
-                          ? "cursor-not-allowed bg-gray-500"
-                          : "bg-blue-500 hover:bg-blue-600"
-                      }`}
-                      disabled={loading}
-                    >
-                      {"Update"}
-                    </button>
-                  </div>
-                </TimelineDescription>
               </TimelineItem>
             ))}
           </Timeline>
@@ -216,4 +120,4 @@ const RouteItem = ({
   );
 };
 
-export default RouteItem;
+export default ListItems;

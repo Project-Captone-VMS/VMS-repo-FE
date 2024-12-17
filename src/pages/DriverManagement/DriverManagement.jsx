@@ -300,19 +300,13 @@ const DriverManagement = () => {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <div className="p-6">
+      <div className="">
         <h1 className="mb-4 flex items-center justify-between text-3xl font-bold text-gray-900">
           <span>Driver Management</span>
           <div className="ml-auto flex space-x-4">
             <Link
-              to="/driver"
-              className="rounded-lg bg-blue-600 px-3 py-1 text-sm text-white transition duration-300 hover:bg-blue-700"
-            >
-              Drivers
-            </Link>
-            <Link
               to="/expenses"
-              className="rounded-lg bg-blue-600 px-3 py-1 text-sm text-white transition duration-300 hover:bg-blue-700"
+              className="rounded-lg bg-black px-4 py-2 text-sm text-white transition duration-300 hover:bg-blue-700"
             >
               Expenses
             </Link>

@@ -404,15 +404,18 @@ const Route = () => {
     <div>
       <div className="flex justify-between">
         <div
-          className="map-container"
-          style={{ width: "70%", height: "500px" }}
+          className="map-container rounded-lg border bg-white p-3"
+          style={{ width: "71%", height: "700px" }}
           ref={mapRef}
         ></div>
-        <div className="gap-3" style={{ width: "28%" }}>
+        <div
+          className="gap-3 rounded-lg border bg-white px-3 py-2"
+          style={{ width: "28%" }}
+        >
           <div className="form-container">
             <h2 className="mb-4 text-2xl font-bold">Route on HERE Map</h2>
             <form onSubmit={handleSubmit} className="mb-4">
-              <div className="mb-4">
+              <div className="mb-4 px-1">
                 <label className="block text-sm font-medium text-gray-700">
                   Start:
                   <input
@@ -427,7 +430,7 @@ const Route = () => {
                   />
                 </label>
               </div>
-              <div className="mb-4">
+              <div className="mb-4 px-1">
                 <label className="block text-sm font-medium text-gray-700">
                   End:
                   <input
@@ -440,7 +443,7 @@ const Route = () => {
                 </label>
               </div>
 
-              <div className="mb-4">
+              <div className="mb-4 px-1">
                 <label className="block text-sm font-medium text-gray-700">
                   Driver:
                   <select
@@ -464,7 +467,7 @@ const Route = () => {
                 </label>
               </div>
 
-              <div className="mb-4">
+              <div className="mb-4 px-1">
                 <label className="block text-sm font-medium text-gray-700">
                   Select Vehicle:
                   <select
@@ -492,25 +495,27 @@ const Route = () => {
                 className="w-full"
                 style={{ width: "100%", padding: "10px" }}
               >
-                <h3 className="text-lg">Coordinate Information</h3>
+                <h3 className="text-lg font-semibold">
+                  Coordinate Information
+                </h3>
                 <textarea
                   value={textareaValue}
                   onChange={handleTextareaChange}
-                  rows={10}
+                  rows={4}
                   className="mt-4 w-full rounded-md border border-gray-300"
                 />
               </div>
-              <div className="flex w-full items-center gap-5">
+              <div className="flex w-full items-center justify-between gap-5 px-3 font-semibold">
                 <button
                   type="submit"
-                  className="h-10 rounded-md bg-blue-600 p-2 text-white hover:bg-blue-700"
+                  className="w-full rounded-md bg-blue-600 p-3 text-white hover:bg-blue-700"
                 >
                   Get Route
                 </button>
                 <button
                   type="button"
                   onClick={handleFindSequence}
-                  className="h-10 rounded-md bg-green-600 p-2 text-white hover:bg-green-700"
+                  className="w-full rounded-md bg-green-600 p-3 text-white hover:bg-green-700"
                 >
                   Find Sequence
                 </button>
@@ -520,7 +525,6 @@ const Route = () => {
             {loading && <p>Loading route...</p>}
             {error && <p className="text-red-600">{error}</p>}
           </div>
-          <hr className="mt-4" />
         </div>
       </div>
 
