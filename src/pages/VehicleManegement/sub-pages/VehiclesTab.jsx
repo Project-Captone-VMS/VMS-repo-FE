@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo } from "react";
-import { Search, ChevronDown, Edit, Trash2 } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Search, ChevronDown, Edit, Trash2, Filter } from "lucide-react";
 import { Button } from "../../../components/ui/button";
 import { Input } from "../../../components/ui/input";
 import { Table, TableRow } from "../../../components/Vehicle/Table";
@@ -19,6 +19,7 @@ import {
 import Swal from "sweetalert2";
 import Pagination from "../../../components/Pagination";
 import EditVehicleModal from "../../../components/Modals/EditVehicleModal";
+import useVehicleSearchFilter from "../../../components/Vehicle/useVehicleSearchFilter";
 
 const VehiclesTable = ({
   vehicles,
@@ -33,39 +34,39 @@ const VehiclesTable = ({
 
   const renderTableRow = (vehicle, index) => (
     <TableRow key={vehicle.vehicleId}>
-      <div className="font-medium">{startIndex + index + 1}</div>
-      <div className="font-medium">{vehicle.licensePlate}</div>
-      <div className="font-medium">{vehicle.type}</div>
-      <div>
-        <span
-          className={`px-2 py-1 rounded-full text-xs font-medium ${
-            !vehicle.status
-              ? "bg-green-100 text-green-800"
-              : "bg-red-100 text-red-800"
-          }`}
-        >
-          {vehicle.status ? "Busy (On Delivery)" : "Active (Available)"}
-        </span>
+      <div className="my-auto border-r p-3 text-sm">
+        {startIndex + index + 1}
       </div>
-      <div className="font-medium">{vehicle.capacity}</div>
-      <div className="font-medium">
+      <div className="my-auto border-r p-3 text-sm">{vehicle.licensePlate}</div>
+      <div className="my-auto border-r p-3 text-sm">{vehicle.type}</div>
+      <div
+        className={`my-auto mr-2 rounded-lg border-r py-2 text-center ${
+          !vehicle.status
+            ? "bg-green-100 text-green-800"
+            : "bg-red-100 text-red-800"
+        }`}
+      >
+        <p className=" text-sm">{vehicle.status ? "Busy (On Delivery)" : "Active (Available)"}</p>
+      </div>
+      <div className="my-auto border-r p-3 text-sm">{vehicle.capacity}</div>
+      <div className="my-auto border-r p-3 text-sm">
         {formatDate(vehicle.maintenanceSchedule)}
       </div>
 
-      <div className="flex gap-2">
+      <div className="my-auto flex gap-2">
         <Button
           variant="outline"
           size="icon"
           onClick={() => onEdit(vehicle.vehicleId)}
         >
-          <Edit className="w-4 h-4" />
+          <Edit className="h-4 w-4" />
         </Button>
         <Button
           variant="destructive"
           size="icon"
           onClick={() => onDelete(vehicle.vehicleId)}
         >
-          <Trash2 className="w-4 h-4" />
+          <Trash2 className="h-4 w-4" />
         </Button>
       </div>
     </TableRow>
@@ -95,6 +96,7 @@ const VehiclesTab = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
 
   const itemsPerPage = 5;
 
@@ -128,8 +130,8 @@ const VehiclesTab = () => {
         prevVehicles.map((vehicle) =>
           vehicle.vehicleId === vehicleId
             ? { ...vehicle, ...vehicleWithoutId }
-            : vehicle
-        )
+            : vehicle,
+        ),
       );
 
       Swal.fire({
@@ -165,7 +167,7 @@ const VehiclesTab = () => {
       try {
         await deleteVehicle(vehicleId);
         setVehicles((prevVehicles) =>
-          prevVehicles.filter((vehicle) => vehicle.vehicleId !== vehicleId)
+          prevVehicles.filter((vehicle) => vehicle.vehicleId !== vehicleId),
         );
 
         Swal.fire("Deleted!", "Your vehicle has been deleted.", "success");
@@ -174,7 +176,7 @@ const VehiclesTab = () => {
         Swal.fire(
           "Error!",
           "An error occurred while deleting the vehicle.",
-          "error"
+          "error",
         );
       }
     }
@@ -184,15 +186,11 @@ const VehiclesTab = () => {
     setEditingVehicle(null);
   };
 
-  const filteredVehicles = useMemo(() => {
-    return vehicles.filter(
-      (vehicle) =>
-        vehicle.licensePlate
-          .toLowerCase()
-          .includes(searchTerm?.toLowerCase() || "") ||
-        vehicle.type.toLowerCase().includes(searchTerm?.toLowerCase() || "")
-    );
-  }, [vehicles, searchTerm]);
+  const filteredVehicles = useVehicleSearchFilter(
+    vehicles,
+    searchTerm,
+    statusFilter,
+  );
 
   const totalItems = filteredVehicles.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
@@ -206,48 +204,66 @@ const VehiclesTab = () => {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle>Vehicle List</CardTitle>
-          <div className="flex gap-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <Input placeholder="Search vehicles..." className="pl-10" />
-            </div>
-            <Button variant="outline">
-              <ChevronDown className="w-4 h-4 mr-2" />
-              Filter
-            </Button>
-          </div>
+    <div>
+      <div className="mb-6 flex items-center gap-4 rounded-lg bg-white p-4 shadow-sm">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
+          <Input
+            placeholder="Search..."
+            className="border-0 bg-white pl-10 ring-1 ring-gray-200"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
         </div>
-      </CardHeader>
+        <Button
+          variant="outline"
+          className="flex h-10 items-center gap-2 border-0 bg-white px-4 ring-1 ring-gray-200"
+          onClick={() =>
+            setStatusFilter(statusFilter === "active" ? "busy" : "active")
+          }
+        >
+          <Filter className="h-4 w-4" />
+          {statusFilter === "active" ? "Show Busy" : "Show Active"}
+        </Button>
+      </div>
 
-      <CardContent>
-        <VehiclesTable
-          vehicles={filteredVehicles}
-          currentPage={currentPage}
-          itemsPerPage={itemsPerPage}
-          onEdit={handleEdit}
-          onDelete={handleDeleteVehicle}
-        />
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          itemsPerPage={itemsPerPage}
-          totalItems={totalItems}
-          onPageChange={setCurrentPage}
-        />
-      </CardContent>
+      <Card>
+        <div className="space-y-1.5 px-6 pt-5">
+          <p className="text-lg font-semibold leading-none tracking-tight">
+            Vehicles History
+          </p>
+        </div>
+        <CardContent>
+          {/* Show No Vehicles Found if no filtered vehicles */}
+          {filteredVehicles.length === 0 && (
+            <div className="text-center text-gray-500">No vehicles found</div>
+          )}
 
-      {editingVehicle && (
-        <EditVehicleModal
-          vehicle={editingVehicle}
-          onClose={handleCloseModal}
-          onSave={handleSaveVehicle}
-        />
-      )}
-    </Card>
+          <VehiclesTable
+            vehicles={filteredVehicles}
+            currentPage={currentPage}
+            itemsPerPage={itemsPerPage}
+            onEdit={handleEdit}
+            onDelete={handleDeleteVehicle}
+          />
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            itemsPerPage={itemsPerPage}
+            totalItems={totalItems}
+            onPageChange={setCurrentPage}
+          />
+        </CardContent>
+
+        {editingVehicle && (
+          <EditVehicleModal
+            vehicle={editingVehicle}
+            onClose={handleCloseModal}
+            onSave={handleSaveVehicle}
+          />
+        )}
+      </Card>
+    </div>
   );
 };
 

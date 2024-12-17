@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { NavLink, Link, useLocation } from "react-router-dom";
 import Logo from "../assets/images/logo.png";
 import {
@@ -14,13 +14,23 @@ import {
   Route,
   BellDot,
   ChartSpline,
+  SquareChartGantt,
+  Car,
+  Wrench,
+  DiamondPlus,
 } from "lucide-react";
 
 const Sidebar = ({ isOpen, setIsOpen, role }) => {
   const location = useLocation();
+  const [isVehicleDropdownOpen, setVehicleDropdownOpen] = useState(false);
 
   const sb_menuItems = [
-    { path: "/vehicle", icon: Truck, label: "Vehicle Management" },
+    {
+      path: "/vehicle",
+      icon: Truck,
+      label: "Vehicle Management",
+      hasDropdown: true,
+    },
     { path: "/driver", icon: Users, label: "Driver Management" },
     { path: "/routeDetail", icon: Users, label: "routeDetail" },
     { path: "/warehouse", icon: Warehouse, label: "Warehouse Management" },
@@ -31,6 +41,21 @@ const Sidebar = ({ isOpen, setIsOpen, role }) => {
     { path: "/reports", icon: FileText, label: "Reports" },
     { path: "/RealtimeTrackingUser", icon: Map, label: "RealtimeTrackingUser" },
     { path: "/showTrackingUser", icon: ChartSpline, label: "ShowTracking" },
+  ];
+
+  const dropdownItems = [
+    {
+      path: "vehicle/OverviewTab",
+      label: "Overview",
+      icon: SquareChartGantt,
+    },
+    {
+      path: "vehicle/VehiclesTab",
+      label: "Vehicles",
+      icon: Car,
+    },
+    { path: "vehicle/MaintenanceTab", label: "Maintenance", icon: Wrench },
+    { path: "vehicle/IncidentTab", label: "Incident", icon: DiamondPlus },
   ];
 
   const filteredMenuItems =
@@ -58,27 +83,30 @@ const Sidebar = ({ isOpen, setIsOpen, role }) => {
 
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
+    if (isVehicleDropdownOpen) {
+      setVehicleDropdownOpen(!isVehicleDropdownOpen);
+    }
+  };
+
+  const toggleVehicleDropdown = () => {
+    setVehicleDropdownOpen(!isVehicleDropdownOpen);
   };
 
   return (
     <aside
-      className={`dark:bg-box-dark my-3 mx-2 rounded-md bg-black transition-all duration-300 ease-linear ${
+      className={`dark:bg-box-dark mx-3 my-3 rounded-md bg-black transition-all duration-300 ease-linear ${
         isOpen ? "w-60" : "w-16"
       } sticky left-0 top-0`}
     >
       <div className="flex flex-col items-center p-1">
         <NavLink
           to="/dashboard"
-          className={`flex items-center ${
-            isOpen ? "px-4" : "justify-center"
-          } py-4`}
+          className={`flex items-center ${isOpen ? "px-4" : "justify-center"} py-4`}
         >
           <img
             src={Logo}
             alt="Logo"
-            className={`transition-all duration-300 ${
-              isOpen ? "h-9 w-12" : "h-6 w-8"
-            }`}
+            className={`transition-all duration-300 ${isOpen ? "h-9 w-12" : "h-6 w-8"}`}
           />
           <div
             className={`overflow-hidden transition-all duration-300 ${
@@ -91,8 +119,8 @@ const Sidebar = ({ isOpen, setIsOpen, role }) => {
           </div>
         </NavLink>
       </div>
-      {/* Menu Toggle Button */}
 
+      {/* Menu Toggle Button */}
       <div className="p-1">
         <button
           onClick={toggleSidebar}
@@ -111,26 +139,94 @@ const Sidebar = ({ isOpen, setIsOpen, role }) => {
         </button>
       </div>
 
-      {/* Menu Items */}
       <nav className="flex-grow overflow-y-auto">
         <ul className="py-2 text-white">
           {filteredMenuItems.map((item) => {
             const Icon = item.icon;
+
             const isActive = location.pathname === item.path;
+
+            if (item.hasDropdown) {
+              return (
+                <li key={item.path} className="relative">
+                  <Link
+                    to="/vehicle"
+                    onClick={toggleVehicleDropdown}
+                    className={`flex items-center hover:bg-gray-800 ${
+                      isOpen
+                        ? "px-4 py-2"
+                        : "justify-center px-6 py-1 focus:bg-blue-800"
+                    } text-sm transition-all duration-200 ease-out ${
+                      isActive
+                        ? "text-white"
+                        : "text-gray-300 hover:text-white focus:bg-blue-800"
+                    }`}
+                  >
+                    <Icon
+                      className={`h-5 w-5 ${isOpen ? "mr-3" : ""} ${
+                        isActive ? "text-white" : "text-gray-400"
+                      }`}
+                    />
+                    <span
+                      className={`overflow-hidden font-medium transition-all duration-300 ${
+                        isOpen ? "w-auto opacity-100" : "w-0 opacity-0"
+                      }`}
+                    >
+                      {item.label}
+                    </span>
+                  </Link>
+
+                  <ul
+                    className={`transform overflow-hidden pl-12 transition-all duration-500 ease-in-out ${
+                      isVehicleDropdownOpen
+                        ? "max-h-96 scale-100 opacity-100"
+                        : "max-h-0 scale-95 opacity-0"
+                    }`}
+                  >
+                    {dropdownItems.map((dropdownItem) => {
+                      const DropdownIcon = dropdownItem.icon; // Lấy icon từ dropdownItem
+                      return (
+                        <li key={dropdownItem.path} className="flex">
+                          {/* <DropdownIcon
+                            className={`h-5 w-5 ${isOpen ? "mr-3" : ""} ${
+                              location.pathname === dropdownItem.path
+                                ? "text-white"
+                                : "text-gray-400"
+                            }`}
+                          /> */}
+                          <Link
+                            to={dropdownItem.path}
+                            className={`block py-2 text-sm font-medium text-gray-500 hover:text-white ${
+                              location.pathname === dropdownItem.path
+                                ? "bg-blue-800 text-white"
+                                : "focus:text-white"
+                            }`}
+                          >
+                            {dropdownItem.label}
+                          </Link>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </li>
+              );
+            }
 
             return (
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center ${isOpen ? "px-4 py-2" : "justify-center py-1"} text-sm transition-all duration-200 ease-out ${
+                className={`flex items-center ${
+                  isOpen ? "px-4 py-2" : "justify-center py-1"
+                } text-sm transition-all duration-200 ease-out ${
                   isActive
                     ? "bg-blue-800 text-white"
                     : "text-gray-300 hover:bg-gray-800 hover:text-white"
-                } `}
+                }`}
                 title={!isOpen ? item.label : ""}
               >
                 <Icon
-                  className={`h-5 w-5 ${isOpen ? "mr-3 mt-1" : "mt-3"} ${
+                  className={`h-5 w-5 ${isOpen ? "mr-3" : ""} ${
                     isActive ? "text-white" : "text-gray-400"
                   }`}
                 />

@@ -149,9 +149,9 @@ const AdminSender = () => {
   }, [filteredNotifications, currentPage]);
 
   return (
-    <div >
-      <div className=" top-0 z-50 mb-4 flex w-full items-center justify-between rounded-md bg-slate-200 px-2 py-4">
-        <p className="text-2xl font-bold">Notification</p>
+    <div>
+      <div className="top-0 z-50 mb-4 flex w-full items-center justify-between rounded-md border bg-white px-2 py-4">
+        <p className="text-2xl font-bold text-text-Default">Notification</p>
         <div className="flex items-center">
           <Select
             placeholder="Select type"
@@ -163,11 +163,7 @@ const AdminSender = () => {
             <Select.Option value="ALERT">Alert</Select.Option>
             <Select.Option value="Error">Error</Select.Option>
           </Select>
-          <Button
-            type="primary"
-            onClick={showModal}
-            className="bg-blue-500 hover:bg-blue-600"
-          >
+          <Button onClick={showModal} className="bg-black text-white">
             Send Notification
           </Button>
         </div>
@@ -239,59 +235,60 @@ const AdminSender = () => {
           </Form.Item>
         </Form>
       </Modal>
-
-      <table className="w-full border-collapse border border-gray-200">
-        <thead>
-          <tr>
-            <th className="border border-gray-300 px-4 py-2">Username</th>
-            <th className="border border-gray-300 px-4 py-2">Title</th>
-            <th className="border border-gray-300 px-4 py-2">Type</th>
-            <th className="border border-gray-300 px-4 py-2">Content</th>
-            <th className="border border-gray-300 px-4 py-2">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {paginatedNotifications.map((notification) => (
-            <tr key={notification.key} className="text-center">
-              <td className="border border-gray-300 px-4 py-2">
-                {notification.user.username}
-              </td>
-              <td className="border border-gray-300 px-4 py-2">
-                {notification.notification.title}
-              </td>
-              <td className="border border-gray-300 px-4 py-2">
-                {notification.notification.type}
-              </td>
-              <td className="border border-gray-300 px-4 py-2">
-                {notification.notification.content}
-              </td>
-              <td className="border border-gray-300 px-4 py-2">
-                <Space size="middle">
-                  <Button
-                    type="link"
-                    onClick={() => showDetailModal(notification)}
-                  >
-                    Detail
-                  </Button>
-                  <Button
-                    type="link"
-                    danger
-                    onClick={() => confirmDeleteNotification(notification)}
-                  >
-                    Delete
-                  </Button>
-                </Space>
-              </td>
+      <div className="rounded-lg border bg-white p-3">
+        <table className="w-full border-collapse border border-gray-200">
+          <thead className="bg-black text-sm text-white">
+            <tr>
+              <th className="border border-gray-400 px-4 py-2">Username</th>
+              <th className="border border-gray-400 px-4 py-2">Title</th>
+              <th className="border border-gray-400 px-4 py-2">Type</th>
+              <th className="border border-gray-400 px-4 py-2">Content</th>
+              <th className="border border-gray-400 px-4 py-2">Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {paginatedNotifications.map((notification) => (
+              <tr key={notification.key} className="text-center">
+                <td className="border border-gray-400 px-4 py-2 text-sm">
+                  {notification.user.username}
+                </td>
+                <td className="border border-gray-400 px-4 py-2 text-sm">
+                  {notification.notification.title}
+                </td>
+                <td className="border border-gray-400 px-4 py-2 text-sm">
+                  {notification.notification.type}
+                </td>
+                <td className="border border-gray-400 px-4 py-2 text-sm">
+                  {notification.notification.content}
+                </td>
+                <td className="border border-gray-400 px-4 py-2 text-sm">
+                  <Space size="middle">
+                    <Button
+                      type="link"
+                      onClick={() => showDetailModal(notification)}
+                    >
+                      Detail
+                    </Button>
+                    <Button
+                      type="link"
+                      danger
+                      onClick={() => confirmDeleteNotification(notification)}
+                    >
+                      Delete
+                    </Button>
+                  </Space>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
       <Pagination
         current={currentPage}
         pageSize={ITEMS_PER_PAGE}
         total={filteredNotifications.length}
         onChange={handlePageChange}
-        className="sticky bottom-0 mr-0 mt-4 flex justify-end bg-white py-2"
+        className="sticky bottom-0 mr-0 mt-4 flex justify-end rounded-lg bg-white py-2"
       />
     </div>
   );

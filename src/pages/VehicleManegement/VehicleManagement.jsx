@@ -12,9 +12,9 @@ const VehicleManagement = () => {
 
   return (
     <div>
-      <div className="mb-2 flex items-center justify-between px-2">
+      <div className="mb-4 flex items-center justify-between px-2">
         <div className="">
-          <h1 className="text-2xl font-bold">Vehicle Management</h1>
+          <h1 className="text-3xl font-bold">Vehicle Management</h1>
           <p className="text-sm text-gray-600">Manage your fleet efficiently</p>
         </div>
 
@@ -22,7 +22,7 @@ const VehicleManagement = () => {
           onClick={() => {
             setIsModalOpen(true);
           }}
-          className="flex items-center rounded-md bg-black px-4 py-2 text-white hover:bg-slate-900"
+          className="flex items-center font-semibold rounded-md bg-black px-4 py-2 text-white hover:bg-slate-800"
         >
           + ADD NEW VEHICLE
         </button>
@@ -33,22 +33,6 @@ const VehicleManagement = () => {
         onClose={() => setIsModalOpen(false)}
         onSave={handleAddVehicle}
       />
-
-      {/* <hr className=" border-gray-200 dark:border-gray-300 md:my-4" /> */}
-      <div className="border-1 my-6 py-1 flex rounded-md border-b bg-white">
-        <Link to="OverviewTab" className="px-2 py-2 hover:bg-slate-200">
-          Overview
-        </Link>
-        <Link to="VehiclesTab" className="px-4 py-2 hover:bg-slate-200">
-          Vehicles
-        </Link>
-        <Link to="MaintenanceTab" className="px-4 py-2 hover:bg-slate-200">
-          Maintenance
-        </Link>
-        <Link to="IncidentTab" className="px-4 py-2 hover:bg-slate-200">
-          IncidentTab
-        </Link>
-      </div>
 
       <Outlet />
     </div>

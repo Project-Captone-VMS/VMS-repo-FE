@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Plus, Package, MapPin, BarChart2 } from "lucide-react";
+import { Plus, Package, BarChart2, MapPin, Search, Filter } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../../components/ui/button";
 import { WarehouseCard } from "../../components/Warehouse/WarehouseCard";
@@ -7,7 +7,7 @@ import { AddWarehouse } from "../../components/Modals/AddWarehouse";
 import EditWarehouse from "../../components/Modals/EditWarehouse";
 import SearchAndFilter from "../../components/Warehouse/SearchAndFilter";
 import getFilteredWarehouses from "../../components/Warehouse/getFilteredWarehouses";
-import { Card, CardContent } from "../../components/ui/card";
+
 import {
   getAllWarehouses,
   deleteWarehouse,
@@ -19,24 +19,6 @@ import {
   totalLesss,
 } from "../../services/apiRequest";
 import Swal from "sweetalert2";
-
-const StatCard = ({ title, value, icon: Icon }) => {
-  return (
-    <Card>
-      <CardContent className="w-full">
-        <div className="flex items-center justify-between py-2">
-          <div className="rounded-lg bg-blue-300 p-4">
-            <Icon className="h-6 w-6 text-blue-700" />
-          </div>
-          <div className="flex flex-col justify-between text-end">
-            <p className="text-sm text-text-Comment">{title}</p>
-            <h3 className="text-xl font-bold">{value}</h3>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-};
 
 const WarehouseManagement = () => {
   const navigate = useNavigate();
@@ -57,10 +39,12 @@ const WarehouseManagement = () => {
     capacityLessThan10000: false,
   });
 
+  // Handle search input change
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
   };
 
+  // Handle filter change
   const handleFilterChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFilters((prevFilters) => ({
@@ -113,7 +97,6 @@ const WarehouseManagement = () => {
       const result = await totalLocations();
       setTotalLocation(result);
     }
-
     fetchData();
   }, []);
 
@@ -122,7 +105,6 @@ const WarehouseManagement = () => {
       const result = await totalOvers();
       setTotalOver(result);
     }
-
     fetchData();
   }, []);
 
@@ -131,7 +113,6 @@ const WarehouseManagement = () => {
       const result = await totalLesss();
       setTotalLess(result);
     }
-
     fetchData();
   }, []);
 
@@ -175,19 +156,13 @@ const WarehouseManagement = () => {
   const handleUpdateWarehouse = async (updatedWarehouse) => {
     try {
       setIsLoading(true);
-      // Make the API call to update the warehouse
       const response = await updateWarehouse(
         updatedWarehouse.warehouseId,
         updatedWarehouse,
       );
-      console.log(updatedWarehouse);
-
       if (response) {
-        // Close modal and clear editing state first
         setIsEditModalOpen(false);
         setEditingWarehouse(null);
-
-        // Show success message
         await Swal.fire({
           icon: "success",
           title: "Success!",
@@ -195,8 +170,6 @@ const WarehouseManagement = () => {
           timer: 1500,
           showConfirmButton: false,
         });
-
-        // Refresh the warehouses list
         await fetchWarehouses();
       }
     } catch (error) {
@@ -228,8 +201,6 @@ const WarehouseManagement = () => {
       try {
         setIsLoading(true);
         await deleteWarehouse(warehouseId);
-
-        // Show success message
         await Swal.fire({
           icon: "success",
           title: "Success!",
@@ -237,8 +208,6 @@ const WarehouseManagement = () => {
           timer: 1500,
           showConfirmButton: false,
         });
-
-        // Refresh the warehouses list
         await fetchWarehouses();
       } catch (error) {
         console.error("Error deleting warehouse:", error);
@@ -256,22 +225,23 @@ const WarehouseManagement = () => {
   };
 
   return (
-    <div className="min-h-screen">
-      <div className="shadow-sm">
-        <div className="max-w-8xl mx-auto">
+    <div className="min-h-screen bg-gray-50">
+      {/* Header Section */}
+      <div className="bg-white shadow-sm">
+        <div className="max-w-8xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
           <div className="flex flex-col items-start justify-between space-y-4 md:flex-row md:items-center md:space-y-0">
             <div>
               <h1 className="flex items-center gap-2 text-3xl font-bold text-gray-900">
-                {/* <Package className="h-8 w-8 text-blue-600" /> */}
+                <Package className="h-8 w-8 text-blue-600" />
                 Warehouse Dashboard
               </h1>
-              <p className="mt-1 text-sm text-gray-600">
+              <p className="mt-2 text-gray-600">
                 Manage your warehouses and inventory efficiently
               </p>
             </div>
             <div className="flex items-center gap-4">
               <Button
-                className="bg-black text-white shadow-lg transition-all duration-200 hover:bg-slate-800"
+                className="bg-blue-600 text-white shadow-lg transition-all duration-200 hover:bg-blue-700"
                 onClick={() => setIsAddModalOpen(true)}
                 disabled={isLoading}
               >
@@ -284,7 +254,7 @@ const WarehouseManagement = () => {
       </div>
 
       {/* Search and Filter Section */}
-      <div className="mx-auto py-6">
+      <div className="max-w-8xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
         <SearchAndFilter
           searchTerm={searchTerm}
           onSearchChange={handleSearchChange}
@@ -295,7 +265,7 @@ const WarehouseManagement = () => {
         />
 
         {/* Stats Overview */}
-        {/* <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-4">
+        <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-4">
           <div className="flex items-center gap-4 rounded-lg bg-white p-6 shadow-sm">
             <div className="rounded-lg bg-blue-100 p-3">
               <Package className="h-6 w-6 text-blue-600" />
@@ -337,29 +307,6 @@ const WarehouseManagement = () => {
               </p>
             </div>
           </div>
-        </div> */}
-
-        <div className="mb-8 grid grid-cols-2 gap-7 md:grid-cols-2 lg:grid-cols-4">
-          <StatCard
-            title="Total Warehouses"
-            value={totalWarehouse}
-            icon={Package}
-          />
-          <StatCard
-            title="Capacity over 10000"
-            value={totalOver}
-            icon={BarChart2}
-          />
-          <StatCard
-            title="Capacity less than 10000"
-            value={totalLess}
-            icon={BarChart2}
-          />
-          <StatCard
-            title="Active Locations"
-            value={totalLocation}
-            icon={MapPin}
-          />
         </div>
 
         {/* Warehouse Grid */}

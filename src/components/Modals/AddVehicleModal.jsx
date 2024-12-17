@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Check, X, AlertCircle } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
@@ -16,7 +16,7 @@ import { Input } from "../ui/input";
 import { createVehicle } from "../../services/apiRequest";
 
 // Modal thêm xe
-const AddVehicleModal = ({ isOpen, onClose }) => {
+const AddVehicleModal = ({ isOpen, onClose, onAddVehicle }) => {
   const navigate = useNavigate();
   const [fieldErrors, setFieldErrors] = useState({});
   const [touchedFields, setTouchedFields] = useState({});
@@ -70,9 +70,6 @@ const AddVehicleModal = ({ isOpen, onClose }) => {
           errors.licensePlate = "License plate is required";
         } else if (value.length > 15) {
           errors.licensePlate = "License plate cannot exceed 15 characters";
-        } else if (!/^[0-9]{2}[A-Z]{1}-\d{4,5}$/.test(value)) {
-          errors.licensePlate =
-            "License plate must be in the format XXA-1234 or XX-12345 (2 digits, 1 letter, 4-5 digits)";
         } else {
           delete errors.licensePlate;
         }
@@ -125,23 +122,39 @@ const AddVehicleModal = ({ isOpen, onClose }) => {
     setFieldErrors(errors);
   };
 
+  const validateFields = () => {
+    const errors = {};
+    if (!vehicleData.licensePlate) {
+      errors.licensePlate = "License plate is required.";
+    }
+    if (!vehicleData.type) {
+      errors.type = "Vehicle type is required.";
+    }
+    if (!vehicleData.capacity || vehicleData.capacity <= 0) {
+      errors.capacity = "Capacity must be a positive number.";
+    }
+    if (!vehicleData.maintenanceSchedule) {
+      errors.maintenanceSchedule = "Maintenance schedule is required.";
+    } else {
+      const date = new Date(vehicleData.maintenanceSchedule);
+      const today = new Date();
+      if (date < today) {
+        errors.maintenanceSchedule = "Schedule must be today or later.";
+      }
+    }
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleSave = async (event) => {
     event.preventDefault();
-
     const allTouched = Object.keys(vehicleData).reduce(
-      (acc, key) => ({
-        ...acc,
-        [key]: true,
-      }),
+      (acc, key) => ({ ...acc, [key]: true }),
       {},
     );
     setTouchedFields(allTouched);
 
-    Object.keys(vehicleData).forEach((key) => {
-      validateField(key, vehicleData[key]);
-    });
-
-    if (Object.keys(fieldErrors).length > 0) {
+    if (!validateFields()) {
       toast.error("Please fix all errors before submitting");
       return;
     }
@@ -156,9 +169,7 @@ const AddVehicleModal = ({ isOpen, onClose }) => {
       await createVehicle(vehicleDataToSend);
       toast.success("Vehicle created successfully!");
       resetState(); // Reset state after successful save
-      onClose(); // Close modal after saving
-
-      // Refresh the page by using window.location.reload()
+      onClose();
       window.location.reload();
     } catch (error) {
       toast.error("Failed to create vehicle");

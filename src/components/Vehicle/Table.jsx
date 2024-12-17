@@ -1,16 +1,16 @@
 import React from "react";
 
 export const Table = ({ headers, children }) => (
-  <div className="w-full bg-white rounded-lg shadow overflow-hidden">
+  <div className="w-full overflow-hidden rounded-lg bg-white shadow">
     <div className="min-w-full divide-y divide-gray-200">
-      <div className="bg-gray-50">
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(0,1fr))] gap-4 px-6 py-3">
+      <div className="bg-black">
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(0,1fr))] gap-4 px-6">
           {headers.map((header, index) => (
             <div
               key={index}
-              className="text-xs font-medium text-gray-500 uppercase tracking-wider"
+              className="border-r text-center border-gray-700 py-3 text-xs font-medium uppercase tracking-wider text-white"
             >
-              {header} 
+              {header}
             </div>
           ))}
         </div>
@@ -21,7 +21,7 @@ export const Table = ({ headers, children }) => (
 );
 
 export const TableRow = ({ children }) => (
-  <div className="grid grid-cols-[repeat(auto-fit,minmax(0,1fr))] gap-4 px-6 py-4 hover:bg-gray-50">
-    {children} 
-  </div> 
+  <div className="grid grid-cols-[repeat(auto-fit,minmax(0,1fr))] gap-4 px-6 hover:bg-gray-50">
+    {children}
+  </div>
 );

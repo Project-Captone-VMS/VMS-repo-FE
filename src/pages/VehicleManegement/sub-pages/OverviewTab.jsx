@@ -12,13 +12,13 @@ const StatCard = ({ title, value, icon: Icon, trend }) => {
   return (
     <Card>
       <CardContent className="w-full">
-        <div className="flex items-center justify-between py-4">
+        <div className="flex items-center justify-between py-2">
           <div className="rounded-lg bg-blue-300 p-4">
             <Icon className="h-6 w-6 text-blue-700" />
           </div>
           <div className="flex flex-col justify-between text-end">
             <p className="text-sm text-text-Comment">{title}</p>
-            <h3 className="text-2xl font-bold">{value}</h3>
+            <h3 className="text-base font-bold lg:text-2xl">{value}</h3>
             {trend && (
               <p
                 className={`mt-2 text-sm ${
@@ -53,12 +53,12 @@ const StatusItem = ({ icon: Icon, color, title, description }) => {
 };
 
 const OverviewTab = () => (
-  <div className="space-y-5">
+  <div className="space-y-4">
     <div className="grid grid-cols-2 gap-7 md:grid-cols-2 lg:grid-cols-4">
       <StatCard title="Total Vehicles" value="15" icon={Car} />
-      <StatCard title="Vehicles in Maintenance" value="3" icon={Settings} />
-      <StatCard title="Vehicles in incident" value="5" icon={Car} />
-      <StatCard title="Total Distance" value="125,000 km" icon={Car} />
+      <StatCard title="Total Maintenance" value="3" icon={Settings} />
+      <StatCard title="Total Incident" value="5" icon={Car} />
+      <StatCard title="Total Distance" value="125,000" icon={Car} />
     </div>
 
     <Card>

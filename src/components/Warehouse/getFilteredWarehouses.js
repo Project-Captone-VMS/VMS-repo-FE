@@ -1,48 +1,44 @@
 const getFilteredWarehouses = (warehouses, searchTerm, filters) => {
-  return warehouses.filter(warehouse => {
+  return warehouses.filter((warehouse) => {
     // Calculate utilization rate for filtering
-    const utilizationRate = warehouse.capacity > 0 
-      ? ((warehouse.currentStock / warehouse.capacity) * 100)
-      : 0;
+    const utilizationRate =
+      warehouse.capacity > 0
+        ? (warehouse.currentStock / warehouse.capacity) * 100
+        : 0;
 
     // Search match (check warehouse name and location)
-    const searchMatch = searchTerm === '' || 
-      warehouse.warehouseName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    const searchMatch =
+      searchTerm === "" ||
+      warehouse.warehouseName
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
       warehouse.location?.toLowerCase().includes(searchTerm.toLowerCase());
 
-    // Individual filter matches
-    const warehouseNameMatch = !filters.warehouseName || 
-      warehouse.warehouseName?.toLowerCase().includes(filters.warehouseName.toLowerCase());
-    
-    const locationMatch = !filters.location || 
-      warehouse.location?.toLowerCase().includes(filters.location.toLowerCase());
-    
-    const statusMatch = !filters.status || 
-      (filters.status === 'full' && utilizationRate >= 90) ||
-      (filters.status === 'available' && utilizationRate < 90) ||
-      (filters.status === 'active' && warehouse.currentStock > 0);
+    // Utilization rate filter (low, medium, high)
+    const utilizationMatch =
+      !filters.utilizationRate ||
+      (filters.utilizationRate === "low" && utilizationRate <= 30) ||
+      (filters.utilizationRate === "medium" &&
+        utilizationRate > 30 &&
+        utilizationRate <= 70) ||
+      (filters.utilizationRate === "high" && utilizationRate > 70);
 
-    // Utilization rate filter
-    const utilizationMatch = !filters.utilizationRate ||
-      (filters.utilizationRate === 'low' && utilizationRate <= 30) ||
-      (filters.utilizationRate === 'medium' && utilizationRate > 30 && utilizationRate <= 70) ||
-      (filters.utilizationRate === 'high' && utilizationRate > 70);
+    // Capacity filters for > 10,000 and < 10,000
+    const capacityGreaterThan10000Match =
+      !filters.capacityGreaterThan10000 ||
+      (filters.capacityGreaterThan10000 && warehouse.capacity > 10000);
 
-    // Capacity and stock filters
-    const capacityMatch = !filters.minCapacity || 
-      warehouse.capacity >= parseInt(filters.minCapacity);
-    
-    const currentStockMatch = !filters.maxCurrentStock || 
-      warehouse.currentStock <= parseInt(filters.maxCurrentStock);
+    const capacityLessThan10000Match =
+      !filters.capacityLessThan10000 ||
+      (filters.capacityLessThan10000 && warehouse.capacity < 10000);
 
-    return searchMatch && 
-           warehouseNameMatch && 
-           locationMatch && 
-           statusMatch && 
-           utilizationMatch && 
-           capacityMatch && 
-           currentStockMatch;
+    return (
+      searchMatch &&
+      utilizationMatch &&
+      capacityGreaterThan10000Match &&
+      capacityLessThan10000Match
+    );
   });
 };
 
-export default getFilteredWarehouses; 
+export default getFilteredWarehouses;

@@ -120,7 +120,7 @@ const EditVehicleModal = ({ vehicle, onClose, onSave }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="w-96 rounded-lg bg-white p-8">
+      <div className="fixed left-1/2 top-1/2 z-50 max-h-[90vh] w-full max-w-xl -translate-x-1/2 -translate-y-1/2 transform overflow-y-auto rounded-lg border border-gray-200 bg-white p-6 shadow-xl">
         <h2 className="mb-4 text-xl font-bold">Edit Vehicle</h2>
         <form onSubmit={handleSubmit}>
           <label className="mb-2 block">

@@ -1,9 +1,8 @@
 export const FILTER_OPTIONS = {
   status: [
     { value: "", label: "All Status" },
-    { value: "on-duty", label: "On Duty" },
-    { value: "on-leave", label: "On Leave" },
-    { value: "available", label: "Available" },
+    { value: "Active(Available)", label: "Active(Available)" },
+    { value: "Busy(On Delivery)", label: "Busy(On Delivery)" },
   ],
   workSchedule: [
     { value: "", label: "All Schedules" },
