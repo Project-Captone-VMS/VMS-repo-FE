@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from "react";
 import { Button, Input, Modal } from "antd";
 import { over } from "stompjs";
@@ -83,11 +84,13 @@ const Route = () => {
     setIsModalVisible(true);
   };
 
+
+
   const handleSave = () => {
     setRoutes((prevRoutes) =>
-      prevRoutes.map((route) =>
-        route.id === editData.id ? { ...editData } : route
-      )
+        prevRoutes.map((route) =>
+            route.id === editData.id ? { ...editData } : route
+        )
     );
     setIsModalVisible(false);
   };
@@ -117,17 +120,17 @@ const Route = () => {
     const platformInstance = new H.service.Platform({ apikey: apiKey });
     const defaultLayers = platformInstance.createDefaultLayers();
     const mapInstance = new H.Map(
-      mapRef.current,
-      defaultLayers.vector.normal.map,
-      {
-        center: { lat: 52.5308, lng: 13.3847 },
-        zoom: 14,
-        pixelRatio: window.devicePixelRatio || 1,
-      }
+        mapRef.current,
+        defaultLayers.vector.normal.map,
+        {
+          center: { lat: 52.5308, lng: 13.3847 },
+          zoom: 14,
+          pixelRatio: window.devicePixelRatio || 1,
+        }
     );
 
     const behavior = new H.mapevents.Behavior(
-      new H.mapevents.MapEvents(mapInstance)
+        new H.mapevents.MapEvents(mapInstance)
     );
     H.ui.UI.createDefault(mapInstance, defaultLayers);
     setMap(mapInstance);
@@ -135,8 +138,8 @@ const Route = () => {
     const setUpClickListener = (map) => {
       map.addEventListener("tap", function (evt) {
         const coord = map.screenToGeo(
-          evt.currentPointer.viewportX,
-          evt.currentPointer.viewportY
+            evt.currentPointer.viewportX,
+            evt.currentPointer.viewportY
         );
         const clickedMarker = new H.map.Marker({
           lat: coord.lat,
@@ -146,7 +149,7 @@ const Route = () => {
         markers.current.push(clickedMarker);
 
         const coordinatesText = `${coord.lat.toFixed(4)}, ${coord.lng.toFixed(
-          4
+            4
         )}`;
         setTextareaValue((prev) => prev + coordinatesText + "\n");
         setSelectedCoordinates((prev) => [
@@ -176,7 +179,7 @@ const Route = () => {
     const newCoordinates = [];
     lines.forEach((line) => {
       const matches = line.match(
-        /([-+]?[0-9]*\.?[0-9]+),\s*([-+]?[0-9]*\.?[0-9]+)/
+          /([-+]?[0-9]*\.?[0-9]+),\s*([-+]?[0-9]*\.?[0-9]+)/
       );
       if (matches) {
         const lat = parseFloat(matches[1]);
@@ -190,16 +193,18 @@ const Route = () => {
     setSelectedCoordinates(newCoordinates);
   };
 
+
+
   const geocode = async (address) => {
     try {
       const response = await axios.get(
-        "https://geocode.search.hereapi.com/v1/geocode",
-        {
-          params: {
-            q: address,
-            apikey: apiKey,
-          },
-        }
+          "https://geocode.search.hereapi.com/v1/geocode",
+          {
+            params: {
+              q: address,
+              apikey: apiKey,
+            },
+          }
       );
       if (response.data.items.length > 0) {
         return response.data.items[0].position;
@@ -224,18 +229,18 @@ const Route = () => {
       });
       markers.current = [];
       const response = await axios.get(
-        "http://localhost:8080/api/route/findRoute",
-        {
-          params: {
-            originLat: originCoords.lat,
-            originLng: originCoords.lng,
-            destinationLat: destinationCoords.lat,
-            destinationLng: destinationCoords.lng,
-          },
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+          "http://localhost:8080/api/route/findRoute",
+          {
+            params: {
+              originLat: originCoords.lat,
+              originLng: originCoords.lng,
+              destinationLat: destinationCoords.lat,
+              destinationLng: destinationCoords.lng,
+            },
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
       );
 
       if (response.data.routes && response.data.routes.length > 0) {
@@ -256,8 +261,8 @@ const Route = () => {
 
         if (map) {
           map
-            .getViewModel()
-            .setLookAtData({ bounds: routePolyline.getBoundingBox() });
+              .getViewModel()
+              .setLookAtData({ bounds: routePolyline.getBoundingBox() });
         }
 
         const distance = section.summary.length;
@@ -296,17 +301,17 @@ const Route = () => {
     }
     try {
       const response = await axios.get(
-        "http://localhost:8080/api/route/search-suggestions",
-        {
-          params: {
-            query,
-            lat: 52.5308,
-            lng: 13.3847,
-          },
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+          "http://localhost:8080/api/route/search-suggestions",
+          {
+            params: {
+              query,
+              lat: 52.5308,
+              lng: 13.3847,
+            },
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
       );
       setSuggestions(response.data.items || []);
     } catch (error) {
@@ -327,8 +332,8 @@ const Route = () => {
       const intermediatePoints = selectedCoordinates;
 
       const destinations = intermediatePoints
-        .map((coord) => `${coord.lat},${coord.lng}`)
-        .join(",");
+          .map((coord) => `${coord.lat},${coord.lng}`)
+          .join(",");
 
       const formData = {
         startLat: originCoords.lat,
@@ -351,7 +356,7 @@ const Route = () => {
       console.log("results", results);
 
       const findUserNameByDriverId = await getUsernameByDriverId(
-        formData.driverId
+          formData.driverId
       );
 
       if (stompClient !== null && stompClient.connected) {
@@ -364,9 +369,9 @@ const Route = () => {
 
         stompClient.connect({}, () => {
           stompClient.send(
-            `/app/chat/${findUserNameByDriverId}`,
-            {},
-            JSON.stringify(formDataSendNotification)
+              `/app/chat/${findUserNameByDriverId}`,
+              {},
+              JSON.stringify(formDataSendNotification)
           );
           console.log("Notification Sent:", formDataSendNotification);
 
@@ -402,135 +407,135 @@ const Route = () => {
   };
 
   return (
-    <div>
-      <div className="flex justify-between">
-        <div
-          className="map-container"
-          style={{ width: "70%", height: "500px" }}
-          ref={mapRef}
-        ></div>
-        <div className="gap-3" style={{ width: "28%" }}>
-          <div className="form-container">
-            <h2 className="text-2xl font-bold mb-4">Route on HERE Map</h2>
-            <form onSubmit={handleSubmit} className="mb-4">
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">
-                  Start:
-                  <input
-                    type="text"
-                    value={origin}
-                    onChange={(e) => {
-                      setOrigin(e.target.value);
-                      fetchSuggestions(e.target.value);
-                    }}
-                    required
-                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300 focus:border-blue-500"
-                  />
-                </label>
-              </div>
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">
-                  End:
-                  <input
-                    type="text"
-                    value={destination}
-                    onChange={(e) => setDestination(e.target.value)}
-                    required
-                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300 focus:border-blue-500"
-                  />
-                </label>
-              </div>
+      <div>
+        <div className="flex justify-between">
+          <div
+              className="map-container"
+              style={{ width: "70%", height: "500px" }}
+              ref={mapRef}
+          ></div>
+          <div className="gap-3" style={{ width: "28%" }}>
+            <div className="form-container">
+              <h2 className="text-2xl font-bold mb-4">Route on HERE Map</h2>
+              <form onSubmit={handleSubmit} className="mb-4">
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Start:
+                    <input
+                        type="text"
+                        value={origin}
+                        onChange={(e) => {
+                          setOrigin(e.target.value);
+                          fetchSuggestions(e.target.value);
+                        }}
+                        required
+                        className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300 focus:border-blue-500"
+                    />
+                  </label>
+                </div>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700">
+                    End:
+                    <input
+                        type="text"
+                        value={destination}
+                        onChange={(e) => setDestination(e.target.value)}
+                        required
+                        className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300 focus:border-blue-500"
+                    />
+                  </label>
+                </div>
 
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">
-                  Driver:
-                  <select
-                    value={selectedDriver}
-                    onChange={(e) => setSelectedDriver(e.target.value)}
-                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300 focus:border-blue-500"
-                  >
-                    <option value="" disabled>
-                      Select a driver
-                    </option>
-                    {formDriver && formDriver.length > 0 ? (
-                      formDriver.map((driver) => (
-                        <option key={driver.id} value={driver.driverId}>
-                          {driver.lastName} {driver.firstName}
-                        </option>
-                      ))
-                    ) : (
-                      <option disabled>Loading drivers...</option>
-                    )}
-                  </select>
-                </label>
-              </div>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Driver:
+                    <select
+                        value={selectedDriver}
+                        onChange={(e) => setSelectedDriver(e.target.value)}
+                        className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300 focus:border-blue-500"
+                    >
+                      <option value="" disabled>
+                        Select a driver
+                      </option>
+                      {formDriver && formDriver.length > 0 ? (
+                          formDriver.map((driver) => (
+                              <option key={driver.id} value={driver.driverId}>
+                                {driver.lastName} {driver.firstName}
+                              </option>
+                          ))
+                      ) : (
+                          <option disabled>Loading drivers...</option>
+                      )}
+                    </select>
+                  </label>
+                </div>
 
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">
-                  Select Vehicle:
-                  <select
-                    value={selectedVehicle}
-                    onChange={(e) => setSelectedVehicle(e.target.value)}
-                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300 focus:border-blue-500"
-                  >
-                    <option value="" disabled>
-                      Select a vehicle
-                    </option>
-                    {formVehicle && formVehicle.length > 0 ? (
-                      formVehicle.map((vehicle) => (
-                        <option key={vehicle.id} value={vehicle.vehicleId}>
-                          {vehicle.licensePlate}
-                        </option>
-                      ))
-                    ) : (
-                      <option disabled>Loading drivers...</option>
-                    )}
-                  </select>
-                </label>
-              </div>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Select Vehicle:
+                    <select
+                        value={selectedVehicle}
+                        onChange={(e) => setSelectedVehicle(e.target.value)}
+                        className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300 focus:border-blue-500"
+                    >
+                      <option value="" disabled>
+                        Select a vehicle
+                      </option>
+                      {formVehicle && formVehicle.length > 0 ? (
+                          formVehicle.map((vehicle) => (
+                              <option key={vehicle.id} value={vehicle.vehicleId}>
+                                {vehicle.licensePlate}
+                              </option>
+                          ))
+                      ) : (
+                          <option disabled>Loading drivers...</option>
+                      )}
+                    </select>
+                  </label>
+                </div>
 
-              <div
-                className=" w-full"
-                style={{ width: "100%", padding: "10px" }}
-              >
-                <h3 className="text-lg">Coordinate Information</h3>
-                <textarea
-                  value={textareaValue}
-                  onChange={handleTextareaChange}
-                  rows={10}
-                  className="mt-4 w-full border border-gray-300 rounded-md "
-                />
-              </div>
-              <div className="flex w-full  items-center gap-5">
-                <button
-                  type="submit"
-                  className="bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700 h-10 "
+                <div
+                    className=" w-full"
+                    style={{ width: "100%", padding: "10px" }}
                 >
-                  Get Route
-                </button>
-                <button
-                  type="button"
-                  onClick={handleFindSequence}
-                  className="bg-green-600 text-white p-2 rounded-md hover:bg-green-700 h-10"
-                >
-                  Find Sequence
-                </button>
-              </div>
-            </form>
+                  <h3 className="text-lg">Coordinate Information</h3>
+                  <textarea
+                      value={textareaValue}
+                      onChange={handleTextareaChange}
+                      rows={10}
+                      className="mt-4 w-full border border-gray-300 rounded-md "
+                  />
+                </div>
+                <div className="flex w-full  items-center gap-5">
+                  <button
+                      type="submit"
+                      className="bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700 h-10 "
+                  >
+                    Get Route
+                  </button>
+                  <button
+                      type="button"
+                      onClick={handleFindSequence}
+                      className="bg-green-600 text-white p-2 rounded-md hover:bg-green-700 h-10"
+                  >
+                    Find Sequence
+                  </button>
+                </div>
+              </form>
 
-            {loading && <p>Loading route...</p>}
-            {error && <p className="text-red-600">{error}</p>}
+              {loading && <p>Loading route...</p>}
+              {error && <p className="text-red-600">{error}</p>}
+            </div>
+            <hr className="mt-4" />
           </div>
-          <hr className="mt-4" />
         </div>
-      </div>
 
-      <div className="relative overflow-x-auto shadow-md sm:rounded-lg mt-2 p-4 bg-gray-100">
-        <h2 className="text-slate-950 text-lg mb-4 font-bold">
-          Information List Route
-        </h2>
-        <table className="w-full text-sm text-left rtl:text-right text-black dark:text-black font-normal rounded-lg">
-          <thead className="text-xs text-black uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+        <div className="relative overflow-x-auto shadow-md sm:rounded-lg mt-2 p-4 bg-gray-100">
+          <h2 className="text-slate-950 text-lg mb-4 font-bold">
+            Information List Route
+          </h2>
+          <table className="w-full text-sm text-left rtl:text-right text-black dark:text-black font-normal rounded-lg">
+            <thead className="text-xs text-black uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
             <tr>
               <th scope="col" className="px-6 py-3">
                 Start
@@ -554,136 +559,136 @@ const Route = () => {
                 Action
               </th>
             </tr>
-          </thead>
-          <tbody>
+            </thead>
+            <tbody>
             {routes.map((route) => (
-              <tr
-                key={route.routeId}
-                className="bg-white border-b dark:bg-white dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-200"
-              >
-                <td className="px-6 py-4">
-                  {route.startLat},{route.startLng}
-                </td>
-                <td className="px-6 py-4">
-                  {route.endLat},{route.endLng}
-                </td>
-                <td className="px-6 py-4">{route.totalTime} s</td>
-                <td className="px-6 py-4 ">{route.totalDistance} m</td>
-                <td className="px-6 py-4 ">
-                  {route.driverId} {route.driver.firstName}{" "}
-                  {route.driver.lastName}{" "}
-                </td>
-                <td className="px-6 py-4 ">{route.vehicle.licensePlate}</td>
-                <td className="px-2 py-4 ">
-                  <Button type="link" onClick={() => handleEdit(route)}>
-                    Edit
-                  </Button>
-                  <Button
-                    type="link"
-                    onClick={() => handleViewDetails(route.routeId)}
-                  >
-                    Detail
-                  </Button>
-                </td>
-              </tr>
+                <tr
+                    key={route.routeId}
+                    className="bg-white border-b dark:bg-white dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-200"
+                >
+                  <td className="px-6 py-4">
+                    {route.startLat},{route.startLng}
+                  </td>
+                  <td className="px-6 py-4">
+                    {route.endLat},{route.endLng}
+                  </td>
+                  <td className="px-6 py-4">{route.totalTime} s</td>
+                  <td className="px-6 py-4 ">{route.totalDistance} m</td>
+                  <td className="px-6 py-4 ">
+                    {route.driverId} {route.driver.firstName}{" "}
+                    {route.driver.lastName}{" "}
+                  </td>
+                  <td className="px-6 py-4 ">{route.vehicle.licensePlate}</td>
+                  <td className="px-2 py-4 ">
+                    <Button type="link" onClick={() => handleEdit(route)}>
+                      Edit
+                    </Button>
+                    <Button
+                        type="link"
+                        onClick={() => handleViewDetails(route.routeId)}
+                    >
+                      Detail
+                    </Button>
+                  </td>
+                </tr>
             ))}
-          </tbody>
-        </table>
-      </div>
+            </tbody>
+          </table>
+        </div>
 
-      <Modal
-        title="Edit Route"
-        visible={isModalVisible}
-        onOk={handleSave}
-        onCancel={() => setIsModalVisible(false)}
-      >
-        <div className="flex flex-col mb-4">
-          <label htmlFor="editRoute" className="font-medium text-sm">
-            Route
-          </label>
-          <Input
-            id="editRoute"
-            name="route"
-            value={editData?.route || ""}
-            onChange={handleEditChange}
-          />
-        </div>
-        <div className="flex flex-col mb-4">
-          <label htmlFor="editStart" className="font-medium text-sm">
-            Start
-          </label>
-          <Input
-            id="editStart"
-            name="start"
-            value={editData?.start || ""}
-            onChange={handleEditChange}
-          />
-        </div>
-        <div className="flex flex-col mb-4">
-          <label htmlFor="editEnd" className="font-medium text-sm">
-            End
-          </label>
-          <Input
-            id="editEnd"
-            name="end"
-            value={editData?.end || ""}
-            onChange={handleEditChange}
-          />
-        </div>
-        <div className="flex flex-col mb-4">
-          <label htmlFor="editEstimateTime" className="font-medium text-sm">
-            End
-          </label>
-          <Input
-            id="editEstimateTime"
-            name="estimateTime"
-            value={editData?.estimateTime || ""}
-            onChange={handleEditChange}
-          />
-        </div>
-      </Modal>
+        <Modal
+            title="Edit Route"
+            visible={isModalVisible}
+            onOk={handleSave}
+            onCancel={() => setIsModalVisible(false)}
+        >
+          <div className="flex flex-col mb-4">
+            <label htmlFor="editRoute" className="font-medium text-sm">
+              Route
+            </label>
+            <Input
+                id="editRoute"
+                name="route"
+                value={editData?.route || ""}
+                onChange={handleEditChange}
+            />
+          </div>
+          <div className="flex flex-col mb-4">
+            <label htmlFor="editStart" className="font-medium text-sm">
+              Start
+            </label>
+            <Input
+                id="editStart"
+                name="start"
+                value={editData?.start || ""}
+                onChange={handleEditChange}
+            />
+          </div>
+          <div className="flex flex-col mb-4">
+            <label htmlFor="editEnd" className="font-medium text-sm">
+              End
+            </label>
+            <Input
+                id="editEnd"
+                name="end"
+                value={editData?.end || ""}
+                onChange={handleEditChange}
+            />
+          </div>
+          <div className="flex flex-col mb-4">
+            <label htmlFor="editEstimateTime" className="font-medium text-sm">
+              End
+            </label>
+            <Input
+                id="editEstimateTime"
+                name="estimateTime"
+                value={editData?.estimateTime || ""}
+                onChange={handleEditChange}
+            />
+          </div>
+        </Modal>
 
-      <Modal
-        title="Route Details"
-        open={isDetailModalVisible}
-        onCancel={() => setIsDetailModalVisible(false)}
-        footer={[
-          <Button key="close" onClick={() => setIsDetailModalVisible(false)}>
-            Close
-          </Button>,
-        ]}
-        width={700}
-      >
-        <div className="space-y-6">
-          {selectedRouteDetails && (
-            <div>
-              <div className="bg-gray-200 p-4 rounded-lg">
-                <h3 className="text-lg font-semibold mb-4">Route Overview</h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <h4 className="font-medium text-sm text-gray-500">
-                      Total Distance
-                    </h4>
-                    <p className="text-lg text-black">
-                      {selectedRouteDetails.route?.routeId} meters
-                    </p>
+        <Modal
+            title="Route Details"
+            open={isDetailModalVisible}
+            onCancel={() => setIsDetailModalVisible(false)}
+            footer={[
+              <Button key="close" onClick={() => setIsDetailModalVisible(false)}>
+                Close
+              </Button>,
+            ]}
+            width={700}
+        >
+          <div className="space-y-6">
+            {selectedRouteDetails && (
+                <div>
+                  <div className="bg-gray-200 p-4 rounded-lg">
+                    <h3 className="text-lg font-semibold mb-4">Route Overview</h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <h4 className="font-medium text-sm text-gray-500">
+                          Total Distance
+                        </h4>
+                        <p className="text-lg text-black">
+                          {selectedRouteDetails.route?.routeId} meters
+                        </p>
+                      </div>
+                      <div>
+                        <h4 className="font-medium text-sm text-gray-500">
+                          Total Time
+                        </h4>
+                        <p className="text-lg">
+                          {/* {selectedRouteDetails.totalTime.toLocaleString()} seconds */}
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <h4 className="font-medium text-sm text-gray-500">
-                      Total Time
-                    </h4>
-                    <p className="text-lg">
-                      {/* {selectedRouteDetails.totalTime.toLocaleString()} seconds */}
-                    </p>
-                  </div>
-                </div>
-              </div>
 
-              <div className="bg-gray-200 p-4 rounded-lg mt-4">
-                <h3 className="text-lg font-semibold mb-4">
-                  Assignment Details
-                </h3>
-                {/* <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-gray-200 p-4 rounded-lg mt-4">
+                    <h3 className="text-lg font-semibold mb-4">
+                      Assignment Details
+                    </h3>
+                    {/* <div className="grid grid-cols-2 gap-4">
                   <div>
                     <h4 className="font-medium text-sm text-gray-500">
                       Driver
@@ -702,14 +707,14 @@ const Route = () => {
                     </p>
                   </div>
                 </div> */}
-              </div>
-            </div>
-          )}
+                  </div>
+                </div>
+            )}
 
-          <div className="bg-gray-200 p-4 rounded-lg">
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50 ">
+            <div className="bg-gray-200 p-4 rounded-lg">
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50 ">
                   <tr>
                     <th className="px-4 py-2 text-xs font-medium text-gray-500">
                       From
@@ -727,54 +732,54 @@ const Route = () => {
                       Coordinates
                     </th>
                   </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200 ">
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200 ">
                   {wayPoints.map(
-                    (wayPoint, index) =>
-                      index < wayPoints.length - 1 && (
-                        <tr
-                          key={wayPoint.waypointId}
-                          className="hover:bg-gray-50"
-                        >
-                          <td className="px-4 py-2 text-sm text-gray-900">
-                            {interconnect[index]
-                              ? interconnect[index].fromWaypoint
-                              : ""}
-                          </td>
-                          <td className="px-4 py-2 text-sm text-gray-900">
-                            {interconnect[index]
-                              ? interconnect[index].toWaypoint
-                              : ""}
-                          </td>
-                          <td className="px-4 py-2 text-sm text-gray-900">
-                            {interconnect[index]
-                              ? interconnect[index].distance
-                              : ""}
-                          </td>
-                          <td className="px-4 py-2 text-sm text-gray-900">
-                            {interconnect[index]
-                              ? formatTime(interconnect[index].timeWaypoint)
-                              : ""}
-                          </td>
-                          <td className="px-4 py-2 text-sm text-gray-900">
-                            From {wayPoint.lat.toFixed(4)},{" "}
-                            {wayPoint.lng.toFixed(4)}
-                            <>
-                              {" "}
-                              To {wayPoints[index + 1].lat.toFixed(4)},{" "}
-                              {wayPoints[index + 1].lng.toFixed(4)}
-                            </>
-                          </td>
-                        </tr>
-                      )
+                      (wayPoint, index) =>
+                          index < wayPoints.length - 1 && (
+                              <tr
+                                  key={wayPoint.waypointId}
+                                  className="hover:bg-gray-50"
+                              >
+                                <td className="px-4 py-2 text-sm text-gray-900">
+                                  {interconnect[index]
+                                      ? interconnect[index].fromWaypoint
+                                      : ""}
+                                </td>
+                                <td className="px-4 py-2 text-sm text-gray-900">
+                                  {interconnect[index]
+                                      ? interconnect[index].toWaypoint
+                                      : ""}
+                                </td>
+                                <td className="px-4 py-2 text-sm text-gray-900">
+                                  {interconnect[index]
+                                      ? interconnect[index].distance
+                                      : ""}
+                                </td>
+                                <td className="px-4 py-2 text-sm text-gray-900">
+                                  {interconnect[index]
+                                      ? formatTime(interconnect[index].timeWaypoint)
+                                      : ""}
+                                </td>
+                                <td className="px-4 py-2 text-sm text-gray-900">
+                                  From {wayPoint.lat.toFixed(4)},{" "}
+                                  {wayPoint.lng.toFixed(4)}
+                                  <>
+                                    {" "}
+                                    To {wayPoints[index + 1].lat.toFixed(4)},{" "}
+                                    {wayPoints[index + 1].lng.toFixed(4)}
+                                  </>
+                                </td>
+                              </tr>
+                          )
                   )}
-                </tbody>
-              </table>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
-        </div>
-      </Modal>
-    </div>
+        </Modal>
+      </div>
   );
 };
 

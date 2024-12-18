@@ -29,12 +29,17 @@ import UserReceiver from "./pages/SendNotification/UserReceiver";
 
 import { Toaster } from "react-hot-toast";
 import MovementMap from "./components/MovementMap";
+import ReverseGeocode from "./pages/Route/sub-Route/ReverseGeocode.jsx";
 
 function App() {
   const router = createBrowserRouter([
     {
       path: "/",
       element: <Login />,
+    },
+    {
+      path: "/demo",
+      element: <ReverseGeocode />,
     },
     {
       element: <AuthLayout />,
