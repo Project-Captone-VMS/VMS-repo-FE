@@ -54,7 +54,7 @@ const ReverseGeocode = () => {
         }
 
         try {
-            const res = await getWayPoint(id); // Get waypoint data from API
+            const res = await getWayPoint(id);
             if (res && Array.isArray(res) && res.length > 0) {
                 const validWaypoints = res.filter(waypoint => !isNaN(waypoint.lat) && !isNaN(waypoint.lng));
 
