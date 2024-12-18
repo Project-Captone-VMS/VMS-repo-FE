@@ -28,6 +28,7 @@ const DetailRoute = () => {
   const [mapWayPoints, setMapWayPoints] = useState([]);
   const [mapInter, setMapInters] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [filteredRoutes, setFilteredRoutes] = useState([]); // Added state for filtered routes
   const markers = useRef([]);
   const mapRef = useRef(null);
   const routePolylines = useRef([]);
@@ -43,6 +44,18 @@ const DetailRoute = () => {
     };
     fetchData();
   }, []);
+
+  // Add this new useEffect hook for filtering routes
+  useEffect(() => {
+    const filteredRoutes = routes.filter(
+      (route) =>
+        route.driver?.firstName
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        route.driver?.lastName.toLowerCase().includes(searchTerm.toLowerCase()),
+    );
+    setFilteredRoutes(filteredRoutes);
+  }, [routes, searchTerm]);
 
   useEffect(() => {
     if (window.H && !mapRef.current) {
@@ -411,7 +424,7 @@ const DetailRoute = () => {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
           <Input
-            placeholder="Search..."
+            placeholder="Search by driver name..." // Updated placeholder text
             className="border-0 bg-white pl-10 ring-1 ring-gray-200"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -434,28 +447,31 @@ const DetailRoute = () => {
           <h2 className="mb-4 text-lg font-semibold">Total Routes</h2>
 
           <div className="flex flex-col gap-3 text-black">
-            {routes.map((route) => (
-              <button
-                type="link"
-                onClick={() => handleViewDetailsInMap(route.routeId)}
-              >
-                <ListItems
+            {filteredRoutes.map(
+              (
+                route, // Updated to use filteredRoutes
+              ) => (
+                <button
                   key={route.routeId}
-                  routeId={route.routeId}
-                  // loading={loading}
-                  totalTime={route.totalTime}
-                  first_name={route.driver?.firstName}
-                  totalDistance={route.totalDistance}
-                  startLng={route.startLng}
-                  endLat={route.endLat}
-                  endLng={route.endLng}
-                  startLat={route.startLat}
-                  licensePlate={route.vehicle.licensePlate}
-                  interconnect={route.interconnections}
-                  status={route.status}
-                />
-              </button>
-            ))}
+                  type="button" // Changed to button type
+                  onClick={() => handleViewDetailsInMap(route.routeId)}
+                >
+                  <ListItems
+                    routeId={route.routeId}
+                    totalTime={route.totalTime}
+                    first_name={route.driver?.firstName}
+                    totalDistance={route.totalDistance}
+                    startLng={route.startLng}
+                    endLat={route.endLat}
+                    endLng={route.endLng}
+                    startLat={route.startLat}
+                    licensePlate={route.vehicle.licensePlate}
+                    interconnect={route.interconnections}
+                    status={route.status}
+                  />
+                </button>
+              ),
+            )}
           </div>
         </div>
 

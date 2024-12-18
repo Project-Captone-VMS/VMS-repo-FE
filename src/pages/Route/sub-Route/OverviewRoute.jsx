@@ -10,7 +10,7 @@ import {
   getUsernameByDriverId,
   getWayPoint,
 } from "../../../services/apiRequest";
-
+import { toast, Toaster } from "react-hot-toast";
 import axios from "axios";
 import SockJS from "sockjs-client";
 
@@ -366,10 +366,9 @@ const Route = () => {
             `/app/chat/${findUserNameByDriverId}`,
             {},
             JSON.stringify(formDataSendNotification),
+            toast.success("Successfully created!"),
           );
           console.log("Notification Sent:", formDataSendNotification);
-
-          alert("Thông báo đã được gửi thành công!");
         });
       }
 
@@ -403,6 +402,7 @@ const Route = () => {
   return (
     <div>
       <div className="flex justify-between">
+        <Toaster />
         <div
           className="map-container rounded-lg border bg-white p-3"
           style={{ width: "71%", height: "700px" }}
@@ -505,7 +505,7 @@ const Route = () => {
                   className="mt-4 w-full rounded-md border border-gray-300"
                 />
               </div>
-              <div className="flex w-full items-center justify-between gap-5 px-3 font-semibold">
+              <div className="flex w-full items-center justify-between gap-5 px-3 font-semibold text-10">
                 <button
                   type="submit"
                   className="w-full rounded-md bg-blue-600 p-3 text-white hover:bg-blue-700"
@@ -528,7 +528,7 @@ const Route = () => {
         </div>
       </div>
 
-      <div className="relative mt-2 overflow-x-auto bg-gray-100 p-4 shadow-md sm:rounded-lg">
+      <div className="relative mt-2 overflow-x-auto bg-white p-4 shadow-md sm:rounded-lg">
         <h2 className="mb-4 text-lg font-bold text-slate-950">
           Information List Route
         </h2>

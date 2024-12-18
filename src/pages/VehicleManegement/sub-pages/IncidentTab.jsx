@@ -1,42 +1,42 @@
-import React, { useState, useEffect } from 'react'
-import { format, parseISO, isValid } from 'date-fns'
-import { Edit2, Filter, Plus, Trash2, Info } from 'lucide-react'
-import { Button } from "../../../components/ui/button"
-import { 
+import React, { useState, useEffect } from "react";
+import { format, parseISO, isValid } from "date-fns";
+import { Edit2, Filter, Plus, Trash2, Info } from "lucide-react";
+import { Button } from "../../../components/ui/button";
+import {
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
-} from "../../../components/ui/table"
-import { toast, Toaster } from 'react-hot-toast'
-import AddIncidentModal from '../../../components/Modals/AddIncidentModal'
-import EditIncidentModal from '../../../components/Modals/EditIncidentModal'
-import FilterPanel from '../../../components/Vehicle/FilterIncident'
-import { getAllIncidents, deleteIncident } from '../../../services/apiRequest'
-import Swal from "sweetalert2"
+} from "../../../components/ui/table";
+import { toast, Toaster } from "react-hot-toast";
+import AddIncidentModal from "../../../components/Modals/AddIncidentModal";
+import EditIncidentModal from "../../../components/Modals/EditIncidentModal";
+import FilterPanel from "../../../components/Vehicle/FilterIncident";
+import { getAllIncidents, deleteIncident } from "../../../services/apiRequest";
+import Swal from "sweetalert2";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "../../../components/ui/dialog"
+} from "../../../components/ui/dialog";
 
 const safeFormatDate = (dateString) => {
-  if (!dateString) return 'N/A'
-  const date = parseISO(dateString)
-  return isValid(date) ? format(date, 'PPp') : 'Invalid Date'
-}
+  if (!dateString) return "N/A";
+  const date = parseISO(dateString);
+  return isValid(date) ? format(date, "PPp") : "Invalid Date";
+};
 
 export default function IncidentTab() {
-  const [incidents, setIncidents] = useState([])
-  const [showAddModal, setShowAddModal] = useState(false)
-  const [showEditModal, setShowEditModal] = useState(false)
-  const [showFilters, setShowFilters] = useState(false)
-  const [currentIncident, setCurrentIncident] = useState(null)
-  const [showInfoDialog, setShowInfoDialog] = useState(false)
-  const [infoType, setInfoType] = useState('')
+  const [incidents, setIncidents] = useState([]);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
+  const [currentIncident, setCurrentIncident] = useState(null);
+  const [showInfoDialog, setShowInfoDialog] = useState(false);
+  const [infoType, setInfoType] = useState("");
 
   const fetchIncidents = async () => {
     try {
@@ -44,19 +44,19 @@ export default function IncidentTab() {
       if (Array.isArray(data)) {
         setIncidents(data);
       } else {
-        console.error('Unexpected data format:', data);
+        console.error("Unexpected data format:", data);
         Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'Received unexpected data format from server'
+          icon: "error",
+          title: "Error",
+          text: "Received unexpected data format from server",
         });
       }
     } catch (error) {
-      console.error('Error fetching incidents:', error);
+      console.error("Error fetching incidents:", error);
       Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: error.response?.data?.message || 'Failed to fetch incidents'
+        icon: "error",
+        title: "Error",
+        text: error.response?.data?.message || "Failed to fetch incidents",
       });
     }
   };
@@ -80,16 +80,17 @@ export default function IncidentTab() {
         await deleteIncident(incident.id);
         await fetchIncidents();
         Swal.fire({
-          icon: 'success',
-          title: 'Deleted!',
-          text: 'The incident has been deleted.'
+          icon: "success",
+          title: "Deleted!",
+          text: "The incident has been deleted.",
         });
       } catch (error) {
         console.error("Error deleting incident:", error);
         Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: error.response?.data?.message || 'Failed to delete the incident'
+          icon: "error",
+          title: "Error",
+          text:
+            error.response?.data?.message || "Failed to delete the incident",
         });
       }
     }
@@ -97,11 +98,11 @@ export default function IncidentTab() {
 
   const handleEdit = (incident) => {
     if (!incident?.id) {
-      console.error('Invalid incident data:', incident);
+      console.error("Invalid incident data:", incident);
       Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Invalid incident data'
+        icon: "error",
+        title: "Error",
+        text: "Invalid incident data",
       });
       return;
     }
@@ -118,7 +119,7 @@ export default function IncidentTab() {
   return (
     <div className="p-6">
       <Toaster position="top-right" />
-      <div className="flex justify-between items-center mb-6">
+      <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold">Incident Management</h1>
         <div className="flex gap-2">
           <Button
@@ -141,11 +142,10 @@ export default function IncidentTab() {
 
       {showFilters && <FilterPanel onApplyFilters={fetchIncidents} />}
 
-      <div className="border rounded-lg">
+      <div className="rounded-lg border">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>ID</TableHead>
               <TableHead>Type</TableHead>
               <TableHead>Description</TableHead>
               <TableHead>Date</TableHead>
@@ -155,48 +155,54 @@ export default function IncidentTab() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {Array.isArray(incidents) && incidents.map((incident) => (
-              <TableRow key={incident.id}>
-                <TableCell>{incident.id}</TableCell>
-                <TableCell>{incident.type}</TableCell>
-                <TableCell>{incident.description}</TableCell>
-                <TableCell>{safeFormatDate(incident.date)}</TableCell>
-                <TableCell>{incident.driver ? `${incident.driver.firstName} ${incident.driver.lastName}` : 'N/A'}</TableCell>
-                <TableCell>{incident.vehicle ? incident.vehicle.licensePlate : 'N/A'}</TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleInfoClick('driver', incident)}
-                    >
-                      <Info className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleInfoClick('vehicle', incident)}
-                    >
-                      <Info className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleEdit(incident)}
-                    >
-                      <Edit2 className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleDelete(incident)}
-                    >
-                      <Trash2 className="h-4 w-4 text-red-500" />
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
+            {Array.isArray(incidents) &&
+              incidents.map((incident) => (
+                <TableRow key={incident.id}>
+                  <TableCell>{incident.type}</TableCell>
+                  <TableCell>{incident.description}</TableCell>
+                  <TableCell>{safeFormatDate(incident.date)}</TableCell>
+                  <TableCell>
+                    {incident.driver
+                      ? `${incident.driver.firstName} ${incident.driver.lastName}`
+                      : "N/A"}
+                  </TableCell>
+                  <TableCell>
+                    {incident.vehicle ? incident.vehicle.licensePlate : "N/A"}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleInfoClick("driver", incident)}
+                      >
+                        <Info className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleInfoClick("vehicle", incident)}
+                      >
+                        <Info className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleEdit(incident)}
+                      >
+                        <Edit2 className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleDelete(incident)}
+                      >
+                        <Trash2 className="h-4 w-4 text-red-500" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
           </TableBody>
         </Table>
       </div>
@@ -215,32 +221,40 @@ export default function IncidentTab() {
       />
 
       <Dialog open={showInfoDialog} onOpenChange={setShowInfoDialog}>
-        <DialogContent className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-xl p-6 w-full max-w-xl max-h-[90vh] overflow-y-auto z-50 border border-gray-200">
+        <DialogContent className="fixed left-1/2 top-1/2 z-50 max-h-[90vh] w-full max-w-xl -translate-x-1/2 -translate-y-1/2 transform overflow-y-auto rounded-lg border border-gray-200 bg-white p-6 shadow-xl">
           <DialogHeader>
-            <DialogTitle>{infoType === 'driver' ? 'Driver Information' : 'Vehicle Information'}</DialogTitle>
+            <DialogTitle>
+              {infoType === "driver"
+                ? "Driver Information"
+                : "Vehicle Information"}
+            </DialogTitle>
           </DialogHeader>
-          {infoType === 'driver' && currentIncident?.driver && (
+          {infoType === "driver" && currentIncident?.driver && (
             <div>
-              <p>Name: {currentIncident.driver.firstName} {currentIncident.driver.lastName}</p>
+              <p>
+                Name: {currentIncident.driver.firstName}{" "}
+                {currentIncident.driver.lastName}
+              </p>
               <p>Email: {currentIncident.driver.email}</p>
               <p>Phone: {currentIncident.driver.phoneNumber}</p>
               <p>License: {currentIncident.driver.licenseNumber}</p>
               <p>Status: {currentIncident.driver.status}</p>
             </div>
-            
           )}
-          {infoType === 'vehicle' && currentIncident?.vehicle && (
+          {infoType === "vehicle" && currentIncident?.vehicle && (
             <div>
               <p>Type: {currentIncident.vehicle.type}</p>
               <p>License Plate: {currentIncident.vehicle.licensePlate}</p>
               <p>Capacity: {currentIncident.vehicle.capacity}</p>
               <p>Status: {currentIncident.vehicle.status}</p>
-              <p>Maintenance Schedule: {currentIncident.vehicle.maintenanceSchedule}</p>
+              <p>
+                Maintenance Schedule:{" "}
+                {currentIncident.vehicle.maintenanceSchedule}
+              </p>
             </div>
           )}
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }
-

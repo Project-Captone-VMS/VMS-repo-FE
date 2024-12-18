@@ -1,13 +1,28 @@
-import React, { useState, useEffect } from 'react'
-import { Button } from "../../components/ui/button"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../../components/ui/dialog"
-import { Label } from "../../components/ui/label"
-import { Input } from "../../components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select"
-import { addIncident, getAllDrivers, getAllVehicles } from '../../services/apiRequest'
-import { AlertCircle, Check, X } from 'lucide-react'
-import { Alert, AlertDescription } from "../../components/ui/alert"
-import Swal from "sweetalert2"
+import React, { useState, useEffect } from "react";
+import { Button } from "../../components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "../../components/ui/dialog";
+import { Label } from "../../components/ui/label";
+import { Input } from "../../components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../../components/ui/select";
+import {
+  addIncident,
+  getAllDrivers,
+  getAllVehicles,
+} from "../../services/apiRequest";
+import { AlertCircle, Check, X } from "lucide-react";
+import { Alert, AlertDescription } from "../../components/ui/alert";
+import Swal from "sweetalert2";
 
 const validateIncidentData = (data) => {
   const errors = {};
@@ -39,15 +54,15 @@ const AddIncidentModal = ({ isOpen, onClose, onIncidentAdded }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [fieldErrors, setFieldErrors] = useState({});
   const [touchedFields, setTouchedFields] = useState({});
-  const [alertMessage, setAlertMessage] = useState('');
+  const [alertMessage, setAlertMessage] = useState("");
   const [drivers, setDrivers] = useState([]);
   const [vehicles, setVehicles] = useState([]);
   const [formData, setFormData] = useState({
-    type: '',
-    description: '',
-    date: '',
-    driverId: '',
-    vehicleId: ''
+    type: "",
+    description: "",
+    date: "",
+    driverId: "",
+    vehicleId: "",
   });
 
   useEffect(() => {
@@ -55,13 +70,15 @@ const AddIncidentModal = ({ isOpen, onClose, onIncidentAdded }) => {
       try {
         const [driversData, vehiclesData] = await Promise.all([
           getAllDrivers(),
-          getAllVehicles()
+          getAllVehicles(),
         ]);
+        console.log("Fetched Drivers:", driversData);
+        console.log("Fetched Vehicles:", vehiclesData);
         setDrivers(Array.isArray(driversData) ? driversData : []);
         setVehicles(Array.isArray(vehiclesData) ? vehiclesData : []);
       } catch (error) {
-        console.error('Error fetching data:', error);
-        setAlertMessage('Failed to load drivers and vehicles');
+        console.error("Error fetching data:", error);
+        setAlertMessage("Failed to load drivers and vehicles");
       }
     };
 
@@ -71,27 +88,27 @@ const AddIncidentModal = ({ isOpen, onClose, onIncidentAdded }) => {
   }, [isOpen]);
 
   const handleInputChange = (field, value) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
-    
-    setTouchedFields(prev => ({
+
+    setTouchedFields((prev) => ({
       ...prev,
-      [field]: true
+      [field]: true,
     }));
 
     const errors = validateIncidentData({
       ...formData,
-      [field]: value
+      [field]: value,
     });
     setFieldErrors(errors);
   };
 
   const handleBlur = (field) => {
-    setTouchedFields(prev => ({
+    setTouchedFields((prev) => ({
       ...prev,
-      [field]: true
+      [field]: true,
     }));
   };
 
@@ -102,21 +119,21 @@ const AddIncidentModal = ({ isOpen, onClose, onIncidentAdded }) => {
 
   const handleClose = () => {
     setFormData({
-      type: '',
-      description: '',
-      date: '',
-      driverId: '',
-      vehicleId: ''
+      type: "",
+      description: "",
+      date: "",
+      driverId: "",
+      vehicleId: "",
     });
     setFieldErrors({});
     setTouchedFields({});
-    setAlertMessage('');
+    setAlertMessage("");
     onClose();
   };
 
   const handleSave = async (event) => {
     event.preventDefault();
-    setAlertMessage('');
+    setAlertMessage("");
     setIsSubmitting(true);
 
     const errors = validateIncidentData(formData);
@@ -133,30 +150,32 @@ const AddIncidentModal = ({ isOpen, onClose, onIncidentAdded }) => {
         description: formData.description,
         date: new Date(formData.date).toISOString(),
         driver: {
-          id: Number(formData.driverId)
+          id: Number(formData.driverId),
         },
         vehicle: {
-          id: Number(formData.vehicleId)
-        }
+          id: Number(formData.vehicleId),
+        },
       };
 
       await addIncident(incidentToSave);
       Swal.fire({
-        icon: 'success',
-        title: 'Success!',
-        text: 'Incident created successfully!'
+        icon: "success",
+        title: "Success!",
+        text: "Incident created successfully!",
       });
       handleClose();
       if (onIncidentAdded) {
         onIncidentAdded();
       }
     } catch (error) {
-      console.error('Failed to create incident:', error);
-      setAlertMessage(error.response?.data?.message || 'Failed to create incident');
+      console.error("Failed to create incident:", error);
+      setAlertMessage(
+        error.response?.data?.message || "Failed to create incident",
+      );
       Swal.fire({
-        icon: 'error',
-        title: 'Error!',
-        text: error.response?.data?.message || 'Failed to create incident'
+        icon: "error",
+        title: "Error!",
+        text: error.response?.data?.message || "Failed to create incident",
       });
     } finally {
       setIsSubmitting(false);
@@ -165,7 +184,7 @@ const AddIncidentModal = ({ isOpen, onClose, onIncidentAdded }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-        <DialogContent className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-xl p-6 w-full max-w-xl max-h-[90vh] overflow-y-auto z-50 border border-gray-200">
+      <DialogContent className="fixed left-1/2 top-1/2 z-50 max-h-[90vh] w-full max-w-xl -translate-x-1/2 -translate-y-1/2 transform overflow-y-auto rounded-lg border border-gray-200 bg-white p-6 shadow-xl">
         <DialogHeader>
           <DialogTitle>Add New Incident</DialogTitle>
         </DialogHeader>
@@ -182,9 +201,14 @@ const AddIncidentModal = ({ isOpen, onClose, onIncidentAdded }) => {
             <Label htmlFor="type">Incident Type</Label>
             <Select
               value={formData.type}
-              onValueChange={(value) => handleInputChange('type', value)}
+              onValueChange={(value) => handleInputChange("type", value)}
             >
-              <SelectTrigger id="type" className={fieldErrors.type && touchedFields.type ? 'border-red-500' : ''}>
+              <SelectTrigger
+                id="type"
+                className={
+                  fieldErrors.type && touchedFields.type ? "border-red-500" : ""
+                }
+              >
                 <SelectValue placeholder="Select type" />
               </SelectTrigger>
               <SelectContent>
@@ -204,12 +228,14 @@ const AddIncidentModal = ({ isOpen, onClose, onIncidentAdded }) => {
               <Input
                 id="description"
                 value={formData.description}
-                onChange={(e) => handleInputChange('description', e.target.value)}
-                onBlur={() => handleBlur('description')}
-                className={`pr-10 ${fieldErrors.description && touchedFields.description ? 'border-red-500' : ''}`}
+                onChange={(e) =>
+                  handleInputChange("description", e.target.value)
+                }
+                onBlur={() => handleBlur("description")}
+                className={`pr-10 ${fieldErrors.description && touchedFields.description ? "border-red-500" : ""}`}
               />
               {touchedFields.description && (
-                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
                   {getInputStatus("description") === "error" ? (
                     <X className="h-5 w-5 text-red-500" />
                   ) : (
@@ -230,12 +256,12 @@ const AddIncidentModal = ({ isOpen, onClose, onIncidentAdded }) => {
                 id="date"
                 type="date"
                 value={formData.date}
-                onChange={(e) => handleInputChange('date', e.target.value)}
-                onBlur={() => handleBlur('date')}
-                className={`pr-10 ${fieldErrors.date && touchedFields.date ? 'border-red-500' : ''}`}
+                onChange={(e) => handleInputChange("date", e.target.value)}
+                onBlur={() => handleBlur("date")}
+                className={`pr-10 ${fieldErrors.date && touchedFields.date ? "border-red-500" : ""}`}
               />
               {touchedFields.date && (
-                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
                   {getInputStatus("date") === "error" ? (
                     <X className="h-5 w-5 text-red-500" />
                   ) : (
@@ -253,14 +279,21 @@ const AddIncidentModal = ({ isOpen, onClose, onIncidentAdded }) => {
             <Label htmlFor="driverId">Driver</Label>
             <Select
               value={formData.driverId}
-              onValueChange={(value) => handleInputChange('driverId', value)}
+              onValueChange={(value) => handleInputChange("driverId", value)}
             >
-              <SelectTrigger id="driverId" className={fieldErrors.driverId && touchedFields.driverId ? 'border-red-500' : ''}>
+              <SelectTrigger
+                id="driverId"
+                className={
+                  fieldErrors.driverId && touchedFields.driverId
+                    ? "border-red-500"
+                    : ""
+                }
+              >
                 <SelectValue placeholder="Select driver" />
               </SelectTrigger>
               <SelectContent>
-                {drivers.map(driver => (
-                  <SelectItem key={driver.id} value={driver.driverId}>
+                {drivers.map((driver) => (
+                  <SelectItem key={driver.driverId} value={driver.driverId}>
                     {`${driver.firstName} ${driver.lastName}`}
                   </SelectItem>
                 ))}
@@ -275,17 +308,29 @@ const AddIncidentModal = ({ isOpen, onClose, onIncidentAdded }) => {
             <Label htmlFor="vehicleId">Vehicle</Label>
             <Select
               value={formData.vehicleId}
-              onValueChange={(value) => handleInputChange('vehicleId', value)}
+              onValueChange={(value) => handleInputChange("vehicleId", value)}
             >
-              <SelectTrigger id="vehicleId" className={fieldErrors.vehicleId && touchedFields.vehicleId ? 'border-red-500' : ''}>
+              <SelectTrigger
+                id="vehicleId"
+                className={
+                  fieldErrors.vehicleId && touchedFields.vehicleId
+                    ? "border-red-500"
+                    : ""
+                }
+              >
                 <SelectValue placeholder="Select vehicle" />
               </SelectTrigger>
               <SelectContent>
-                {vehicles.map(vehicle => (
-                  <SelectItem key={vehicle.id} value={vehicle.id.toString()}>
-                    {`${vehicle.type} - ${vehicle.licensePlate}`}
-                  </SelectItem>
-                ))}
+                {vehicles.map((vehicle) => {
+                  const vehicleId = vehicle.id ? vehicle.id.toString() : null;
+                  return (
+                    vehicleId && (
+                      <SelectItem key={vehicle.id} value={vehicleId}>
+                        {`${vehicle.type || "Unknown Type"} - ${vehicle.licensePlate || "Unknown Plate"}`}
+                      </SelectItem>
+                    )
+                  );
+                })}
               </SelectContent>
             </Select>
             {fieldErrors.vehicleId && touchedFields.vehicleId && (
@@ -294,11 +339,16 @@ const AddIncidentModal = ({ isOpen, onClose, onIncidentAdded }) => {
           </div>
 
           <div className="flex justify-end space-x-2 pt-4">
-            <Button type="button" variant="outline" onClick={handleClose} disabled={isSubmitting}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleClose}
+              disabled={isSubmitting}
+            >
               Cancel
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Saving...' : 'Add Incident'}
+              {isSubmitting ? "Saving..." : "Add Incident"}
             </Button>
           </div>
         </form>
@@ -308,4 +358,3 @@ const AddIncidentModal = ({ isOpen, onClose, onIncidentAdded }) => {
 };
 
 export default AddIncidentModal;
-

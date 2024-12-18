@@ -236,7 +236,7 @@ const AdminSender = () => {
         </Form>
       </Modal>
       <div className="rounded-lg border bg-white p-3">
-        <table className="w-full border-collapse border border-gray-200">
+        <table className="w-full border-collapse  border border-gray-200">
           <thead className="bg-black text-sm text-white">
             <tr>
               <th className="border border-gray-400 px-4 py-2">Username</th>

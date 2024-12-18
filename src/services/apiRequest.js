@@ -425,67 +425,10 @@ export const getExpenseById = async (expenseId) => {
 
 export const createExpense = async (expenseDTO) => {
   try {
-    // Log dữ liệu đầu vào
-    console.log("Original expense data:", expenseDTO);
-
-    const formattedData = {
-      description: expenseDTO.description,
-      amount: parseFloat(expenseDTO.amount),
-      date: expenseDTO.date,
-      category: expenseDTO.category.toUpperCase(),
-      vehicle: expenseDTO.vehicle
-        ? {
-            vehicleId: parseInt(expenseDTO.vehicle),
-          }
-        : null,
-      driver: expenseDTO.driver
-        ? {
-            driverId: parseInt(expenseDTO.driver),
-          }
-        : null,
-    };
-
-    // Log dữ liệu đã format
-    console.log("Formatted expense data:", formattedData);
-
-    const response = await api.post("expenses", formattedData);
+    const response = await api.post("expenses/add", expenseDTO);
     return response.data;
   } catch (error) {
-    // Log chi tiết lỗi
-    console.error("Error details:", {
-      message: error.message,
-      response: error.response?.data,
-      status: error.response?.status,
-      headers: error.response?.headers,
-      data: error.response?.config?.data,
-    });
-    throw error;
-  }
-};
-
-export const updateExpense = async (expenseId, expenseData) => {
-  try {
-    const formattedData = {
-      description: expenseData.description,
-      amount: parseFloat(expenseData.amount),
-      date: expenseData.date,
-      category: expenseData.category,
-      vehicle: expenseData.vehicle
-        ? {
-            vehicleId: parseInt(expenseData.vehicle),
-          }
-        : null,
-      driver: expenseData.driver
-        ? {
-            driverId: parseInt(expenseData.driver),
-          }
-        : null,
-    };
-
-    const response = await api.put(`expenses/${expenseId}`, formattedData);
-    return response.data;
-  } catch (error) {
-    console.error("Error updating expense:", error);
+    console.error("Error creating expense:", error);
     throw error;
   }
 };

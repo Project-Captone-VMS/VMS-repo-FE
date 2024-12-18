@@ -6,7 +6,7 @@ import {
   Users,
   Map,
   Warehouse,
-  BarChart2,
+  ChartColumnBig,
   MessageSquare,
   FileText,
   Settings,
@@ -28,19 +28,19 @@ const Sidebar = ({ isOpen, setIsOpen, role }) => {
     {
       path: "/vehicle",
       icon: Truck,
-      label: "Vehicle Management",
+      label: "Vehicle",
       hasDropdown: true,
     },
-    { path: "/driver", icon: Users, label: "Driver Management" },
-    { path: "/routeDetail", icon: Users, label: "routeDetail" },
-    { path: "/warehouse", icon: Warehouse, label: "Warehouse Management" },
-    { path: "/analytics", icon: BarChart2, label: "Analytics" },
-    { path: "/indexNotification", icon: BellDot, label: "indexNotification" },
-    { path: "/route", icon: Route, label: "Route Management" },
+    { path: "/driver", icon: Users, label: "Driver" },
+    { path: "/routeDetail", icon: Users, label: "Route" },
+    { path: "/warehouse", icon: Warehouse, label: "Warehouse" },
+    { path: "/analytics", icon: ChartColumnBig, label: "Analytics" },
+    { path: "/indexNotification", icon: BellDot, label: "Notification" },
+    { path: "/route", icon: Route, label: "Route" },
     { path: "/chat", icon: MessageSquare, label: "Chat" },
     { path: "/reports", icon: FileText, label: "Reports" },
-    { path: "/RealtimeTrackingUser", icon: Map, label: "RealtimeTrackingUser" },
-    { path: "/showTrackingUser", icon: ChartSpline, label: "ShowTracking" },
+    { path: "/RealtimeTrackingUser", icon: Map, label: "Realtime Tracking" },
+    { path: "/showTrackingUser", icon: ChartSpline, label: "Show Tracking" },
   ];
 
   const dropdownItems = [
@@ -154,8 +154,8 @@ const Sidebar = ({ isOpen, setIsOpen, role }) => {
                     onClick={toggleVehicleDropdown}
                     className={`flex items-center hover:bg-gray-800 ${
                       isOpen
-                        ? "px-4 py-2"
-                        : "justify-center px-6 py-1 focus:bg-blue-800"
+                        ? "px-4 py-3"
+                        : "justify-center px-6 py-3 focus:bg-blue-800"
                     } text-sm transition-all duration-200 ease-out ${
                       isActive
                         ? "text-white"
@@ -186,14 +186,17 @@ const Sidebar = ({ isOpen, setIsOpen, role }) => {
                     {dropdownItems.map((dropdownItem) => {
                       const DropdownIcon = dropdownItem.icon; // Lấy icon từ dropdownItem
                       return (
-                        <li key={dropdownItem.path} className="flex">
-                          {/* <DropdownIcon
-                            className={`h-5 w-5 ${isOpen ? "mr-3" : ""} ${
+                        <li
+                          key={dropdownItem.path}
+                          className="flex items-center"
+                        >
+                          <DropdownIcon
+                            className={`h-5 w-5 text-gray-500 ${isOpen ? "mr-3" : ""} ${
                               location.pathname === dropdownItem.path
                                 ? "text-white"
                                 : "text-gray-400"
                             }`}
-                          /> */}
+                          />
                           <Link
                             to={dropdownItem.path}
                             className={`block py-2 text-sm font-medium text-gray-500 hover:text-white ${
@@ -217,7 +220,7 @@ const Sidebar = ({ isOpen, setIsOpen, role }) => {
                 key={item.path}
                 to={item.path}
                 className={`flex items-center ${
-                  isOpen ? "px-4 py-2" : "justify-center py-1"
+                  isOpen ? "px-4 py-3" : "justify-center py-3"
                 } text-sm transition-all duration-200 ease-out ${
                   isActive
                     ? "bg-blue-800 text-white"

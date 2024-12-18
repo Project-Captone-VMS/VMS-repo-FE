@@ -84,8 +84,8 @@ export default function ShowTrackingUser() {
         prev.map((item) =>
           item.interconnectionId === id
             ? { ...item, timeEstimate: timeE }
-            : item
-        )
+            : item,
+        ),
       );
 
       if (res != null) {
@@ -115,17 +115,17 @@ export default function ShowTrackingUser() {
         {
           center: position,
           zoom: 13,
-        }
+        },
       );
 
       new window.H.mapevents.Behavior(
-        new window.H.mapevents.MapEvents(mapInstance)
+        new window.H.mapevents.MapEvents(mapInstance),
       );
       window.H.ui.UI.createDefault(mapInstance, defaultLayers);
       mapRef.current = mapInstance;
 
       mapInstance.addEventListener("resize", () =>
-        mapInstance.getViewPort().resize()
+        mapInstance.getViewPort().resize(),
       );
     }
   }, []);
@@ -159,15 +159,15 @@ export default function ShowTrackingUser() {
         });
 
         let label = `Waypoint ${index}: (${wayPoint.lat.toFixed(
-          4
+          4,
         )}, ${wayPoint.lng.toFixed(4)})`;
         if (index === 0) {
           label = `Start: (${wayPoint.lat.toFixed(4)}, ${wayPoint.lng.toFixed(
-            4
+            4,
           )})`;
         } else if (index === res.length - 1) {
           label = `End: (${wayPoint.lat.toFixed(4)}, ${wayPoint.lng.toFixed(
-            4
+            4,
           )})`;
         }
 
@@ -199,7 +199,7 @@ export default function ShowTrackingUser() {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       if (response.data.routes?.length > 0) {
@@ -303,7 +303,7 @@ export default function ShowTrackingUser() {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       if (response.data.routes && response.data.routes.length > 0) {
@@ -404,8 +404,8 @@ export default function ShowTrackingUser() {
   };
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
-      <div className="mb-6">
+    <div className="min-h-screen rounded-lg border bg-white p-4">
+      <div className="mb-4">
         <h1 className="text-2xl font-bold">Real-time Vehicle Tracking</h1>
       </div>
 
@@ -416,8 +416,8 @@ export default function ShowTrackingUser() {
           className="rounded-lg shadow-lg"
         ></div>
 
-        <table className="w-full text-sm text-left rtl:text-right text-black dark:text-black font-normal rounded-lg">
-          <thead className="text-xs text-black uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+        <table className="w-full rounded-lg text-left text-sm font-normal text-black dark:text-black rtl:text-right">
+          <thead className="bg-gray-50 text-xs uppercase text-black dark:bg-gray-700 dark:text-gray-400">
             <tr>
               {[
                 "Start",
@@ -438,7 +438,7 @@ export default function ShowTrackingUser() {
             {routes.map((route) => (
               <tr
                 key={route.routeId}
-                className="bg-white border-b dark:bg-white dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-200"
+                className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-white dark:hover:bg-gray-200"
               >
                 <td className="px-6 py-4">
                   {route.startLat}, {route.startLng}
@@ -482,7 +482,7 @@ export default function ShowTrackingUser() {
         width={950}
       >
         <div className="space-y-6">
-          <div className="bg-gray-200 p-4 rounded-lg">
+          <div className="rounded-lg bg-gray-200 p-4">
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
@@ -498,14 +498,14 @@ export default function ShowTrackingUser() {
                     ].map((header) => (
                       <th
                         key={header}
-                        className="px-4 py-2 text-xs font-medium text-gray-500 text-start "
+                        className="px-4 py-2 text-start text-xs font-medium text-gray-500"
                       >
                         {header}
                       </th>
                     ))}
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="divide-y divide-gray-200 bg-white">
                   {wayPoints.map(
                     (wayPoint, index) =>
                       index < wayPoints.length - 1 && (
@@ -549,7 +549,7 @@ export default function ShowTrackingUser() {
                               : ""}
                           </td>
                         </tr>
-                      )
+                      ),
                   )}
                 </tbody>
               </table>
