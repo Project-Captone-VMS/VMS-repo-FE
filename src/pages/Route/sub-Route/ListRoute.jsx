@@ -4,7 +4,7 @@ import Map from "../../../components/Map/map";
 import CardItem from "../../../components/Route/Sub_DetailRoute/CardItem";
 import DriverSuggestion from "../../../components/Route/Sub_DetailRoute/DriverSuggestion";
 import {
-  listRouteNoActive,
+  getAllRoute,
   getWayPoint,
   getInterConnections,
 } from "../../../services/apiRequest";
@@ -15,6 +15,7 @@ import { Button } from "../../../components/ui/button";
 import Swal from "sweetalert2";
 import axios from "axios";
 const token = localStorage.getItem("jwtToken");
+const apiKey = "YjV4ToT_bdS4WUgLrz6UZ6tRgbWLhmmB11uDjWasARo";
 
 const DetailRoute = () => {
   const navigate = useNavigate();
@@ -36,14 +37,71 @@ const DetailRoute = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const listRoute = await listRouteNoActive();
-        setRoutes(listRoute);
+        const listRoute = await getAllRoute();
+        if (listRoute && Array.isArray(listRoute) && listRoute.length > 0) {
+          const validRoutes = listRoute.filter(
+            (route) =>
+              !isNaN(route.startLat) &&
+              !isNaN(route.startLng) &&
+              !isNaN(route.endLat) &&
+              !isNaN(route.endLng),
+          );
+
+          const routeAddressPromises = validRoutes.map(async (route) => {
+            const { startLat, startLng, endLat, endLng } = route;
+            const startAddress = await convertGeocode(startLat, startLng);
+            const endAddress = await convertGeocode(endLat, endLng);
+            return { ...route, startAddress, endAddress };
+          });
+
+          const routeAddresses = await Promise.all(routeAddressPromises);
+          setRoutes(routeAddresses);
+        }
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
     fetchData();
   }, []);
+
+  const convertGeocode = async (lat, lng) => {
+    try {
+      const response = await axios.get(
+        "https://revgeocode.search.hereapi.com/v1/revgeocode",
+        {
+          params: {
+            at: `${lat},${lng}`,
+            lang: "en-US",
+            apiKey: apiKey,
+          },
+        },
+      );
+
+      if (
+        response.data &&
+        response.data.items &&
+        response.data.items.length > 0
+      ) {
+        const addr = response.data.items[0].address;
+
+        return {
+          street: addr.street || "",
+          houseNumber: addr.houseNumber || "",
+          district: addr.district || "",
+          city: addr.city || "",
+          state: addr.state || "",
+          country: addr.countryName || "",
+          postalCode: addr.postalCode || "",
+          label: response.data.items[0].title || "",
+        };
+      } else {
+        return null;
+      }
+    } catch (error) {
+      console.error("Reverse geocoding error:", error);
+      return null;
+    }
+  };
 
   // Add this new useEffect hook for filtering routes
   useEffect(() => {
@@ -60,7 +118,7 @@ const DetailRoute = () => {
   useEffect(() => {
     if (window.H && !mapRef.current) {
       const platform = new window.H.service.Platform({
-        apikey: "z4fTmSQepmcgYJASTEaHBjS9zsw4TccWd2oKbT5ubcQ",
+        apikey: "ZQAqfjj5fxNGAZxkQqTnqyX4jz5AUJ6Nul0AJDuYbrg",
       });
       const defaultLayers = platform.createDefaultLayers();
       const mapInstance = new window.H.Map(
@@ -94,29 +152,31 @@ const DetailRoute = () => {
       setLoading(true);
       clearMap();
 
-      res.forEach((wayPoint, index) => {
+      for (const [index, wayPoint] of res.entries()) {
         const marker = new window.H.map.Marker({
           lat: wayPoint.lat,
           lng: wayPoint.lng,
         });
-
-        let label = `Waypoint ${index}: (${wayPoint.lat.toFixed(
-          4,
-        )}, ${wayPoint.lng.toFixed(4)})`;
-        if (index === 0) {
-          label = `Start: (${wayPoint.lat.toFixed(4)}, ${wayPoint.lng.toFixed(
-            4,
-          )})`;
-        } else if (index === res.length - 1) {
-          label = `End: (${wayPoint.lat.toFixed(4)}, ${wayPoint.lng.toFixed(
-            4,
-          )})`;
+    
+        const address = await convertGeocode(wayPoint.lat, wayPoint.lng);
+        let label;
+    
+        if (address) {
+          label = `Waypoint ${index}: ${address.label}`;
+        } else {
+          label = `Waypoint ${index}: (${wayPoint.lat.toFixed(4)}, ${wayPoint.lng.toFixed(4)})`;
         }
-
+    
+        if (index === 0) {
+          label = `Start: ${address ? address.label : `(${wayPoint.lat.toFixed(4)}, ${wayPoint.lng.toFixed(4)})`}`;
+        } else if (index === res.length - 1) {
+          label = `End: ${address ? address.label : `(${wayPoint.lat.toFixed(4)}, ${wayPoint.lng.toFixed(4)})`}`;
+        }
+    
         marker.setData(label);
         mapRef.current.addObject(marker);
         markers.current.push(marker);
-
+    
         marker.addEventListener("tap", function (e) {
           const content = marker.getData();
           Swal.fire({
@@ -127,7 +187,7 @@ const DetailRoute = () => {
             timerProgressBar: true,
           });
         });
-      });
+      }
 
       const response = await axios.get(
         "http://localhost:8080/api/route/findRoute",
@@ -289,91 +349,7 @@ const DetailRoute = () => {
     }
   };
 
-  //thêm
-
-  // mock api
-  const [listRoute, setListRoute] = useState([
-    {
-      route_id: 1,
-      license_plate: "ID ER281412",
-      start_location: "DaNang",
-      end_location: "Hue",
-      estimated_time: "10",
-      status: "Done",
-      distance: "500km",
-      locations: [
-        { location_id: 1, locationsName: "A", status: "Done" },
-        { location_id: 2, locationsName: "B", status: "Done" },
-        { location_id: 3, locationsName: "C", status: "Done" },
-        { location_id: 4, locationsName: "D", status: "Done" },
-      ],
-      notifications: [
-        {
-          notification_id: 1,
-          content:
-            "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-          title: "alo",
-          type: "notification",
-        },
-        {
-          notification_id: 2,
-          content: "Lorem Ipsum is simply dummy text of the printing.",
-          title: "alo",
-          type: "notification",
-        },
-        {
-          notification_id: 3,
-          content: "Lỗi hệ thống",
-          title: "Lỗi",
-          type: "error",
-        },
-      ],
-      first_name: "le",
-      last_name: "Lanh",
-      phone_number: "0961055444",
-      capacity: "20",
-    },
-    {
-      route_id: 2,
-      license_plate: "ID ER281412",
-      start_location: "B",
-      end_location: "B1",
-      estimated_time: "7",
-      status: "Done",
-      distance: "400km",
-      locations: [
-        { location_id: 1, locationsName: "1", status: "Pending" },
-        { location_id: 2, locationsName: "2", status: "Pending" },
-        { location_id: 3, locationsName: "3", status: "Done" },
-        { location_id: 4, locationsName: "4", status: "Done" },
-      ],
-      notifications: [
-        {
-          notification_id: 1,
-          content:
-            "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-          title: "alo",
-          type: "notification",
-        },
-        {
-          notification_id: 2,
-          content: "lanh",
-          title: "alo",
-          type: "notification",
-        },
-        {
-          notification_id: 3,
-          content: "Lỗi hệ thống",
-          title: "Lỗi",
-          type: "error",
-        },
-      ],
-      first_name: "Kim",
-      last_name: "Tuyen",
-      phone_number: "0237434912",
-      capacity: "10",
-    },
-  ]);
+ 
 
   const [openRoute, setOpenRoute] = useState(null);
 
@@ -387,7 +363,6 @@ const DetailRoute = () => {
       : "Pending";
   };
 
-  console.log("routes", routes);
   return (
     <div>
       {/* <div className="space-y-2">
@@ -459,12 +434,10 @@ const DetailRoute = () => {
                   <ListItems
                     routeId={route.routeId}
                     totalTime={route.totalTime}
-                    first_name={route.driver?.firstName}
+                    fullname={`${route.driver?.firstName || "Unknown"} ${route.driver?.lastName || "Unknown"}`}
                     totalDistance={route.totalDistance}
-                    startLng={route.startLng}
-                    endLat={route.endLat}
-                    endLng={route.endLng}
-                    startLat={route.startLat}
+                    start={route.startAddress?.label}
+                    end={route.endAddress?.label}
                     licensePlate={route.vehicle.licensePlate}
                     interconnect={route.interconnections}
                     status={route.status}

@@ -47,8 +47,26 @@ const Route = () => {
         setFormVehicle(vehicleResult);
 
         const listRoute = await listRouteNoActive();
+        if (listRoute && Array.isArray(listRoute) && listRoute.length > 0) {
+          const validRoutes = listRoute.filter(
+            (route) =>
+              !isNaN(route.startLat) &&
+              !isNaN(route.startLng) &&
+              !isNaN(route.endLat) &&
+              !isNaN(route.endLng),
+          );
 
-        setRoutes(listRoute);
+          const routeAddressPromises = validRoutes.map(async (route) => {
+            const { startLat, startLng, endLat, endLng } = route;
+            const startAddress = await convertGeocode(startLat, startLng);
+            const endAddress = await convertGeocode(endLat, endLng);
+            return { ...route, startAddress, endAddress };
+          });
+
+          const routeAddresses = await Promise.all(routeAddressPromises);
+          // console.log(routeAddresses)
+          setRoutes(routeAddresses);
+        }
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -56,6 +74,45 @@ const Route = () => {
 
     fetchData();
   }, [getDriverNoActive, getVehicleNoActive]);
+
+  const convertGeocode = async (lat, lng) => {
+    try {
+      const response = await axios.get(
+        "https://revgeocode.search.hereapi.com/v1/revgeocode",
+        {
+          params: {
+            at: `${lat},${lng}`,
+            lang: "en-US",
+            apiKey: apiKey,
+          },
+        },
+      );
+
+      if (
+        response.data &&
+        response.data.items &&
+        response.data.items.length > 0
+      ) {
+        const addr = response.data.items[0].address;
+
+        return {
+          street: addr.street || "",
+          houseNumber: addr.houseNumber || "",
+          district: addr.district || "",
+          city: addr.city || "",
+          state: addr.state || "",
+          country: addr.countryName || "",
+          postalCode: addr.postalCode || "",
+          label: response.data.items[0].title || "",
+        };
+      } else {
+        return null;
+      }
+    } catch (error) {
+      console.error("Reverse geocoding error:", error);
+      return null;
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -69,7 +126,25 @@ const Route = () => {
 
   const handleViewDetails = async (id) => {
     const res = await getWayPoint(id);
-    setWayPoints(res);
+    if (res && Array.isArray(res) && res.length > 0) {
+      const validWaypoints = res.filter(
+        (waypoint) => !isNaN(waypoint.lat) && !isNaN(waypoint.lng),
+      );
+
+      const waypointAddresses = [];
+      for (const waypoint of validWaypoints) {
+        const { lat, lng } = waypoint;
+        const address = await convertGeocode(lat, lng);
+        waypointAddresses.push({ ...waypoint, address });
+      }
+
+
+      setWayPoints(waypointAddresses);
+      setError("");
+    } else {
+      setError("No waypoints found for the given ID.");
+      setWayPoints([]);
+    }
 
     const response = await getInterConnections(id);
     setInterconnect(response);
@@ -110,7 +185,7 @@ const Route = () => {
   const [textareaValue, setTextareaValue] = useState("");
   const [selectedCoordinates, setSelectedCoordinates] = useState([]);
   const token = localStorage.getItem("jwtToken");
-  const apiKey = "jlBGGMAGg54YwZpieijupQwJpNMeGd9uwXDfRbjf-ag";
+  const apiKey = "YjV4ToT_bdS4WUgLrz6UZ6tRgbWLhmmB11uDjWasARo";
 
   useEffect(() => {
     const platformInstance = new H.service.Platform({ apikey: apiKey });
@@ -119,7 +194,7 @@ const Route = () => {
       mapRef.current,
       defaultLayers.vector.normal.map,
       {
-        center: { lat: 52.5308, lng: 13.3847 },
+        center: { lat: 16.0583, lng: 108.2210 },
         zoom: 14,
         pixelRatio: window.devicePixelRatio || 1,
       },
@@ -132,7 +207,7 @@ const Route = () => {
     setMap(mapInstance);
 
     const setUpClickListener = (map) => {
-      map.addEventListener("tap", function (evt) {
+      map.addEventListener("tap", async function (evt) {
         const coord = map.screenToGeo(
           evt.currentPointer.viewportX,
           evt.currentPointer.viewportY,
@@ -144,10 +219,12 @@ const Route = () => {
         map.addObject(clickedMarker);
         markers.current.push(clickedMarker);
 
-        const coordinatesText = `${coord.lat.toFixed(4)}, ${coord.lng.toFixed(
-          4,
-        )}`;
-        setTextareaValue((prev) => prev + coordinatesText + "\n");
+        // Gọi hàm convertGeocode để lấy địa chỉ
+        const address = await convertGeocode(coord.lat, coord.lng);
+
+        const addressText = address || "Địa chỉ không tìm thấy";
+        console.log(addressText)
+        setTextareaValue((prev) => prev + addressText.label + "\n");
         setSelectedCoordinates((prev) => [
           ...prev,
           { lat: coord.lat, lng: coord.lng },
@@ -186,6 +263,7 @@ const Route = () => {
         newCoordinates.push({ lat, lng });
       }
     });
+    console.log(newCoordinates);
     setSelectedCoordinates(newCoordinates);
   };
 
@@ -371,8 +449,6 @@ const Route = () => {
           console.log("Notification Sent:", formDataSendNotification);
         });
       }
-
-      console.log("Result:", results);
       window.location.reload();
     } catch (error) {
       if (error.response && error.response.data) {
@@ -399,6 +475,9 @@ const Route = () => {
     }
   };
 
+  function convertM(distance) {
+    return `${(distance / 1000).toFixed(1)} km`;
+  }
   return (
     <div>
       <div className="flex justify-between">
@@ -505,7 +584,7 @@ const Route = () => {
                   className="mt-4 w-full rounded-md border border-gray-300"
                 />
               </div>
-              <div className="flex w-full items-center justify-between gap-5 px-3 font-semibold text-10">
+              <div className="flex w-full items-center justify-between gap-5 px-3 text-10 font-semibold">
                 <button
                   type="submit"
                   className="w-full rounded-md bg-blue-600 p-3 text-white hover:bg-blue-700"
@@ -565,22 +644,27 @@ const Route = () => {
                 className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-white dark:hover:bg-gray-200"
               >
                 <td className="px-6 py-4">
-                  {route.startLat},{route.startLng}
+                  {/* {route.startAddress.houseNumber} {route.startAddress.street},
+                  {route.startAddress.district}, {route.startAddress.city},{" "}
+                  {route.startAddress.state}
+                  {route.startAddress.country.toUpperCase()} */}
+                  {route.startAddress.label}
                 </td>
                 <td className="px-6 py-4">
-                  {route.endLat},{route.endLng}
+                  {/* {route.endAddress.houseNumber} {route.endAddress.street}, 
+                  {route.endAddress.district}, {route.endAddress.city},{" "}
+                  {route.endAddress.state}
+                  {route.endAddress.country.toUpperCase()} */}
+                  {route.endAddress.label}
                 </td>
-                <td className="px-6 py-4">{route.totalTime} s</td>
-                <td className="px-6 py-4">{route.totalDistance} m</td>
+                <td className="px-6 py-4">{formatTime(route.totalTime)}</td>
+                <td className="px-6 py-4">{convertM(route.totalDistance)}</td>
                 <td className="px-6 py-4">
                   {route.driverId} {route.driver.firstName}{" "}
                   {route.driver.lastName}{" "}
                 </td>
                 <td className="px-6 py-4">{route.vehicle.licensePlate}</td>
                 <td className="px-2 py-4">
-                  <Button type="link" onClick={() => handleEdit(route)}>
-                    Edit
-                  </Button>
                   <Button
                     type="link"
                     onClick={() => handleViewDetails(route.routeId)}
@@ -593,58 +677,6 @@ const Route = () => {
           </tbody>
         </table>
       </div>
-
-      <Modal
-        title="Edit Route"
-        visible={isModalVisible}
-        onOk={handleSave}
-        onCancel={() => setIsModalVisible(false)}
-      >
-        <div className="mb-4 flex flex-col">
-          <label htmlFor="editRoute" className="text-sm font-medium">
-            Route
-          </label>
-          <Input
-            id="editRoute"
-            name="route"
-            value={editData?.route || ""}
-            onChange={handleEditChange}
-          />
-        </div>
-        <div className="mb-4 flex flex-col">
-          <label htmlFor="editStart" className="text-sm font-medium">
-            Start
-          </label>
-          <Input
-            id="editStart"
-            name="start"
-            value={editData?.start || ""}
-            onChange={handleEditChange}
-          />
-        </div>
-        <div className="mb-4 flex flex-col">
-          <label htmlFor="editEnd" className="text-sm font-medium">
-            End
-          </label>
-          <Input
-            id="editEnd"
-            name="end"
-            value={editData?.end || ""}
-            onChange={handleEditChange}
-          />
-        </div>
-        <div className="mb-4 flex flex-col">
-          <label htmlFor="editEstimateTime" className="text-sm font-medium">
-            End
-          </label>
-          <Input
-            id="editEstimateTime"
-            name="estimateTime"
-            value={editData?.estimateTime || ""}
-            onChange={handleEditChange}
-          />
-        </div>
-      </Modal>
 
       <Modal
         title="Route Details"
@@ -721,13 +753,10 @@ const Route = () => {
                       To
                     </th>
                     <th className="px-4 py-2 text-xs font-medium text-gray-500">
-                      Distance (m)
+                      Distance
                     </th>
                     <th className="px-4 py-2 text-xs font-medium text-gray-500">
-                      Time Waypoint (s)
-                    </th>
-                    <th className="px-4 py-2 text-xs font-medium text-gray-500">
-                      Coordinates
+                      Time Waypoint
                     </th>
                   </tr>
                 </thead>
@@ -740,33 +769,20 @@ const Route = () => {
                           className="hover:bg-gray-50"
                         >
                           <td className="px-4 py-2 text-sm text-gray-900">
-                            {interconnect[index]
-                              ? interconnect[index].fromWaypoint
-                              : ""}
+                            {wayPoint.address.label}
+                          </td>
+                          <td className="px-4 py-2 text-sm text-gray-900">
+                            {wayPoints[index + 1].address.label}
                           </td>
                           <td className="px-4 py-2 text-sm text-gray-900">
                             {interconnect[index]
-                              ? interconnect[index].toWaypoint
-                              : ""}
-                          </td>
-                          <td className="px-4 py-2 text-sm text-gray-900">
-                            {interconnect[index]
-                              ? interconnect[index].distance
+                              ? convertM(interconnect[index].distance)
                               : ""}
                           </td>
                           <td className="px-4 py-2 text-sm text-gray-900">
                             {interconnect[index]
                               ? formatTime(interconnect[index].timeWaypoint)
                               : ""}
-                          </td>
-                          <td className="px-4 py-2 text-sm text-gray-900">
-                            From {wayPoint.lat.toFixed(4)},{" "}
-                            {wayPoint.lng.toFixed(4)}
-                            <>
-                              {" "}
-                              To {wayPoints[index + 1].lat.toFixed(4)},{" "}
-                              {wayPoints[index + 1].lng.toFixed(4)}
-                            </>
                           </td>
                         </tr>
                       ),

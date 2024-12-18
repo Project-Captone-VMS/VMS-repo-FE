@@ -2,23 +2,21 @@ import React, { useState, useEffect, useRef } from "react";
 import { Button, Input, Modal } from "antd";
 
 import {
-  getRouteById,
   getWayPoint,
-  updateEstimateTime,
   getInterConnections,
   getRouteByUserName,
-  updateActualTime,
+  getUserByUsername,
+  getAlRouteByUsername,
 } from "../../services/apiRequest";
 
 import axios from "axios";
 import Swal from "sweetalert2";
-import { over } from "stompjs";
-import SockJS from "sockjs-client";
 
-export default function ShowTrackingUser() {
+export default function RealtimeTrackingDashboard() {
   const [position, setPosition] = useState({ lat: 10.8231, lng: 106.6297 });
   const [routes, setRoutes] = useState([]);
   const [wayPoints, setWayPoints] = useState([]);
+  const [error, setError] = useState(null);
   const [interconnect, setInterconnect] = useState([]);
   const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
   const [mapWayPoints, setMapWayPoints] = useState([]);
@@ -30,6 +28,7 @@ export default function ShowTrackingUser() {
   const mapRef = useRef(null);
   const usernameLocal = localStorage.getItem("username");
   const token = localStorage.getItem("jwtToken");
+  const apiKey = "YjV4ToT_bdS4WUgLrz6UZ6tRgbWLhmmB11uDjWasARo";
 
   const [time, setTime] = useState({ hours: "", minutes: "" });
   const [timeByInterconnection, setTimeByInterconnection] = useState({});
@@ -37,12 +36,11 @@ export default function ShowTrackingUser() {
   const [isMoving, setIsMoving] = useState(false);
   const [stepIndex, setStepIndex] = useState(0);
   const [path, setPath] = useState([]);
-  const [waypoints, setWaypoints] = useState([]);
   const [startPoint, setStartPoint] = useState({ lat: "", lng: "" });
   const [endPoint, setEndPoint] = useState({ lat: "", lng: "" });
   const [elapsedTime, setElapsedTime] = useState(0);
-  let socket = null;
-  let stompClient = null;
+  const [userData, setUserData] = useState(null);
+  const [fullNameUser, setFullNameUser] = useState("");
 
   const handleChange = (e, interconnectionId) => {
     const { name, value } = e.target;
@@ -58,48 +56,42 @@ export default function ShowTrackingUser() {
       };
     });
   };
-
-  const handleUpdate = async (id) => {
+  const convertGeocode = async (lat, lng) => {
     try {
-      const time = timeByInterconnection[id] || {
-        hours: 0,
-        minutes: 0,
-      };
-
-      console.log(timeByInterconnection);
-
-      const payload = {
-        routeId: id,
-        hours: time.hours || 0,
-        minutes: time.minutes || 0,
-      };
-
-      const timeE = payload.hours * 3600 + payload.minutes * 60;
-      const formData = {
-        timeEstimate: timeE,
-      };
-
-      const res = await updateEstimateTime(payload.routeId, formData);
-      setInterconnect((prev) =>
-        prev.map((item) =>
-          item.interconnectionId === id
-            ? { ...item, timeEstimate: timeE }
-            : item,
-        ),
+      const response = await axios.get(
+        "https://revgeocode.search.hereapi.com/v1/revgeocode",
+        {
+          params: {
+            at: `${lat},${lng}`,
+            lang: "en-US",
+            apiKey: apiKey,
+          },
+        },
       );
 
-      if (res != null) {
-        Swal.fire("Success!", "Time updated successfully.", "success");
-      }
+      if (
+        response.data &&
+        response.data.items &&
+        response.data.items.length > 0
+      ) {
+        const addr = response.data.items[0].address;
 
-      setTimeByInterconnection((prevTime) => {
         return {
-          ...prevTime,
-          [id]: { hours: 0, minutes: 0 },
+          street: addr.street || "",
+          houseNumber: addr.houseNumber || "",
+          district: addr.district || "",
+          city: addr.city || "",
+          state: addr.state || "",
+          country: addr.countryName || "",
+          postalCode: addr.postalCode || "",
+          label: response.data.items[0].title || "",
         };
-      });
+      } else {
+        return null;
+      }
     } catch (error) {
-      console.error("Lỗi khi cập nhật thời gian:", error);
+      console.error("Reverse geocoding error:", error);
+      return null;
     }
   };
 
@@ -113,7 +105,7 @@ export default function ShowTrackingUser() {
         document.getElementById("mapContainer"),
         defaultLayers.vector.normal.map,
         {
-          center: position,
+          center: { lat: 16.0583, lng: 108.221 },
           zoom: 13,
         },
       );
@@ -133,7 +125,24 @@ export default function ShowTrackingUser() {
   const handleViewDetails = async (id) => {
     try {
       const res = await getWayPoint(id);
-      setWayPoints(res);
+      if (res && Array.isArray(res) && res.length > 0) {
+        const validWaypoints = res.filter(
+          (waypoint) => !isNaN(waypoint.lat) && !isNaN(waypoint.lng),
+        );
+
+        const waypointAddresses = [];
+        for (const waypoint of validWaypoints) {
+          const { lat, lng } = waypoint;
+          const address = await convertGeocode(lat, lng);
+          waypointAddresses.push({ ...waypoint, address });
+        }
+
+        setWayPoints(waypointAddresses);
+        setError("");
+      } else {
+        setError("No waypoints found for the given ID.");
+        setWayPoints([]);
+      }
       const response = await getInterConnections(id);
       setInterconnect(response);
       setIsDetailModalVisible(true);
@@ -152,23 +161,26 @@ export default function ShowTrackingUser() {
       setLoading(true);
       clearMap();
 
-      res.forEach((wayPoint, index) => {
+      for (const [index, wayPoint] of res.entries()) {
         const marker = new window.H.map.Marker({
           lat: wayPoint.lat,
           lng: wayPoint.lng,
         });
 
-        let label = `Waypoint ${index}: (${wayPoint.lat.toFixed(
-          4,
-        )}, ${wayPoint.lng.toFixed(4)})`;
+        const address = await convertGeocode(wayPoint.lat, wayPoint.lng);
+        console.log("address", address);
+        let label;
+
+        if (address) {
+          label = `Waypoint ${index}: ${address.label}`;
+        } else {
+          label = `Waypoint ${index}: (${wayPoint.lat.toFixed(4)}, ${wayPoint.lng.toFixed(4)})`;
+        }
+
         if (index === 0) {
-          label = `Start: (${wayPoint.lat.toFixed(4)}, ${wayPoint.lng.toFixed(
-            4,
-          )})`;
+          label = `Start: ${address ? address.label : `(${wayPoint.lat.toFixed(4)}, ${wayPoint.lng.toFixed(4)})`}`;
         } else if (index === res.length - 1) {
-          label = `End: (${wayPoint.lat.toFixed(4)}, ${wayPoint.lng.toFixed(
-            4,
-          )})`;
+          label = `End: ${address ? address.label : `(${wayPoint.lat.toFixed(4)}, ${wayPoint.lng.toFixed(4)})`}`;
         }
 
         marker.setData(label);
@@ -185,7 +197,7 @@ export default function ShowTrackingUser() {
             timerProgressBar: true,
           });
         });
-      });
+      }
 
       const response = await axios.get(
         "http://localhost:8080/api/route/findRoute",
@@ -261,11 +273,52 @@ export default function ShowTrackingUser() {
     markers.current.push(originMarker, destinationMarker);
   };
 
+  function convertM(distance) {
+    return `${(distance / 1000).toFixed(1)} km`;
+  }
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const responseUsername = await getUserByUsername(usernameLocal);
+        const fullName =
+          responseUsername.result.firstName +
+          " " +
+          responseUsername.result.lastName;
+        setFullNameUser(fullName);
+        setUserData(responseUsername.result);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    fetchUserData();
+  }, [usernameLocal]);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const listRouteTracking = await getRouteByUserName(usernameLocal);
-        setRoutes(listRouteTracking);
+        const listRoute = await getAlRouteByUsername(usernameLocal);
+        if (listRoute && Array.isArray(listRoute) && listRoute.length > 0) {
+          const validRoutes = listRoute.filter(
+            (route) =>
+              !isNaN(route.startLat) &&
+              !isNaN(route.startLng) &&
+              !isNaN(route.endLat) &&
+              !isNaN(route.endLng),
+          );
+
+          const routeAddressPromises = validRoutes.map(async (route) => {
+            const { startLat, startLng, endLat, endLng } = route;
+            const startAddress = await convertGeocode(startLat, startLng);
+            const endAddress = await convertGeocode(endLat, endLng);
+            return { ...route, startAddress, endAddress };
+          });
+
+          const routeAddresses = await Promise.all(routeAddressPromises);
+          console.log(routeAddresses);
+          setRoutes(routeAddresses);
+        }
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -276,7 +329,7 @@ export default function ShowTrackingUser() {
   const formatTime = (seconds) => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
-    return `about ${hours}h ${minutes}m`;
+    return `About ${hours}h ${minutes}m`;
   };
 
   const fetchRoute = async (start, end) => {
@@ -393,20 +446,10 @@ export default function ShowTrackingUser() {
     return () => clearInterval(intervalId);
   }, [isMoving, stepIndex, path]);
 
-  const sentNoti = async (formSend) => {
-    socket = new SockJS("http://localhost:8080/ws");
-    stompClient = over(socket);
-
-    stompClient.connect({}, () => {
-      stompClient.send(`/app/chat/admin`, {}, JSON.stringify(formSend));
-      // console.log("Notification Sent:", formSend);
-    });
-  };
-
   return (
-    <div className="min-h-screen rounded-lg border bg-white p-4">
-      <div className="mb-4">
-        <h1 className="text-2xl font-bold">Real-time Vehicle Tracking</h1>
+    <div className="min-h-screen bg-gray-100 p-6">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold">{`Route list by driver ${fullNameUser}`}</h1>
       </div>
 
       <div className="flex flex-col space-y-4">
@@ -424,8 +467,8 @@ export default function ShowTrackingUser() {
                 "End",
                 "Time",
                 "Distance",
-                "Fullname Driver",
                 "License Plate",
+                "Status",
                 "Action",
               ].map((header) => (
                 <th key={header} scope="col" className="px-6 py-3">
@@ -441,15 +484,18 @@ export default function ShowTrackingUser() {
                 className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-white dark:hover:bg-gray-200"
               >
                 <td className="px-6 py-4">
-                  {route.startLat}, {route.startLng}
+                  {route.startAddress?.label || "N/A"}
                 </td>
                 <td className="px-6 py-4">
-                  {route.endLat}, {route.endLng}
+                  {route.endAddress?.label || "N/A"}
                 </td>
-                <td className="px-6 py-4">{route.totalTime} s</td>
-                <td className="px-6 py-4">{route.totalDistance} m</td>
-                <td className="px-6 py-4">{`${route.driver.firstName} ${route.driver.lastName}`}</td>
+
+                <td className="px-6 py-4">{formatTime(route.totalTime)}</td>
+                <td className="px-6 py-4">{convertM(route.totalDistance)}</td>
                 <td className="px-6 py-4">{route.vehicle.licensePlate}</td>
+                <td className="px-6 py-4">
+                  {route.status === true ? "Complete" : "No Complete"}
+                </td>
                 <td className="px-2 py-4">
                   <Button
                     type="link"
@@ -490,11 +536,9 @@ export default function ShowTrackingUser() {
                     {[
                       "From",
                       "To",
-                      "Distance (m)",
+                      "Distance",
                       "Time Waypoint",
                       "Estimate Time",
-                      "Coordinates",
-                      "Time Actual",
                     ].map((header) => (
                       <th
                         key={header}
@@ -514,13 +558,15 @@ export default function ShowTrackingUser() {
                           className="hover:bg-gray-50"
                         >
                           <td className="px-4 py-2 text-sm text-gray-900">
-                            {interconnect[index]?.fromWaypoint || ""}
+                            {wayPoint.address.label}
                           </td>
                           <td className="px-4 py-2 text-sm text-gray-900">
-                            {interconnect[index]?.toWaypoint || ""}
+                            {wayPoints[index + 1].address.label}
                           </td>
                           <td className="px-4 py-2 text-sm text-gray-900">
-                            {interconnect[index]?.distance || ""}
+                            {interconnect[index]
+                              ? convertM(interconnect[index].distance)
+                              : ""}
                           </td>
                           <td className="px-4 py-2 text-sm text-gray-900">
                             {interconnect[index]
@@ -530,22 +576,6 @@ export default function ShowTrackingUser() {
                           <td className="px-4 py-2 text-sm text-gray-900">
                             {interconnect[index]
                               ? formatTime(interconnect[index].timeEstimate)
-                              : ""}
-                          </td>
-                          <td className="px-4 py-2 text-sm text-gray-900">
-                            <div>
-                              {" "}
-                              From {wayPoint.lat.toFixed(4)},{" "}
-                              {wayPoint.lng.toFixed(4)}{" "}
-                            </div>
-                            <div>
-                              To {wayPoints[index + 1].lat.toFixed(4)},{" "}
-                              {wayPoints[index + 1].lng.toFixed(4)}
-                            </div>
-                          </td>
-                          <td className="px-4 py-2 text-sm text-gray-900">
-                            {interconnect[index]
-                              ? formatTime(interconnect[index].timeActual)
                               : ""}
                           </td>
                         </tr>
