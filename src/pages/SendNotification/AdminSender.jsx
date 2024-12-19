@@ -75,11 +75,18 @@ const AdminSender = () => {
     fetchNotices();
   }, []);
 
-  const handleInputChange = (key, value) => {
+  const handleInputChange = async (key, value) => {
     setFormData((prevFormData) => ({
       ...prevFormData,
       [key]: value,
     }));
+
+    try {
+      await Yup.reach(formSchema, key).validate(value);
+      setErrors((prevErrors) => ({ ...prevErrors, [key]: undefined }));
+    } catch (err) {
+      setErrors((prevErrors) => ({ ...prevErrors, [key]: err.message }));
+    }
   };
 
   const resetFormData = () => {
@@ -295,3 +302,4 @@ const AdminSender = () => {
 };
 
 export default AdminSender;
+

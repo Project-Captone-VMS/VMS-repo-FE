@@ -3,7 +3,7 @@ import { Plus, Package, MapPin, BarChart2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../../components/ui/button";
 import { WarehouseCard } from "../../components/Warehouse/WarehouseCard";
-import { AddWarehouse } from "../../components/Modals/AddWarehouse";
+import AddWarehouse from "@/components/Modals/AddWarehouse";
 import EditWarehouse from "../../components/Modals/EditWarehouse";
 import SearchAndFilter from "../../components/Warehouse/SearchAndFilter";
 import getFilteredWarehouses from "../../components/Warehouse/getFilteredWarehouses";

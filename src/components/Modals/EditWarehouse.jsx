@@ -11,11 +11,22 @@ import { updateWarehouse } from "../../services/apiRequest";
 const validateWarehouseData = (data) => {
     const errors = {};
   
+    // Warehouse Name validation
+    if (!data.warehouseName?.trim()) {
+      errors.warehouseName = "Warehouse name is required";
+    } else if (data.warehouseName.length > 50) {
+      errors.warehouseName = "Warehouse name cannot exceed 50 characters";
+    } else if (!/^[a-zA-Z\s]+$/.test(data.warehouseName)) {
+      errors.warehouseName = "Warehouse name cannot contain special characters or numbers";
+    }
+  
     // Location validation
     if (!data.location?.trim()) {
       errors.location = "Location is required";
     } else if (data.location.length > 100) {
       errors.location = "Location cannot exceed 100 characters";
+    } else if (!/^[a-zA-Z0-9\s]+$/.test(data.location)) {
+      errors.location = "Location cannot contain special characters";
     }
   
     // Capacity validation

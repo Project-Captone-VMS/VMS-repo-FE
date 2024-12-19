@@ -1,14 +1,15 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Check, X, AlertCircle } from "lucide-react";
+import { Check, X, AlertCircle } from 'lucide-react';
 import toast, { Toaster } from "react-hot-toast";
 import { Button } from "../../components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { createVehicle } from "../../services/apiRequest";
 
-const AddVehicleModal = ({ isOpen, onClose }) => {
+const AddVehicleModal = ({ isOpen, onClose, existingVehicles }) => {
   const navigate = useNavigate();
   const [vehicleData, setVehicleData] = useState({
     licensePlate: "",
@@ -35,15 +36,21 @@ const AddVehicleModal = ({ isOpen, onClose }) => {
     onClose();
   };
 
+  const isLicensePlateExists = (licensePlate) => {
+    return existingVehicles.some(
+      (vehicle) => vehicle.licensePlate.toLowerCase() === licensePlate.toLowerCase()
+    );
+  };
+
   const validateFields = () => {
-    const newErrors = {};
+    const newErrors = { ...errors };
     const { licensePlate, type, capacity, maintenanceSchedule } = vehicleData;
 
     if (!licensePlate) {
       newErrors.licensePlate = "License plate is required";
-    } else if (!/^[0-9]{2}[A-Z]{1}-\d{4,5}$/.test(licensePlate)) {
+    } else if (!/^(1[1-9]|[2-9][0-9])[A-Z]{1}-\d{4,5}$/.test(licensePlate)) {
       newErrors.licensePlate =
-        "Format: XXA-1234 or XX-12345 (2 digits, 1 letter, 4-5 digits)";
+        "Format: XXA-1234 or XX-12345 (2 digits from 11-99, 1 letter, 4-5 digits)";
     }
 
     if (!type) {
@@ -131,16 +138,20 @@ const AddVehicleModal = ({ isOpen, onClose }) => {
             {/* Vehicle Type */}
             <div>
               <Label htmlFor="type">Vehicle Type</Label>
-              <Input
-                id="type"
+              <Select
                 name="type"
                 value={vehicleData.type}
-                onChange={handleChange}
-                className={`${
-                  errors.type ? "border-red-500" : "border-gray-300"
-                }`}
-                placeholder="Enter vehicle type"
-              />
+                onValueChange={(value) => handleChange({ target: { name: "type", value } })}
+              >
+                <SelectTrigger className={`w-full ${errors.type ? "border-red-500" : "border-gray-300"}`}>
+                  <SelectValue placeholder="Select vehicle type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Truck">Truck</SelectItem>
+                  <SelectItem value="Van">Van</SelectItem>
+                  <SelectItem value="Pickup">Pickup</SelectItem>
+                </SelectContent>
+              </Select>
               {errors.type && (
                 <p className="text-red-500 text-sm flex items-center gap-1">
                   <AlertCircle className="h-4 w-4" />
@@ -209,3 +220,4 @@ const AddVehicleModal = ({ isOpen, onClose }) => {
 };
 
 export default AddVehicleModal;
+

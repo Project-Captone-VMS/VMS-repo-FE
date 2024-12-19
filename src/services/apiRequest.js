@@ -372,34 +372,6 @@ export const getIncidentsByVehicle = async (vehicleId) => {
   }
 };
 
-// Maintenance API endpoints
-export const getAllMaintenance = async (vehicleId) => {
-  const response = await api.get(`maintenance/all/${vehicleId}`);
-  return response.data;
-};
-
-export const getMaintenanceById = async (maintenanceId) => {
-  const response = await api.get(`maintenance/${maintenanceId}`);
-  return response.data;
-};
-
-export const createMaintenance = async (maintenanceDTO) => {
-  const response = await api.post("maintenance/add", maintenanceDTO);
-  return response.data;
-};
-
-export const updateMaintenance = async (maintenanceId, maintenanceData) => {
-  const response = await api.put(
-    `maintenance/update/${maintenanceId}`,
-    maintenanceData,
-  );
-  return response.data;
-};
-
-export const deleteMaintenance = async (maintenanceId) => {
-  const response = await api.delete(`maintenance/delete/${maintenanceId}`);
-  return response.data;
-};
 
 // Expense API endpoints
 export const getAllExpenses = async () => {

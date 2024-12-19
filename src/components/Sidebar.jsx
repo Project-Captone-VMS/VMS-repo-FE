@@ -54,7 +54,6 @@ const Sidebar = ({ isOpen, setIsOpen, role }) => {
       label: "Vehicles",
       icon: Car,
     },
-    { path: "vehicle/MaintenanceTab", label: "Maintenance", icon: Wrench },
     { path: "vehicle/IncidentTab", label: "Incident", icon: DiamondPlus },
   ];
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Search, ChevronDown, Edit, Trash2, Filter } from "lucide-react";
+import { Search, ChevronDown, Edit, Trash2, Filter } from 'lucide-react';
 import { Button } from "../../../components/ui/button";
 import { Input } from "../../../components/ui/input";
 import { Table, TableRow } from "../../../components/Vehicle/Table";
@@ -20,6 +20,7 @@ import Swal from "sweetalert2";
 import Pagination from "../../../components/Pagination";
 import EditVehicleModal from "../../../components/Modals/EditVehicleModal";
 import useVehicleSearchFilter from "../../../components/Vehicle/useVehicleSearchFilter";
+import AddVehicleModal from "../../../components/Modals/AddVehicleModal"; // Import AddVehicleModal
 
 const VehiclesTable = ({
   vehicles,
@@ -99,6 +100,7 @@ const VehiclesTab = () => {
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [showAddModal, setShowAddModal] = useState(false); // Add state for add modal
 
   const itemsPerPage = 5;
 
@@ -264,9 +266,17 @@ const VehiclesTab = () => {
             onSave={handleSaveVehicle}
           />
         )}
+        {showAddModal && (
+          <AddVehicleModal 
+            isOpen={showAddModal}
+            onClose={() => setShowAddModal(false)}
+            existingVehicles={vehicles}
+          />
+        )} {/* Add AddVehicleModal */}
       </Card>
     </div>
   );
 };
 
 export default VehiclesTab;
+

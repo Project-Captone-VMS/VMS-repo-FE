@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff } from 'lucide-react';
 import { registerUser } from "../services/apiRequest";
 import { useFormik } from "formik";
 import container from "../assets/images/Container.png";
@@ -17,19 +17,48 @@ const Register = () => {
   const navigate = useNavigate();
 
   const firstFormSchema = Yup.object().shape({
-    firstName: Yup.string().required("First name is required"),
-    lastName: Yup.string().required("Last name is required"),
-    email: Yup.string().email("Invalid email").required("Email is required"),
+    firstName: Yup.string()
+      .matches(/^[a-zA-Z]+$/, "First name must contain only letters")
+      .required("First name is required"),
+    lastName: Yup.string()
+      .matches(/^[a-zA-Z]+$/, "Last name must contain only letters")
+      .required("Last name is required"),
+    email: Yup.string()
+      .email("Invalid email format")
+      .required("Email is required")
+      .test('unique-email', 'Email already exists', async function(value) {
+        // Implement API call to check if email exists
+        const isUnique = await checkEmailUnique(value);
+        return isUnique;
+      }),
     phoneNumber: Yup.string()
       .matches(/^0\d{9}$/, "Phone number must start with 0 and be 10 digits")
-      // .matches(/^\d{10}$/, "Phone number must be 10 digits")
-      .required("Phone number is required"),
+      .required("Phone number is required")
+      .test('unique-phone', 'Phone number already exists', async function(value) {
+        // Implement API call to check if phone number exists
+        const isUnique = await checkPhoneUnique(value);
+        return isUnique;
+      }),
   });
 
   const secondFormSchema = Yup.object().shape({
-    username: Yup.string().required("Username is required"),
+    username: Yup.string()
+      .required("Username is required")
+      .matches(/^[a-z0-9_]+$/, "Username can only contain lowercase letters, numbers, and underscores")
+      .min(3, "Username must be at least 3 characters")
+      .max(20, "Username must not exceed 20 characters")
+      .test('unique-username', 'Username already exists', async function(value) {
+        // Implement API call to check if username exists
+        const isUnique = await checkUsernameUnique(value);
+        return isUnique;
+      }),
     password: Yup.string()
-      .min(6, "Password must be at least 6 characters")
+      .min(8, "Password must be at least 8 characters")
+      .max(50, "Password must not exceed 50 characters")
+      .matches(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/,
+        "Password must contain at least one uppercase letter, one lowercase letter, and one number"
+      )
       .required("Password is required"),
     confirmPassword: Yup.string()
       .oneOf([Yup.ref("password"), null], "Passwords must match")
@@ -54,14 +83,35 @@ const Register = () => {
       confirmPassword: "",
     },
     validationSchema: secondFormSchema,
-    onSubmit: (values) => {
+    onSubmit: async (values) => {
       const newUser = {
         ...firstFormFormik.values,
         ...values,
       };
-      registerUser(newUser, dispatch, navigate);
+      try {
+        await registerUser(newUser, dispatch, navigate);
+      } catch (error) {
+        // Handle registration error
+        console.error("Registration failed:", error);
+      }
     },
   });
+
+  // Implement these functions to check for uniqueness
+  const checkEmailUnique = async (email) => {
+    // API call to check if email is unique
+    return true; // Replace with actual API call
+  };
+
+  const checkPhoneUnique = async (phone) => {
+    // API call to check if phone is unique
+    return true; // Replace with actual API call
+  };
+
+  const checkUsernameUnique = async (username) => {
+    // API call to check if username is unique
+    return true; // Replace with actual API call
+  };
 
   return (
     <div className="bg-[rgb(243,238,250)] flex h-screen p-[30px]">
@@ -112,14 +162,16 @@ const Register = () => {
                   placeholder="first name"
                   value={firstFormFormik.values.firstName}
                   onChange={firstFormFormik.handleChange}
-                  className="text-black rounded-lg border-2 block w-full p-2"
+                  onBlur={firstFormFormik.handleBlur}
+                  className={`text-black rounded-lg border-2 block w-full p-2 ${
+                    firstFormFormik.touched.firstName && firstFormFormik.errors.firstName ? "border-red-500" : "border-gray-300"
+                  }`}
                 />
-                {firstFormFormik.touched.firstName &&
-                  firstFormFormik.errors.firstName && (
-                    <p className="text-red-500 text-[1vw]">
-                      {firstFormFormik.errors.firstName}
-                    </p>
-                  )}
+                {firstFormFormik.touched.firstName && firstFormFormik.errors.firstName && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {firstFormFormik.errors.firstName}
+                  </p>
+                )}
               </div>
 
               <div className="mt-2">
@@ -132,14 +184,16 @@ const Register = () => {
                   placeholder="last name"
                   value={firstFormFormik.values.lastName}
                   onChange={firstFormFormik.handleChange}
-                  className="text-black rounded-lg border-2 block w-full p-2"
+                  onBlur={firstFormFormik.handleBlur}
+                  className={`text-black rounded-lg border-2 block w-full p-2 ${
+                    firstFormFormik.touched.lastName && firstFormFormik.errors.lastName ? "border-red-500" : "border-gray-300"
+                  }`}
                 />
-                {firstFormFormik.touched.lastName &&
-                  firstFormFormik.errors.lastName && (
-                    <p className="text-red-500 text-[1vw]">
-                      {firstFormFormik.errors.lastName}
-                    </p>
-                  )}
+                {firstFormFormik.touched.lastName && firstFormFormik.errors.lastName && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {firstFormFormik.errors.lastName}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -153,14 +207,14 @@ const Register = () => {
                 placeholder="email"
                 value={firstFormFormik.values.email}
                 onChange={firstFormFormik.handleChange}
+                onBlur={firstFormFormik.handleBlur}
                 className="text-black rounded-lg border-2 block w-full p-2"
               />
-              {firstFormFormik.touched.email &&
-                firstFormFormik.errors.email && (
-                  <p className="text-red-500 text-[1vw]">
-                    {firstFormFormik.errors.email}
-                  </p>
-                )}
+              {firstFormFormik.touched.email && firstFormFormik.errors.email && (
+                <p className="text-red-500 text-sm mt-1">
+                  {firstFormFormik.errors.email}
+                </p>
+              )}
             </div>
 
             <div className="mt-2">
@@ -173,14 +227,14 @@ const Register = () => {
                 placeholder="phone number"
                 value={firstFormFormik.values.phoneNumber}
                 onChange={firstFormFormik.handleChange}
+                onBlur={firstFormFormik.handleBlur}
                 className="text-black rounded-lg border-2 block w-full p-2"
               />
-              {firstFormFormik.touched.phoneNumber &&
-                firstFormFormik.errors.phoneNumber && (
-                  <p className="text-red-500 text-[1vw]">
-                    {firstFormFormik.errors.phoneNumber}
-                  </p>
-                )}
+              {firstFormFormik.touched.phoneNumber && firstFormFormik.errors.phoneNumber && (
+                <p className="text-red-500 text-sm mt-1">
+                  {firstFormFormik.errors.phoneNumber}
+                </p>
+              )}
             </div>
 
             <button
@@ -214,14 +268,14 @@ const Register = () => {
                 name="username"
                 value={secondFormFormik.values.username}
                 onChange={secondFormFormik.handleChange}
+                onBlur={secondFormFormik.handleBlur}
                 className="text-black rounded-lg border-2 block w-full p-2"
               />
-              {secondFormFormik.touched.username &&
-                secondFormFormik.errors.username && (
-                  <p className="text-red-500 text-sm">
-                    {secondFormFormik.errors.username}
-                  </p>
-                )}
+              {secondFormFormik.touched.username && secondFormFormik.errors.username && (
+                <p className="text-red-500 text-sm mt-1">
+                  {secondFormFormik.errors.username}
+                </p>
+              )}
             </div>
 
             {/* Password */}
@@ -234,6 +288,7 @@ const Register = () => {
                 name="password"
                 value={secondFormFormik.values.password}
                 onChange={secondFormFormik.handleChange}
+                onBlur={secondFormFormik.handleBlur}
                 className="text-black rounded-lg border-2 block w-full p-2"
               />
               <span
@@ -242,12 +297,11 @@ const Register = () => {
               >
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </span>
-              {secondFormFormik.touched.password &&
-                secondFormFormik.errors.password && (
-                  <p className="text-red-500 text-sm">
-                    {secondFormFormik.errors.password}
-                  </p>
-                )}
+              {secondFormFormik.touched.password && secondFormFormik.errors.password && (
+                <p className="text-red-500 text-sm mt-1">
+                  {secondFormFormik.errors.password}
+                </p>
+              )}
             </div>
 
             <div className="mt-2">
@@ -259,14 +313,14 @@ const Register = () => {
                 name="confirmPassword"
                 value={secondFormFormik.values.confirmPassword}
                 onChange={secondFormFormik.handleChange}
+                onBlur={secondFormFormik.handleBlur}
                 className="text-black rounded-lg border-2 block w-full p-2"
               />
-              {secondFormFormik.touched.confirmPassword &&
-                secondFormFormik.errors.confirmPassword && (
-                  <p className="text-red-500 text-sm">
-                    {secondFormFormik.errors.confirmPassword}
-                  </p>
-                )}
+              {secondFormFormik.touched.confirmPassword && secondFormFormik.errors.confirmPassword && (
+                <p className="text-red-500 text-sm mt-1">
+                  {secondFormFormik.errors.confirmPassword}
+                </p>
+              )}
             </div>
 
             <button
@@ -302,3 +356,4 @@ const Register = () => {
 };
 
 export default Register;
+

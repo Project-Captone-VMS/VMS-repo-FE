@@ -38,7 +38,7 @@ const EditVehicleModal = ({ vehicle, onClose, onSave }) => {
     switch (name) {
       case "licensePlate":
         if (!value) {
-          errors.licensePlate = "License plate is required";2
+          errors.licensePlate = "License plate is required";
         } else if (value.length > 15) {
           errors.licensePlate = "License plate cannot exceed 15 characters";
         } else if (!/^[0-9]{2}[A-Z]{1}-\d{4,5}$/.test(value)) {
@@ -51,8 +51,6 @@ const EditVehicleModal = ({ vehicle, onClose, onSave }) => {
       case "type":
         if (!value) {
           errors.type = "Type is required.";
-        } else if (value.length > 30) {
-          errors.type = "Type cannot exceed 30 characters.";
         } else {
           delete errors.type;
         }
@@ -97,6 +95,14 @@ const EditVehicleModal = ({ vehicle, onClose, onSave }) => {
     validateField(name, value);
   };
 
+  const handleTypeChange = (value) => {
+    setVehicleData((prevData) => ({
+      ...prevData,
+      type: value,
+    }));
+    validateField("type", value);
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     const isValid = Object.keys(fieldErrors).length === 0;
@@ -108,7 +114,7 @@ const EditVehicleModal = ({ vehicle, onClose, onSave }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="w-96 rounded-lg bg-white p-8">
+      <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-xl p-6 w-full max-w-xl max-h-[90vh] overflow-y-auto z-50 border border-gray-200">
         <h2 className="mb-4 text-xl font-bold">Edit Vehicle</h2>
         <form onSubmit={handleSubmit}>
           <label className="mb-2 block">
@@ -116,7 +122,7 @@ const EditVehicleModal = ({ vehicle, onClose, onSave }) => {
             <Input
               type="text"
               name="status"
-              value={vehicle.licensePlate }
+              value={vehicle.licensePlate}
               readOnly
               className="w-full mt-1 bg-gray-100 cursor-not-allowed"
             />
@@ -128,16 +134,22 @@ const EditVehicleModal = ({ vehicle, onClose, onSave }) => {
           </label>
           <label className="mb-2 block">
             Type
-            <Input
-              type="text"
+            <Select
               name="type"
               value={vehicleData.type}
-              onChange={handleChange}
-              className={`w-full ${
+              onValueChange={handleTypeChange}
+            >
+              <SelectTrigger className={`w-full mt-1 ${
                 fieldErrors.type ? "border-red-500" : "border-gray-300"
-              }`}
-              required
-            />
+              }`}>
+                <SelectValue placeholder="Select vehicle type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Truck">Truck</SelectItem>
+                <SelectItem value="Van">Van</SelectItem>
+                <SelectItem value="Pickup">Pickup</SelectItem>
+              </SelectContent>
+            </Select>
             {fieldErrors.type && (
               <span className="text-sm text-red-500">{fieldErrors.type}</span>
             )}

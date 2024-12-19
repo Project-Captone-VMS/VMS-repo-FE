@@ -21,6 +21,8 @@ const validateProductData = (data) => {
     errors.productName = "Product name is required";
   } else if (data.productName.length > 100) {
     errors.productName = "Product name cannot exceed 100 characters";
+  } else if (!/^[a-zA-Z\s]+$/.test(data.productName)) {
+    errors.productName = "Product name cannot contain special characters or numbers";
   }
 
   const price = Number(data.price);
