@@ -32,7 +32,7 @@ export default function RealtimeTrackingDashboard() {
   const mapRef = useRef(null);
   const usernameLocal = localStorage.getItem("username");
   const token = localStorage.getItem("jwtToken");
-  const apiKey = "YjV4ToT_bdS4WUgLrz6UZ6tRgbWLhmmB11uDjWasARo";
+  const apiKey = import.meta.env.VITE_HERE_MAP_API_KEY;
 
   const [time, setTime] = useState({ hours: "", minutes: "" });
   const [timeByInterconnection, setTimeByInterconnection] = useState({});

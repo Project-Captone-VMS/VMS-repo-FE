@@ -15,7 +15,7 @@ import { Button } from "../../../components/ui/button";
 import Swal from "sweetalert2";
 import axios from "axios";
 const token = localStorage.getItem("jwtToken");
-const apiKey = "YjV4ToT_bdS4WUgLrz6UZ6tRgbWLhmmB11uDjWasARo";
+const apiKey = import.meta.env.VITE_HERE_MAP_API_KEY;
 
 const DetailRoute = () => {
   const navigate = useNavigate();

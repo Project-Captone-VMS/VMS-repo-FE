@@ -7,6 +7,7 @@ export default defineConfig({
   plugins: [react()],
   define: {
     global: "window", // Polyfill global to window in browser
+    // 'process.env.HERE_MAP_API_KEY': JSON.stringify(process.env.HERE_MAP_API_KEY),
   },
   resolve: {
     alias: {

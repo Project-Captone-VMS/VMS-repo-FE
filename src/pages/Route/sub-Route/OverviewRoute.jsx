@@ -185,7 +185,7 @@ const Route = () => {
   const [textareaValue, setTextareaValue] = useState("");
   const [selectedCoordinates, setSelectedCoordinates] = useState([]);
   const token = localStorage.getItem("jwtToken");
-  const apiKey = "YjV4ToT_bdS4WUgLrz6UZ6tRgbWLhmmB11uDjWasARo";
+  const apiKey = import.meta.env.VITE_HERE_MAP_API_KEY;
 
   useEffect(() => {
     const platformInstance = new H.service.Platform({ apikey: apiKey });
