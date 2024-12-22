@@ -322,7 +322,7 @@ const DriverManagement = () => {
           setShowFilters={setShowFilters}
           filters={filters}
           onFilterChange={handleFilterChange}
-          filterOptions={FILTER_OPTIONS}
+          filterOptions={FILTER_OPTIONS} // Pass filter options for workSchedule and status
         />
 
         <DriverTable

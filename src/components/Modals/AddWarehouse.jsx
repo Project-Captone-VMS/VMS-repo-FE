@@ -45,16 +45,16 @@ const validateWarehouseData = (data, isEdit = false) => {
   }
 
   // Current Stock validation
-  const currentStock = Number(data.currentStock);
-  if (data.currentStock === "") {
-    errors.currentStock = "Current stock is required";
-  } else if (isNaN(currentStock)) {
-    errors.currentStock = "Current stock must be a valid number";
-  } else if (currentStock < 0) {
-    errors.currentStock = "Current stock cannot be negative";
-  } else if (currentStock > capacity) {
-    errors.currentStock = "Current stock cannot exceed warehouse capacity";
-  }
+  // const currentStock = Number(data.currentStock);
+  // if (data.currentStock === "") {
+  //   errors.currentStock = "Current stock is required";
+  // } else if (isNaN(currentStock)) {
+  //   errors.currentStock = "Current stock must be a valid number";
+  // } else if (currentStock < 0) {
+  //   errors.currentStock = "Current stock cannot be negative";
+  // } else if (currentStock > capacity) {
+  //   errors.currentStock = "Current stock cannot exceed warehouse capacity";
+  // }
 
   return errors;
 };
@@ -65,7 +65,7 @@ export const AddWarehouse = ({ isOpen, onClose, onAdd }) => {
     warehouseName: "",
     location: "",
     capacity: "",
-    currentStock: "",
+    // currentStock: "",
   });
 
   const [fieldErrors, setFieldErrors] = useState({});
@@ -121,7 +121,7 @@ export const AddWarehouse = ({ isOpen, onClose, onAdd }) => {
       const warehouseData = {
         ...formData,
         capacity: Number(formData.capacity),
-        currentStock: Number(formData.currentStock),
+        // currentStock: Number(formData.currentStock),
         utilizationRate: Math.round(
           (Number(formData.currentStock) / Number(formData.capacity)) * 100,
         ),
@@ -142,7 +142,7 @@ export const AddWarehouse = ({ isOpen, onClose, onAdd }) => {
       warehouseName: "",
       location: "",
       capacity: "",
-      currentStock: "",
+      // currentStock: "",
     });
     setFieldErrors({});
     setTouchedFields({});
@@ -263,40 +263,40 @@ export const AddWarehouse = ({ isOpen, onClose, onAdd }) => {
                 )}
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="currentStock">Current Stock</Label>
-                <div className="relative">
-                  <Input
-                    id="currentStock"
-                    type="number"
-                    value={formData.currentStock}
-                    onChange={(e) =>
-                      handleInputChange("currentStock", e.target.value)
-                    }
-                    onBlur={() => handleBlur("currentStock")}
-                    required
-                    min="0"
-                    className={`pr-10 ${fieldErrors.currentStock && touchedFields.currentStock ? "border-red-500" : ""}`}
-                  />
-                  {touchedFields.currentStock && (
-                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                      {getInputStatus("currentStock") === "error" ? (
-                        <X className="h-5 w-5 text-red-500" />
-                      ) : (
-                        <Check className="h-5 w-5 text-green-500" />
-                      )}
-                    </div>
-                  )}
-                </div>
-                {fieldErrors.currentStock && touchedFields.currentStock && (
-                  <Alert variant="destructive">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertDescription>
-                      {fieldErrors.currentStock}
-                    </AlertDescription>
-                  </Alert>
-                )}
-              </div>
+              {/*<div className="space-y-2">*/}
+              {/*  <Label htmlFor="currentStock">Current Stock</Label>*/}
+              {/*  <div className="relative">*/}
+              {/*    <Input*/}
+              {/*      id="currentStock"*/}
+              {/*      type="number"*/}
+              {/*      value={formData.currentStock}*/}
+              {/*      onChange={(e) =>*/}
+              {/*        handleInputChange("currentStock", e.target.value)*/}
+              {/*      }*/}
+              {/*      onBlur={() => handleBlur("currentStock")}*/}
+              {/*      required*/}
+              {/*      min="0"*/}
+              {/*      className={`pr-10 ${fieldErrors.currentStock && touchedFields.currentStock ? "border-red-500" : ""}`}*/}
+              {/*    />*/}
+              {/*    {touchedFields.currentStock && (*/}
+              {/*      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">*/}
+              {/*        {getInputStatus("currentStock") === "error" ? (*/}
+              {/*          <X className="h-5 w-5 text-red-500" />*/}
+              {/*        ) : (*/}
+              {/*          <Check className="h-5 w-5 text-green-500" />*/}
+              {/*        )}*/}
+              {/*      </div>*/}
+              {/*    )}*/}
+              {/*  </div>*/}
+              {/*  {fieldErrors.currentStock && touchedFields.currentStock && (*/}
+              {/*    <Alert variant="destructive">*/}
+              {/*      <AlertCircle className="h-4 w-4" />*/}
+              {/*      <AlertDescription>*/}
+              {/*        {fieldErrors.currentStock}*/}
+              {/*      </AlertDescription>*/}
+              {/*    </Alert>*/}
+              {/*  )}*/}
+              {/*</div>*/}
             </div>
 
             <div className="flex justify-end space-x-2 pt-4">

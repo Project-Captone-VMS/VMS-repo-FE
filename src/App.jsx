@@ -36,6 +36,10 @@ function App() {
       element: <Login />,
     },
     {
+      path: "/demo",
+      element: <Login />,
+    },
+    {
       element: <AuthLayout />,
       children: [
         {

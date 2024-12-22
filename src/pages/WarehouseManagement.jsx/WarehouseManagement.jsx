@@ -94,6 +94,8 @@ const WarehouseManagement = () => {
     }
   };
 
+
+
   // Load initial data
   useEffect(() => {
     fetchWarehouses();
