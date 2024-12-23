@@ -128,7 +128,7 @@ export const AddWarehouse = ({ isOpen, onClose, onAdd }) => {
       };
 
       await onAdd(warehouseData);
-      toast.success("Warehouse added successfully!");
+      // toast.success("Warehouse added successfully!");
       handleCancel();
     } catch (error) {
       toast.error("Failed to create warehouse");

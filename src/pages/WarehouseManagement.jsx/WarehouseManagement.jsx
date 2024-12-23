@@ -151,7 +151,8 @@ const WarehouseManagement = () => {
           timer: 1500,
           showConfirmButton: false,
         });
-        await fetchWarehouses();
+        await fetchWarehouses(); // Refresh warehouses
+        await fetchStats(); // Refresh stats
       }
     } catch (error) {
       console.error("Error adding warehouse:", error);
@@ -225,13 +226,12 @@ const WarehouseManagement = () => {
       confirmButtonText: "Yes, delete it!",
       cancelButtonText: "No, cancel!",
     });
-
+  
     if (confirmResult.isConfirmed) {
       try {
         setIsLoading(true);
         await deleteWarehouse(warehouseId);
-
-        // Show success message
+  
         await Swal.fire({
           icon: "success",
           title: "Success!",
@@ -239,9 +239,9 @@ const WarehouseManagement = () => {
           timer: 1500,
           showConfirmButton: false,
         });
-
-        // Refresh the warehouses list
-        await fetchWarehouses();
+  
+        await fetchWarehouses(); // Refresh warehouses
+        await fetchStats(); // Refresh stats
       } catch (error) {
         console.error("Error deleting warehouse:", error);
         Swal.fire({
@@ -256,6 +256,25 @@ const WarehouseManagement = () => {
       }
     }
   };
+
+  const fetchStats = async () => {
+    const totalWarehouseResult = await totalWarehouses();
+    setTotalWarehouse(totalWarehouseResult);
+  
+    const totalLocationResult = await totalLocations();
+    setTotalLocation(totalLocationResult);
+  
+    const totalOverResult = await totalOvers();
+    setTotalOver(totalOverResult);
+  
+    const totalLessResult = await totalLesss();
+    setTotalLess(totalLessResult);
+  };
+
+  useEffect(() => {
+    fetchWarehouses();
+    fetchStats(); // Fetch stats initially
+  }, []);
 
   return (
     <div className="min-h-screen">
