@@ -41,6 +41,7 @@ export default function IncidentTab() {
   const fetchIncidents = async () => {
     try {
       const data = await getAllIncidents();
+      console.log("Incidents:", data);
       if (Array.isArray(data)) {
         setIncidents(data);
       } else {
@@ -77,7 +78,7 @@ export default function IncidentTab() {
 
     if (confirmResult.isConfirmed) {
       try {
-        await deleteIncident(incident.id);
+        await deleteIncident(incident.incidentId);
         await fetchIncidents();
         Swal.fire({
           icon: "success",
@@ -160,7 +161,7 @@ export default function IncidentTab() {
                 <TableRow key={incident.id}>
                   <TableCell>{incident.type}</TableCell>
                   <TableCell>{incident.description}</TableCell>
-                  <TableCell>{safeFormatDate(incident.date)}</TableCell>
+                  <TableCell>{safeFormatDate(incident.occurredAt)}</TableCell>
                   <TableCell>
                     {incident.driver
                       ? `${incident.driver.firstName} ${incident.driver.lastName}`

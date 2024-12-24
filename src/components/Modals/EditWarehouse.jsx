@@ -40,18 +40,7 @@ const validateWarehouseData = (data) => {
     } else if (capacity > 1000000) {
       errors.capacity = "Capacity cannot exceed 1,000,000";
     }
-  
-    // Current Stock validation
-    const currentStock = Number(data.currentStock);
-    if (data.currentStock === '') {
-      errors.currentStock = "Current stock is required";
-    } else if (isNaN(currentStock)) {
-      errors.currentStock = "Current stock must be a valid number";
-    } else if (currentStock < 0) {
-      errors.currentStock = "Current stock cannot be negative";
-    } else if (currentStock > capacity) {
-      errors.currentStock = "Current stock cannot exceed warehouse capacity";
-    }
+
   
     return errors;
   };
@@ -213,35 +202,35 @@ const validateWarehouseData = (data) => {
                   )}
                 </div>
   
-                <div className="space-y-2">
-                  <Label htmlFor="currentStock">Current Stock</Label>
-                  <div className="relative">
-                    <Input
-                      id="currentStock"
-                      type="number"
-                      value={formData.currentStock}
-                      onChange={(e) => handleInputChange('currentStock', e.target.value)}
-                      onBlur={() => handleBlur('currentStock')}
-                      min="0"
-                      className={`pr-10 ${fieldErrors.currentStock && touchedFields.currentStock ? 'border-red-500' : ''}`}
-                    />
-                    {touchedFields.currentStock && (
-                      <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                        {getInputStatus("currentStock") === "error" ? (
-                          <X className="h-5 w-5 text-red-500" />
-                        ) : (
-                          <Check className="h-5 w-5 text-green-500" />
-                        )}
-                      </div>
-                    )}
-                  </div>
-                  {fieldErrors.currentStock && touchedFields.currentStock && (
-                    <Alert variant="destructive">
-                      <AlertCircle className="h-4 w-4" />
-                      <AlertDescription>{fieldErrors.currentStock}</AlertDescription>
-                    </Alert>
-                  )}
-                </div>
+                {/*<div className="space-y-2">*/}
+                {/*  <Label htmlFor="currentStock">Current Stock</Label>*/}
+                {/*  <div className="relative">*/}
+                {/*    <Input*/}
+                {/*      id="currentStock"*/}
+                {/*      type="number"*/}
+                {/*      value={formData.currentStock}*/}
+                {/*      onChange={(e) => handleInputChange('currentStock', e.target.value)}*/}
+                {/*      onBlur={() => handleBlur('currentStock')}*/}
+                {/*      min="0"*/}
+                {/*      className={`pr-10 ${fieldErrors.currentStock && touchedFields.currentStock ? 'border-red-500' : ''}`}*/}
+                {/*    />*/}
+                {/*    {touchedFields.currentStock && (*/}
+                {/*      <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">*/}
+                {/*        {getInputStatus("currentStock") === "error" ? (*/}
+                {/*          <X className="h-5 w-5 text-red-500" />*/}
+                {/*        ) : (*/}
+                {/*          <Check className="h-5 w-5 text-green-500" />*/}
+                {/*        )}*/}
+                {/*      </div>*/}
+                {/*    )}*/}
+                {/*  </div>*/}
+                {/*  {fieldErrors.currentStock && touchedFields.currentStock && (*/}
+                {/*    <Alert variant="destructive">*/}
+                {/*      <AlertCircle className="h-4 w-4" />*/}
+                {/*      <AlertDescription>{fieldErrors.currentStock}</AlertDescription>*/}
+                {/*    </Alert>*/}
+                {/*  )}*/}
+                {/*</div>*/}
               </div>
   
               <div className="flex justify-end space-x-2 pt-4">
@@ -258,5 +247,6 @@ const validateWarehouseData = (data) => {
       </>
     );
   };
+
 
 export default EditWarehouse;

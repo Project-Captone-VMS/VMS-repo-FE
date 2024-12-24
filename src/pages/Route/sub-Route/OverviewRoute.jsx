@@ -387,7 +387,7 @@ const Route = () => {
       );
       setSuggestions(response.data.items || []);
     } catch (error) {
-      console.error("Failed to fetch suggestions:", error);
+      console.log("Failed to fetch suggestions:", error);
       setSuggestions([]);
     }
   };
@@ -430,7 +430,7 @@ const Route = () => {
       const findUserNameByDriverId = await getUsernameByDriverId(
         formData.driverId,
       );
-
+      console.log("findUserNameByDriverId", findUserNameByDriverId);
       if (stompClient !== null && stompClient.connected) {
         stompClient.disconnect(() => {
           console.log("Đã ngắt kết nối socket cũ!");
@@ -438,7 +438,7 @@ const Route = () => {
       } else {
         socket = new SockJS("http://localhost:8080/ws");
         stompClient = over(socket);
-
+        
         stompClient.connect({}, () => {
           stompClient.send(
             `/app/chat/${findUserNameByDriverId}`,
@@ -449,7 +449,7 @@ const Route = () => {
           console.log("Notification Sent:", formDataSendNotification);
         });
       }
-      window.location.reload();
+      // window.location.reload();
     } catch (error) {
       if (error.response && error.response.data) {
         setError(`Error: ${error.response.data.message}`);

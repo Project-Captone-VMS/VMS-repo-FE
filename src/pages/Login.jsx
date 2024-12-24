@@ -37,6 +37,20 @@ const Login = () => {
     }
   };
 
+  const validatePassword = (password) => {
+    const hasUppercase = /[A-Z]/.test(password);
+    const hasNumber = /\d/.test(password);
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+    const isLongEnough = password.length >= 8;
+
+    if (!isLongEnough) return "Password must be at least 8 characters.";
+    if (!hasUppercase) return "Password must contain at least one uppercase letter.";
+    if (!hasNumber) return "Password must contain at least one number.";
+    if (!hasSpecialChar) return "Password must contain at least one special character.";
+
+    return "";
+  };
+
   const validateInputs = () => {
     const newErrors = {};
 
@@ -44,10 +58,9 @@ const Login = () => {
       newErrors.username = "Username is required.";
     }
 
-    if (!formData.password.trim()) {
-      newErrors.password = "Password is required.";
-    } else if (formData.password.length <= 3) {
-      newErrors.password = "Password must be at least 3 characters.";
+    const passwordError = validatePassword(formData.password);
+    if (passwordError) {
+      newErrors.password = passwordError;
     }
 
     setErrors(newErrors);
@@ -61,7 +74,6 @@ const Login = () => {
     if (!validateInputs()) return;
 
     const { username, password } = formData;
-    // const user = { username: username.trim().toLowerCase(), password };
     const user = { username, password };
 
     dispatch(loginStart());
@@ -74,7 +86,14 @@ const Login = () => {
         navigate(userRole === "ADMIN" ? "/dashboard" : "/driveuser");
       }
     } catch (error) {
-      toast.error("Login failed. Please try again.");
+      if (error.response?.status === 401) {
+        setErrors({
+          username: "Invalid username or password.",
+          password: "Invalid username or password.",
+        });
+      } else {
+        toast.error("Login failed. Please try again.");
+      }
     }
   };
 
@@ -133,12 +152,12 @@ const Login = () => {
               htmlFor="username"
               className="block text-ms font-normal text-gray-500 dark:text-gray-700"
             >
-              User name
+              Username
             </label>
             <input
               type="text"
               name="username"
-              placeholder="User name"
+              placeholder="Username"
               className={`text-black rounded-lg border-2 ${
                 errors.username ? "border-red-500" : "border-inherit"
               } block w-full p-2.5`}

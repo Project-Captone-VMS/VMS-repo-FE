@@ -638,7 +638,7 @@ export default function RealtimeTrackingDashboard() {
     stompClient = over(socket);
 
     stompClient.connect({}, () => {
-      stompClient.send(`/app/chat/admin`, {}, JSON.stringify(formSend));
+      stompClient.send(`/app/chat/admin123`, {}, JSON.stringify(formSend));
       // console.log("Notification Sent:", formSend);
     });
   };

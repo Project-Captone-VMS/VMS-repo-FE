@@ -12,6 +12,7 @@ import {
   PercentSquare,
   Calendar,
   FileText,
+  ClipboardList, 
 } from "lucide-react";
 import {
   Card,
@@ -95,18 +96,24 @@ const WarehouseProduct = () => {
     }
   }, [warehouseId]);
 
-  const handleAddProduct = (product) => {
-    setIsAddProductOpen(false);
-    Promise.all([
-      fetchWarehouseData(warehouseId),
-      fetchProducts(warehouseId)
-    ]).then(() => {
+  const handleAddProduct = async (product) => {
+    try {
+      setIsAddProductOpen(false);
+      await fetchWarehouseData(warehouseId);
+      await fetchProducts(warehouseId);
       Swal.fire({
         icon: "success",
         title: "Success!",
         text: "Product added successfully.",
       });
-    });
+    } catch (error) {
+      console.error("Error adding product:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: "Failed to add product.",
+      });
+    }
   };
 
   const handleEditProduct = (product) => {
@@ -152,13 +159,13 @@ const WarehouseProduct = () => {
     if (confirmResult.isConfirmed) {
       try {
         await deleteProduct(productId);
-        setProducts(products.filter((p) => p.id !== productId));
+        await fetchWarehouseData(warehouseId);
+        await fetchProducts(warehouseId);
         Swal.fire({
           icon: "success",
           title: "Success!",
           text: "Product deleted successfully.",
         });
-        fetchProducts(warehouseId);
       } catch (error) {
         console.error("Error deleting product:", error);
         Swal.fire({

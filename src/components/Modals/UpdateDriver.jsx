@@ -72,7 +72,6 @@ const UpdateDriver = ({ isOpen, onClose, driver, onDriverUpdated }) => {
   };
 
   const handleSave = async () => {
-    // Validate all fields before saving
     let hasErrors = false;
     const fieldsToValidate = ["licenseNumber", "workSchedule"];
 
@@ -148,6 +147,7 @@ const UpdateDriver = ({ isOpen, onClose, driver, onDriverUpdated }) => {
               readOnly
             />
           </div>
+
           <div>
             <label className="mb-1 block text-sm font-medium text-gray-700">
               Email
@@ -171,7 +171,7 @@ const UpdateDriver = ({ isOpen, onClose, driver, onDriverUpdated }) => {
 
           <div>
             <label className="mb-1 block text-sm font-medium text-gray-700">
-              phoneNumber
+              Phone Number
             </label>
             <input
               type="tel"

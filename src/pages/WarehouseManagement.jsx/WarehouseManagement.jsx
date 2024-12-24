@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Plus, Package, MapPin, BarChart2 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Plus, Package, MapPin, BarChart2,  ClipboardList } from "lucide-react";
+import { useNavigate,Link } from "react-router-dom";
 import { Button } from "../../components/ui/button";
 import { WarehouseCard } from "../../components/Warehouse/WarehouseCard";
-import AddWarehouse from "@/components/Modals/AddWarehouse";
+import  AddWarehouse  from "../../components/Modals/AddWarehouse";
 import EditWarehouse from "../../components/Modals/EditWarehouse";
 import SearchAndFilter from "../../components/Warehouse/SearchAndFilter";
 import getFilteredWarehouses from "../../components/Warehouse/getFilteredWarehouses";
@@ -94,6 +94,8 @@ const WarehouseManagement = () => {
     }
   };
 
+
+
   // Load initial data
   useEffect(() => {
     fetchWarehouses();
@@ -149,7 +151,8 @@ const WarehouseManagement = () => {
           timer: 1500,
           showConfirmButton: false,
         });
-        await fetchWarehouses();
+        await fetchWarehouses(); // Refresh warehouses
+        await fetchStats(); // Refresh stats
       }
     } catch (error) {
       console.error("Error adding warehouse:", error);
@@ -223,13 +226,12 @@ const WarehouseManagement = () => {
       confirmButtonText: "Yes, delete it!",
       cancelButtonText: "No, cancel!",
     });
-
+  
     if (confirmResult.isConfirmed) {
       try {
         setIsLoading(true);
         await deleteWarehouse(warehouseId);
-
-        // Show success message
+  
         await Swal.fire({
           icon: "success",
           title: "Success!",
@@ -237,9 +239,9 @@ const WarehouseManagement = () => {
           timer: 1500,
           showConfirmButton: false,
         });
-
-        // Refresh the warehouses list
-        await fetchWarehouses();
+  
+        await fetchWarehouses(); // Refresh warehouses
+        await fetchStats(); // Refresh stats
       } catch (error) {
         console.error("Error deleting warehouse:", error);
         Swal.fire({
@@ -255,6 +257,25 @@ const WarehouseManagement = () => {
     }
   };
 
+  const fetchStats = async () => {
+    const totalWarehouseResult = await totalWarehouses();
+    setTotalWarehouse(totalWarehouseResult);
+  
+    const totalLocationResult = await totalLocations();
+    setTotalLocation(totalLocationResult);
+  
+    const totalOverResult = await totalOvers();
+    setTotalOver(totalOverResult);
+  
+    const totalLessResult = await totalLesss();
+    setTotalLess(totalLessResult);
+  };
+
+  useEffect(() => {
+    fetchWarehouses();
+    fetchStats(); // Fetch stats initially
+  }, []);
+
   return (
     <div className="min-h-screen">
       <div className="shadow-sm">
@@ -269,15 +290,24 @@ const WarehouseManagement = () => {
                 Manage your warehouses and inventory efficiently
               </p>
             </div>
+            
             <div className="flex items-center gap-4">
-              <Button
-                className="bg-black text-white shadow-lg transition-all duration-200 hover:bg-slate-800"
+              <Link to={`/warehouse/allocation`}>
+                <button
+                  className="bg-yellow-500 text-white px-6 py-2 rounded-md flex items-center justify-center gap-2"
+                >
+                  <ClipboardList className="inline-block" />
+                  Allocation
+                </button>
+              </Link>
+              <button
+                className="bg-black text-white px-6 py-2 rounded-md flex items-center justify-center gap-2 shadow-lg transition-all duration-200 hover:bg-slate-800"
                 onClick={() => setIsAddModalOpen(true)}
                 disabled={isLoading}
               >
-                <Plus className="mr-2 h-4 w-4" />
+                <Plus className="h-4 w-4" />
                 Add Warehouse
-              </Button>
+              </button>
             </div>
           </div>
         </div>
@@ -293,51 +323,6 @@ const WarehouseManagement = () => {
           filters={filters}
           onFilterChange={handleFilterChange}
         />
-
-        {/* Stats Overview */}
-        {/* <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-4">
-          <div className="flex items-center gap-4 rounded-lg bg-white p-6 shadow-sm">
-            <div className="rounded-lg bg-blue-100 p-3">
-              <Package className="h-6 w-6 text-blue-600" />
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Total Warehouses</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {totalWarehouse}
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-4 rounded-lg bg-white p-6 shadow-sm">
-            <div className="rounded-lg bg-green-100 p-3">
-              <BarChart2 className="h-6 w-6 text-green-600" />
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Capacity over 10000 </p>
-              <p className="text-2xl font-bold text-gray-900">{totalOver}</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-4 rounded-lg bg-white p-6 shadow-sm">
-            <div className="rounded-lg bg-purple-100 p-3">
-              <BarChart2 className="h-6 w-6 text-red-600" />
-            </div>
-
-            <div>
-              <p className="text-sm text-gray-600">Capacity less than 10000 </p>
-              <p className="text-2xl font-bold text-gray-900">{totalLess}</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-4 rounded-lg bg-white p-6 shadow-sm">
-            <div className="rounded-lg bg-purple-100 p-3">
-              <MapPin className="h-6 w-6 text-purple-600" />
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Active Locations</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {totalLocation}
-              </p>
-            </div>
-          </div>
-        </div> */}
 
         <div className="mb-8 grid grid-cols-2 gap-7 md:grid-cols-2 lg:grid-cols-4">
           <StatCard

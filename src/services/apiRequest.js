@@ -214,6 +214,7 @@ export const totalProducts = async () => {
   return response.data;
 };
 
+/// hết
 export const getUserByUsername = async (username) => {
   const response = await api.get(`user/username/${username}`);
   return response.data;
@@ -305,7 +306,7 @@ export const getIncidentById = async (id) => {
 
 export const addIncident = async (incidentData) => {
   try {
-    const response = await api.post("incidents", incidentData);
+    const response = await api.post("incidents/add", incidentData);
     return response.data;
   } catch (error) {
     throw error;
@@ -371,7 +372,6 @@ export const getIncidentsByVehicle = async (vehicleId) => {
     throw error;
   }
 };
-
 
 // Expense API endpoints
 export const getAllExpenses = async () => {
@@ -500,5 +500,10 @@ export const getAlRouteByUsername = async (username) => {
 
 export const getAllRoute = async () => {
   const response = await api.get(`route/all`);
+  return response.data;
+};
+
+export const getUserUsername = async (username) => {
+  const response = await api.get(`driver/getInfo/${username}`);
   return response.data;
 };

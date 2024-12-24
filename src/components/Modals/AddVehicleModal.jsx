@@ -1,15 +1,15 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Check, X, AlertCircle } from 'lucide-react';
+import { Check, X, AlertCircle } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
 import { Button } from "../../components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { createVehicle } from "../../services/apiRequest";
 
-const AddVehicleModal = ({ isOpen, onClose, existingVehicles }) => {
+const AddVehicleModal = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const [vehicleData, setVehicleData] = useState({
     licensePlate: "",
@@ -36,21 +36,15 @@ const AddVehicleModal = ({ isOpen, onClose, existingVehicles }) => {
     onClose();
   };
 
-  const isLicensePlateExists = (licensePlate) => {
-    return existingVehicles.some(
-      (vehicle) => vehicle.licensePlate.toLowerCase() === licensePlate.toLowerCase()
-    );
-  };
-
   const validateFields = () => {
-    const newErrors = { ...errors };
+    const newErrors = {};
     const { licensePlate, type, capacity, maintenanceSchedule } = vehicleData;
 
     if (!licensePlate) {
       newErrors.licensePlate = "License plate is required";
-    } else if (!/^(1[1-9]|[2-9][0-9])[A-Z]{1}-\d{4,5}$/.test(licensePlate)) {
+    } else if (!/^[0-9]{2}[A-Z]{1}-\d{4,5}$/.test(licensePlate)) {
       newErrors.licensePlate =
-        "Format: XXA-1234 or XX-12345 (2 digits from 11-99, 1 letter, 4-5 digits)";
+        "Format: XXA-1234 or XX-12345 (2 digits, 1 letter, 4-5 digits)";
     }
 
     if (!type) {
@@ -107,7 +101,6 @@ const AddVehicleModal = ({ isOpen, onClose, existingVehicles }) => {
 
   return (
     <>
-      <Toaster position="top-right" />
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-xl p-6 w-full max-w-xl max-h-[90vh] overflow-y-auto z-50 border border-gray-200">
           <DialogHeader>
@@ -220,4 +213,3 @@ const AddVehicleModal = ({ isOpen, onClose, existingVehicles }) => {
 };
 
 export default AddVehicleModal;
-

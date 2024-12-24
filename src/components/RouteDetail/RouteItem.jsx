@@ -104,7 +104,7 @@ const RouteItem = ({
     fetchData(routeId);
   }, [getInterConnections]);
 
-  console.log("interconnect", interconnect);
+  // console.log("interconnect", interconnect);
 
   return (
     <Accordion type="single" collapsible>

@@ -56,9 +56,9 @@ const OverviewTab = () => (
   <div className="space-y-4">
     <div className="grid grid-cols-2 gap-7 md:grid-cols-2 lg:grid-cols-4">
       <StatCard title="Total Vehicles" value="15" icon={Car} />
-      <StatCard title="Total Maintenance" value="3" icon={Settings} />
-      <StatCard title="Total Incident" value="5" icon={Car} />
-      <StatCard title="Total Distance" value="125,000" icon={Car} />
+      <StatCard title="Total Accidents" value="3" icon={Settings} />
+      <StatCard title="Total Delay" value="5" icon={Car} />
+      <StatCard title="Total Mechanical" value="125,000" icon={Car} />
     </div>
 
     <Card>

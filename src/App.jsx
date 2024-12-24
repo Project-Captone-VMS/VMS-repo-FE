@@ -17,6 +17,7 @@ import ProfileInformation from "./pages/Profileinformation";
 import IndexRoute from "./pages/Route/IndexRoute";
 import OverviewRoute from "./pages/Route/sub-Route/OverviewRoute";
 import ListRoute from "./pages/Route/sub-Route/ListRoute";
+import AllocationProduct from "./pages/WarehouseManagement.jsx/AllocationProduct";
 import InvoicePage from "./pages/WarehouseManagement.jsx/InvoicePage";
 import IncidentTab from "./pages/VehicleManegement/sub-pages/IncidentTab";
 import ExpenseManagement from "./pages/ExpenseManagement";
@@ -26,13 +27,16 @@ import RouteDetailUser from "./pages/RouteDetailUser";
 import RealtimeTrackingUser from "./pages/RealtimeTrackingUser/RealtimeTrackingUser";
 import ShowTrackingUser from "./pages/RealtimeTrackingUser/ShowTrackingUser";
 
-
 import { Toaster } from "react-hot-toast";
 
 function App() {
   const router = createBrowserRouter([
     {
       path: "/",
+      element: <Login />,
+    },
+    {
+      path: "/demo",
       element: <Login />,
     },
     {
@@ -107,6 +111,7 @@ function App() {
                   path: "VehiclesTab",
                   element: <VehiclesTab />,
                 },
+
                 {
                   path: "IncidentTab",
                   element: <IncidentTab />,
@@ -132,6 +137,10 @@ function App() {
             {
               path: "warehouse/:warehouseId",
               element: <WarehouseProduct />,
+            },
+            {
+              path: "warehouse/allocation",
+              element: <AllocationProduct />,
             },
             {
               path: "warehouse/:warehouseId/invoices",

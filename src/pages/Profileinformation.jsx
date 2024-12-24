@@ -9,6 +9,8 @@ import {
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
 import { Alert, AlertDescription } from "../components/ui/alert";
+import { getUserUsername } from "@/services/apiRequest";
+
 
 const ProfileInformation = () => {
   const [userInfo, setUserInfo] = useState({
@@ -25,9 +27,11 @@ const ProfileInformation = () => {
     avatar: null,
   });
 
+
   const [isEditing, setIsEditing] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [dataUser,setDataUser] = useState([])
 
   const userRole = localStorage.getItem("userRole");
   const username = localStorage.getItem("username");
@@ -46,28 +50,13 @@ const ProfileInformation = () => {
 
   // Giả lập fetch data từ API
   useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        // Thay thế bằng API call thực tế
-        const mockData = {
-          firstName: "John",
-          lastName: "Doe",
-          email: "john@example.com",
-          phone: "0123456789",
-          address: "123 Street, City",
-          driverLicense: "DL12345",
-          vehicleInfo: "Toyota Camry 2020",
-          experience: "5 years",
-          birthDate: "1990-01-01",
-          emergencyContact: "0987654321",
-        };
-        setUserInfo(mockData);
-      } catch (error) {
-        setError("Failed to load user data");
-      }
-    };
-
-    fetchUserData();
+    const fetchUserData = async (username) => {
+      console.log(username)
+      const results = await getUserUsername(username);
+      console.log("results", results)
+      setDataUser(results);
+    }
+    fetchUserData(username);
   }, [username]);
 
   const handleInputChange = (e) => {
@@ -171,7 +160,7 @@ const ProfileInformation = () => {
                 </label>
                 <Input
                   name="firstName"
-                  value={userInfo.firstName}
+                  value={dataUser.firstName}
                   disabled={true}
                   className="mt-1"
                 />
@@ -182,7 +171,7 @@ const ProfileInformation = () => {
                 </label>
                 <Input
                   name="lastName"
-                  value={userInfo.lastName}
+                  value={dataUser.lastName}
                   disabled={true}
                   className="mt-1"
                 />
@@ -194,7 +183,7 @@ const ProfileInformation = () => {
                 <Input
                   type="email"
                   name="email"
-                  value={userInfo.email}
+                  value={dataUser.email}
                   onChange={handleInputChange}
                   disabled={!isEditing}
                   className="mt-1"
@@ -207,7 +196,33 @@ const ProfileInformation = () => {
                 <Input
                   type="tel"
                   name="phone"
-                  value={userInfo.phone}
+                  value={dataUser.phoneNumber}
+                  onChange={handleInputChange}
+                  disabled={!isEditing}
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                License Number *
+                </label>
+                <Input
+                  type="text"
+                  name="license_number"
+                  value={dataUser.licenseNumber}
+                  onChange={handleInputChange}
+                  disabled={!isEditing}
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                Work schedule*
+                </label>
+                <Input
+                  type="date"
+                  name="workSchedule"
+                  value={dataUser.workSchedule}
                   onChange={handleInputChange}
                   disabled={!isEditing}
                   className="mt-1"
@@ -215,86 +230,7 @@ const ProfileInformation = () => {
               </div>
             </div>
 
-            {/* Driver Specific Information */}
-            {userRole === "driver" && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Driver License *
-                  </label>
-                  <Input
-                    name="driverLicense"
-                    value={userInfo.driverLicense}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                    className="mt-1"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Vehicle Information *
-                  </label>
-                  <Input
-                    name="vehicleInfo"
-                    value={userInfo.vehicleInfo}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                    className="mt-1"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Experience *
-                  </label>
-                  <Input
-                    name="experience"
-                    value={userInfo.experience}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                    className="mt-1"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Birth Date *
-                  </label>
-                  <Input
-                    type="date"
-                    name="birthDate"
-                    value={userInfo.birthDate}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                    className="mt-1"
-                  />
-                </div>
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Emergency Contact *
-                  </label>
-                  <Input
-                    name="emergencyContact"
-                    value={userInfo.emergencyContact}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                    className="mt-1"
-                  />
-                </div>
-              </div>
-            )}
 
-            {/* Address Section */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Address *
-              </label>
-              <Input
-                name="address"
-                value={userInfo.address}
-                onChange={handleInputChange}
-                disabled={!isEditing}
-                className="mt-1"
-              />
-            </div>
 
             {/* Error and Success Messages */}
             {error && (

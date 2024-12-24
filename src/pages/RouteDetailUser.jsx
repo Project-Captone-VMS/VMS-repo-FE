@@ -210,7 +210,7 @@ const RouteDetailUser = () => {
         setError("No routes found.");
       }
     } catch (error) {
-      console.error("Error fetching route:", error);
+      console.log("Error fetching route:", error);
     } finally {
       setLoading(false);
     }
@@ -557,11 +557,11 @@ const RouteDetailUser = () => {
     stompClient = over(socket);
 
     stompClient.connect({}, () => {
-      stompClient.send(`/app/chat/admin`, {}, JSON.stringify(formSend));
+      stompClient.send(`/app/chat/admin123`, {}, JSON.stringify(formSend));
       // console.log("Notification Sent:", formSend);
     });
   };
-  console.log("routes", routes);
+  // console.log("routes", routes);
 
   return (
     <div>
