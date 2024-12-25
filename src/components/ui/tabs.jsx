@@ -1,10 +1,10 @@
-import * as React from "react"
-import { cn } from "@/lib/utils"
+import * as React from "react";
+import { cn } from "../../lib/utils";
 
 const Tabs = React.forwardRef(({ className, ...props }, ref) => (
   <div ref={ref} className={cn("", className)} {...props} />
-))
-Tabs.displayName = "Tabs"
+));
+Tabs.displayName = "Tabs";
 
 const TabsList = React.forwardRef(({ className, ...props }, ref) => (
   <div
@@ -15,8 +15,8 @@ const TabsList = React.forwardRef(({ className, ...props }, ref) => (
     )}
     {...props}
   />
-))
-TabsList.displayName = "TabsList"
+));
+TabsList.displayName = "TabsList";
 
 const TabsTrigger = React.forwardRef(({ className, ...props }, ref) => (
   <button
@@ -27,9 +27,8 @@ const TabsTrigger = React.forwardRef(({ className, ...props }, ref) => (
     )}
     {...props}
   />
-))
-TabsTrigger.displayName = "TabsTrigger"
-
+));
+TabsTrigger.displayName = "TabsTrigger";
 const TabsContent = React.forwardRef(({ className, ...props }, ref) => (
   <div
     ref={ref}
@@ -39,7 +38,8 @@ const TabsContent = React.forwardRef(({ className, ...props }, ref) => (
     )}
     {...props}
   />
-))
-TabsContent.displayName = "TabsContent"
+));
+TabsContent.displayName = "TabsContent";
 
-export { Tabs, TabsList, TabsTrigger, TabsContent }
+export { Tabs, TabsList, TabsTrigger, TabsContent };
+

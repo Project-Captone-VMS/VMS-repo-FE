@@ -1,48 +1,196 @@
-// App.jsx
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import Header from './components/Header';
-import Sidebar from './components/Sidebar';
-import DriverManagement from './page/DriverManagement';
-import VehicleManagement from './page/VehicleManagement';
 
+import {createBrowserRouter,RouterProvider,Navigate, Routes, Route} from "react-router-dom";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import DefaultLayout from "./layout/DefaultLayout";
+import PrivateRouter from "./components/PrivateRouter";
+import Dashboard from "./pages/Dashboard";
+import AuthLayout from "./layout/AuthLayout";
+import VehicleManagement from "./pages/VehicleManegement/VehicleManagement";
+import DriverManagement from "./pages/DriverManagement/DriverManagement";
+import UpdateDriver from "./components/Modals/UpdateDriver";
+import OverviewTab from "./pages/VehicleManegement/sub-pages/OverviewTab";
+import VehiclesTab from "./pages/VehicleManegement/sub-pages/VehiclesTab";
+import WarehouseManagement from "./pages/WarehouseManagement.jsx/WarehouseManagement";
+import WarehouseProduct from "./pages/WarehouseManagement.jsx/WarehouseProduct";
+import Analytics from "./pages/AnalyticsManagement/Analytics";
+import ProfileInformation from "./pages/Profileinformation";
+import IndexRoute from "./pages/Route/IndexRoute";
+import OverviewRoute from "./pages/Route/sub-Route/OverviewRoute";
+import ListRoute from "./pages/Route/sub-Route/ListRoute";
+import AllocationProduct from "./pages/Shipment/NewAllocationProduct";
+import InvoicePage from "./pages/WarehouseManagement.jsx/InvoicePage";
+import IncidentTab from "./pages/VehicleManegement/sub-pages/IncidentTab";
+import ExpenseManagement from "./pages/ExpenseManagement";
+import AdminSender from "./pages/SendNotification/AdminSender";
+import UserReceiver from "./pages/SendNotification/UserReceiver";
+import RouteDetailUser from "./pages/RouteDetailUser";
+import RealtimeTrackingUser from "./pages/RealtimeTrackingUser/RealtimeTrackingUser";
+import ShowTrackingUser from "./pages/RealtimeTrackingUser/ShowTrackingUser";
+import ShipmentManage from "./pages/Shipment/ShipmentManage";
+import { Toaster } from "react-hot-toast";
+import ChangePassWord from "./pages/ChangePassWord";
 
-// Tạo các components tạm thời cho các trang
-const RoutePlanning = () => <div className="p-4">Route Planning Page</div>;
-const WarehouseManagement = () => <div className="p-4">Warehouse Management Page</div>;
-const Analytics = () => <div className="p-4">Analytics Page</div>;
-const InternalChat = () => <div className="p-4">Internal Chat Page</div>;
-const Reports = () => <div className="p-4">Reports Page</div>;
-
-const Layout = ({ children }) => {
-  return (
-    <div className="flex min-h-screen bg-gray-100">
-      <Sidebar />
-      <div className="flex-1 flex flex-col">
-        <Header />
-        <main className="flex-1 p-6">
-          {children}
-        </main>
-      </div>
-    </div>
-  );
-};
 
 function App() {
+  const router = createBrowserRouter([
+    {
+      path: "/",
+      element: <Login />,
+    },
+    {
+      path: "/demo",
+      element: <Login />,
+    },
+    {
+      element: <AuthLayout />,
+      children: [
+        {
+          path: "/login",
+          element: <Login />,
+        },
+        {
+          path: "/register",
+          element: <Register />,
+        },
+      ],
+    },
+    {
+      element: <DefaultLayout />,
+      children: [
+        {
+          element: <PrivateRouter allowedRoles={"USER"} />,
+          children: [
+            {
+              path: "driveuser",
+              element: <Dashboard />,
+            },
+            {
+              path: "showTrackingUser",
+              element: <ShowTrackingUser />,
+            },
+            {
+              path: "profile",
+              element: <ProfileInformation />,
+            },
+            {
+              path: "changePassWord",
+              element: <ChangePassWord />,
+            },
+            {
+              path: "UserReceiver",
+              element: <UserReceiver />,
+            },
+            {
+              path: "routeDetail",
+              element: <RouteDetailUser />,
+            },
+          ],
+        },
+        {
+          element: <PrivateRouter allowedRoles={"ADMIN"} />,
+          children: [
+            {
+              path: "dashboard",
+              element: <Dashboard />,
+            },
+            {
+              path: "profile",
+              element: <ProfileInformation />,
+            },
+            {
+              path: "vehicle",
+              element: <VehicleManagement />,
+              children: [
+                {
+                  path: "",
+                  element: <Navigate to="OverviewTab" replace />,
+                },
+                {
+                  path: "OverviewTab",
+                  element: <OverviewTab />,
+                },
+                {
+                  path: "VehiclesTab",
+                  element: <VehiclesTab />,
+                },
+
+                {
+                  path: "IncidentTab",
+                  element: <IncidentTab />,
+                },
+              ],
+            },
+            {
+              path: "driver",
+              element: <DriverManagement />,
+            },
+            {
+              path: "driver/update/:id",
+              element: <UpdateDriver />,
+            },
+            {
+              path: "expenses",
+              element: <ExpenseManagement />,
+            },
+            {
+              path: "warehouse",
+              element: <WarehouseManagement />,
+            },
+            {
+              path: "warehouse/:warehouseId",
+              element: <WarehouseProduct />,
+            },
+            {
+              path: "warehouse/:warehouseId/invoices",
+              element: <InvoicePage />,
+            },
+            {
+              path: "Analytics",
+              element: <Analytics />,
+            },
+
+            {
+              path: "indexNotification",
+              element: <AdminSender />,
+            },
+            {
+              path: "shipment",
+              element: <ShipmentManage />,
+            },
+            {
+              path: "ship/newallocation",
+              element: <AllocationProduct />,
+            },
+            {
+              path: "route",
+              element: <IndexRoute />,
+              children: [
+                {
+                  path: "",
+                  element: <Navigate to="overviewRoute" replace />,
+                },
+                {
+                  path: "overviewRoute",
+                  element: <OverviewRoute />,
+                },
+                {
+                  path: "listRoute",
+                  element: <ListRoute />,
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+  ]);
+
   return (
-    <Router>
-      <Layout>
-        <Routes>
-          <Route path="/" element={<Navigate to="/driver" replace />} />
-          <Route path="/vehicle" element={<VehicleManagement />} />
-          <Route path="/driver" element={<DriverManagement />} />
-          <Route path="/route" element={<RoutePlanning />} />
-          <Route path="/warehouse" element={<WarehouseManagement />} />
-          <Route path="/analytics" element={<Analytics />} />
-          <Route path="/chat" element={<InternalChat />} />
-          <Route path="/reports" element={<Reports />} />
-        </Routes>
-      </Layout>
-    </Router>
+    <>
+      <Toaster />
+      <RouterProvider router={router} />
+    </>
   );
 }
 

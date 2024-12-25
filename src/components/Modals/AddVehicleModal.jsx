@@ -1,88 +1,211 @@
-import React, { useState } from 'react';
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import toast, { Toaster } from "react-hot-toast"; // Import toast
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Check, X, AlertCircle } from "lucide-react";
+import toast, { Toaster } from "react-hot-toast";
+import { Button } from "../../components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { Label } from "../ui/label";
+import { Input } from "../ui/input";
+import { createVehicle } from "../../services/apiRequest";
 
 const AddVehicleModal = ({ isOpen, onClose }) => {
-  const [vehicleID, setVehicleID] = useState("");
-  const [plateNumber, setPlateNumber] = useState("");
-  const [vehicleType, setVehicleType] = useState(""); // Manual input for Vehicle Type
-  const [vehicleDetails, setVehicleDetails] = useState("");
-  const [status, setStatus] = useState("");
-  const [value, setValue] = useState({
-    id:"",
-    plateNumber:"",
-    vehicleType:"",
-    vehicleDetails:"",
-    status:"",
+  const navigate = useNavigate();
+  const [vehicleData, setVehicleData] = useState({
+    licensePlate: "",
+    type: "",
+    capacity: "",
+    status: "false",
+    maintenanceSchedule: "",
   });
+  const [errors, setErrors] = useState({});
 
-  const handleSave = () =>{
-    setValue([value]);
-  }
-  
+  const resetState = () => {
+    setVehicleData({
+      licensePlate: "",
+      type: "",
+      capacity: "",
+      status: "false",
+      maintenanceSchedule: "",
+    });
+    setErrors({});
+  };
 
-  // const handleSave = () => {
-  //   if (!vehicleID || !plateNumber || !vehicleType || !vehicleDetails || !status) {
-  //     toast.error("Please fill all fields."); // Show error toast if validation fails
-  //     return;
-  //   }
+  const handleCancel = () => {
+    resetState();
+    onClose();
+  };
 
-  //   // Success toast when vehicle is created
-  //   toast.success("Successfully created a new vehicle");
+  const validateFields = () => {
+    const newErrors = {};
+    const { licensePlate, type, capacity, maintenanceSchedule } = vehicleData;
 
-  //   // Clear inputs after saving
-  //   setVehicleID("");
-  //   setPlateNumber("");
-  //   setVehicleType("");
-  //   setVehicleDetails("");
-  //   setStatus("");
-  //   onClose(); // Close the modal after saving
-  // };
+    if (!licensePlate) {
+      newErrors.licensePlate = "License plate is required";
+    } else if (!/^[0-9]{2}[A-Z]{1}-\d{4,5}$/.test(licensePlate)) {
+      newErrors.licensePlate =
+        "Format: XXA-1234 or XX-12345 (2 digits, 1 letter, 4-5 digits)";
+    }
 
+    if (!type) {
+      newErrors.type = "Vehicle type is required";
+    }
 
+    if (!capacity || capacity <= 0) {
+      newErrors.capacity = "Capacity must be a positive number";
+    }
+
+    if (!maintenanceSchedule) {
+      newErrors.maintenanceSchedule = "Maintenance date is required";
+    } else if (new Date(maintenanceSchedule) < new Date()) {
+      newErrors.maintenanceSchedule = "Schedule must be today or later";
+    }
+
+    return newErrors;
+  };
+
+  const handleSave = async (e) => {
+    e.preventDefault();
+    const validationErrors = validateFields();
+
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      if (!toast.isActive("form-error")) {
+        toast.error("Please fix all errors before submitting", { id: "form-error" });
+      }
+      return;
+    }
+
+    const vehicleDataToSend = {
+      ...vehicleData,
+      status: vehicleData.status === "true",
+    };
+
+    try {
+      await createVehicle(vehicleDataToSend);
+      toast.dismiss();
+      toast.success("Vehicle created successfully!");
+      resetState();
+      onClose();
+      window.location.reload();
+    } catch (error) {
+      toast.error("Failed to create vehicle");
+    }
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setVehicleData({ ...vehicleData, [name]: value });
+    setErrors({ ...errors, [name]: "" }); // Clear specific field error
+  };
 
   return (
     <>
-      {/* Toaster Component for Toast Notifications */}
-      <Toaster position="top-right" reverseOrder={false} />
-      
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <div className="fixed inset-0 bg-black bg-opacity-75 z-40"></div>
-        <DialogContent className="w-full max-w-lg fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 max-h-[90vh] overflow-y-auto bg-white shadow-lg p-6 rounded-md">
+        <DialogContent className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-xl p-6 w-full max-w-xl max-h-[90vh] overflow-y-auto z-50 border border-gray-200">
           <DialogHeader>
-            <DialogTitle className="text-xl font-bold mb-4">Add New Vehicle</DialogTitle>
+            <DialogTitle className="text-2xl font-bold">Add New Vehicle</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
+          <form onSubmit={handleSave} className="space-y-4">
+            {/* License Plate */}
             <div>
-              <Label>Vehicle ID</Label>
-              <Input value={vehicleID} onChange={(e) => setVehicleID(e.target.value)} placeholder="Enter vehicle ID" />
+              <Label htmlFor="licensePlate">License Plate</Label>
+              <Input
+                id="licensePlate"
+                name="licensePlate"
+                value={vehicleData.licensePlate}
+                onChange={handleChange}
+                className={`${
+                  errors.licensePlate ? "border-red-500" : "border-gray-300"
+                }`}
+                placeholder="XXA-1234"
+              />
+              {errors.licensePlate && (
+                <p className="text-red-500 text-sm flex items-center gap-1">
+                  <AlertCircle className="h-4 w-4" />
+                  {errors.licensePlate}
+                </p>
+              )}
             </div>
+
+            {/* Vehicle Type */}
             <div>
-              <Label>Plate number</Label>
-              <Input value={plateNumber} onChange={(e) => setPlateNumber(e.target.value)} placeholder="Enter plate number" />
+              <Label htmlFor="type">Vehicle Type</Label>
+              <Select
+                name="type"
+                value={vehicleData.type}
+                onValueChange={(value) => handleChange({ target: { name: "type", value } })}
+              >
+                <SelectTrigger className={`w-full ${errors.type ? "border-red-500" : "border-gray-300"}`}>
+                  <SelectValue placeholder="Select vehicle type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Truck">Truck</SelectItem>
+                  <SelectItem value="Van">Van</SelectItem>
+                  <SelectItem value="Pickup">Pickup</SelectItem>
+                </SelectContent>
+              </Select>
+              {errors.type && (
+                <p className="text-red-500 text-sm flex items-center gap-1">
+                  <AlertCircle className="h-4 w-4" />
+                  {errors.type}
+                </p>
+              )}
             </div>
+
+            {/* Capacity */}
             <div>
-              <Label>Vehicle Type</Label>
-              <Input value={vehicleType} onChange={(e) => setVehicleType(e.target.value)} placeholder="Enter vehicle type" /> {/* Manual input */}
+              <Label htmlFor="capacity">Capacity</Label>
+              <Input
+                id="capacity"
+                name="capacity"
+                type="number"
+                value={vehicleData.capacity}
+                onChange={handleChange}
+                className={`${
+                  errors.capacity ? "border-red-500" : "border-gray-300"
+                }`}
+                placeholder="Enter capacity"
+              />
+              {errors.capacity && (
+                <p className="text-red-500 text-sm flex items-center gap-1">
+                  <AlertCircle className="h-4 w-4" />
+                  {errors.capacity}
+                </p>
+              )}
             </div>
+
+            {/* Maintenance Schedule */}
             <div>
-              <Label>Vehicle Details</Label>
-              <Input value={vehicleDetails} onChange={(e) => setVehicleDetails(e.target.value)} placeholder="Enter vehicle details" />
+              <Label htmlFor="maintenanceSchedule">Maintenance Schedule</Label>
+              <Input
+                id="maintenanceSchedule"
+                name="maintenanceSchedule"
+                type="date"
+                value={vehicleData.maintenanceSchedule}
+                onChange={handleChange}
+                className={`${
+                  errors.maintenanceSchedule ? "border-red-500" : "border-gray-300"
+                }`}
+              />
+              {errors.maintenanceSchedule && (
+                <p className="text-red-500 text-sm flex items-center gap-1">
+                  <AlertCircle className="h-4 w-4" />
+                  {errors.maintenanceSchedule}
+                </p>
+              )}
             </div>
-            <div>
-              <Label>Status</Label>
-              <Input value={status} onChange={(e) => setStatus(e.target.value)} placeholder="Enter status" />
+
+            {/* Buttons */}
+            <div className="flex justify-end gap-2">
+              <Button type="button" variant="outline" onClick={handleCancel}>
+                Cancel
+              </Button>
+              <Button type="submit" className="bg-blue-600 text-white hover:bg-blue-700">
+                Save Vehicle
+              </Button>
             </div>
-          </div>
-          <div className="flex justify-end gap-4 mt-6">
-            <Button variant="outline" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button onClick={handleSave}>Save Vehicle</Button>
-          </div>
+          </form>
         </DialogContent>
       </Dialog>
     </>
