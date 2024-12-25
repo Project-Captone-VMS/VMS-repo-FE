@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 import {
+  getWayPoint,
   getInterConnections,
   updateEstimateTime,
 } from "../../services/apiRequest";
@@ -23,16 +25,27 @@ const RouteItem = ({
   loading,
   totalTime,
   totalDistance,
-  startLng,
-  startLat,
+  start,
   licensePlate,
   status,
-  endLat,
-  endLng,
+  end,
   first_name,
 }) => {
   const [timeByInterconnection, setTimeByInterconnection] = useState({});
   const [interconnect, setInterconnect] = useState([]);
+  const [wayPoints, setWayPoints] = useState([]);
+  const apiKey = import.meta.env.VITE_HERE_MAP_API_KEY;
+
+  function convertM(distance) {
+    return `${(distance / 1000).toFixed(1)} km`;
+  }
+
+  const formatTime = (seconds) => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    return `about ${hours}h ${minutes}m`;
+  };
+
 
   const handleChange = (e, interconnectionId) => {
     const { name, value } = e.target;
@@ -49,6 +62,45 @@ const RouteItem = ({
     });
   };
 
+  const convertGeocode = async (lat, lng) => {
+    try {
+      const response = await axios.get(
+        "https://revgeocode.search.hereapi.com/v1/revgeocode",
+        {
+          params: {
+            at: `${lat},${lng}`,
+            lang: "en-US",
+            apiKey: apiKey,
+          },
+        },
+      );
+
+      if (
+        response.data &&
+        response.data.items &&
+        response.data.items.length > 0
+      ) {
+        const addr = response.data.items[0].address;
+
+        return {
+          street: addr.street || "",
+          houseNumber: addr.houseNumber || "",
+          district: addr.district || "",
+          city: addr.city || "",
+          state: addr.state || "",
+          country: addr.countryName || "",
+          postalCode: addr.postalCode || "",
+          label: response.data.items[0].title || "",
+        };
+      } else {
+        return null;
+      }
+    } catch (error) {
+      console.log("Reverse geocoding error:", error);
+      return null;
+    }
+  };
+
   const handleUpdate = async (id) => {
     try {
       const time = timeByInterconnection[id] || {
@@ -63,6 +115,40 @@ const RouteItem = ({
       };
 
       const timeE = payload.hours * 3600 + payload.minutes * 60;
+
+
+      //Kiểm tra estimate vs timepoint => chuyển đổi về (s)
+      const interconnection = interconnect.find(
+        (item) => item.interconnectionId === id
+      );
+
+      console.log("interconnection :", interconnection)
+      if (interconnection && (timeE - interconnection.timeWaypoint)>=1800) {
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: `Your estimated time should not exceed 30 minutes with Time Waypoint (Currently exceeding approx ${formatTime((timeE - interconnection.timeWaypoint)-1740)})`,
+        });
+        return;
+      }
+      else if (interconnection && timeE === 0 ) {
+        Swal.fire({
+          icon: "warning",
+          title: "Oops...",
+          text: `You must enter an estimated time.`,
+        });
+        return;
+      }
+      else if (interconnection && timeE  <= ((interconnection.timeWaypoint) - 900))  {
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: `Your estimated time should not be late 15 minutes with Time Waypoint (Currently lated approx ${formatTime(-(timeE - interconnection.timeWaypoint))})`,
+        });
+        return;
+      }
+
+
       const formData = {
         timeEstimate: timeE,
       };
@@ -94,17 +180,32 @@ const RouteItem = ({
   useEffect(() => {
     const fetchData = async (id) => {
       try {
-        const response = await getInterConnections(id);
-        setInterconnect(response);
+        const res = await getWayPoint(id);
+        if (res && Array.isArray(res) && res.length > 0) {
+          const validWaypoints = res.filter(
+            (waypoint) => !isNaN(waypoint.lat) && !isNaN(waypoint.lng),
+          );
+
+          const waypointAddresses = [];
+          for (const waypoint of validWaypoints) {
+            const { lat, lng } = waypoint;
+            const address = await convertGeocode(lat, lng);
+            waypointAddresses.push({ ...waypoint, address });
+          }
+
+          setWayPoints(waypointAddresses);
+          // console.log("waypointAddresses", waypointAddresses);
+
+          const response = await getInterConnections(id);
+          setInterconnect(response);
+        }
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.log("Error fetching data:", error);
       }
     };
 
     fetchData(routeId);
   }, [getInterConnections]);
-
-  // console.log("interconnect", interconnect);
 
   return (
     <Accordion type="single" collapsible>
@@ -115,14 +216,10 @@ const RouteItem = ({
         <AccordionTrigger className="no-underline">
           <div className="flex w-full flex-col">
             <div className="flex items-center justify-between">
-              <div className="flex flex-col">
+              <div className="flex flex-col text-start">
                 <p>{first_name}</p>
-                <p className="text-[0.8vw]">
-                  Start :{startLat}, {startLng}
-                </p>
-                <p className="text-[0.8vw]">
-                  End :{endLat}, {endLng}
-                </p>
+                <p className="text-[0.8vw]">Start: {start}</p>
+                <p className="text-[0.8vw]">End: {end}</p>
               </div>
               <p className="text-[0.8vw] font-extrabold text-blue-600">
                 {status === "false" ? "INACTIVE" : "ACTIVE"}
@@ -130,8 +227,8 @@ const RouteItem = ({
             </div>
             <div className="mt-2 flex items-center justify-between">
               <div className="text-start text-[0.8vw] text-gray-500">
-                <p className=" "> Distance : {totalDistance} (m)</p>
-                <p className=""> Time : {totalTime} (s)</p>
+                <p className=" "> Distance : {convertM(totalDistance)}</p>
+                <p className=""> Time : {formatTime(totalTime)}</p>
                 <p className=""> License Plate : {licensePlate}</p>
               </div>
             </div>
@@ -139,63 +236,74 @@ const RouteItem = ({
         </AccordionTrigger>
         <AccordionContent>
           <Timeline>
-            {interconnect.map((route) => (
+            {wayPoints.slice(0, -1).map((route, index) => (
               <TimelineItem
-                key={route.interconnectionId}
+                key={index}
                 className="text-start"
               >
                 <TimelineHeader>
                   <TimelineTitle>
-                    {route.fromWaypoint} - {route.toWaypoint}
+                    {route.address?.label} -{" "}
+                    {wayPoints[index + 1]?.address?.label}{" "}
                   </TimelineTitle>
                 </TimelineHeader>
                 <TimelineDescription>
-                  distance : {route.distance}
+                  Distance:{" "}
+                  {interconnect[index]
+                    ? convertM(interconnect[index].distance)
+                    : ""}
                 </TimelineDescription>
                 <TimelineDescription>
-                  timeWaypoint: {route.timeWaypoint}
+                  Time Waypoint:{" "}
+                  {interconnect[index]
+                    ? formatTime(interconnect[index].timeWaypoint)
+                    : ""}
                 </TimelineDescription>
                 <TimelineDescription>
-                  timeEstimate: {route.timeEstimate}
+                  Time Estimate:{" "}
+                  {interconnect[index]
+                    ? formatTime(interconnect[index].timeEstimate)
+                    : ""}
                 </TimelineDescription>
                 <TimelineDescription>
-                  <div className="flex justify-between">
-                    <div className="flex items-center">
-                      {" "}
-                      <input
-                        type="number"
-                        name="hours"
-                        value={
-                          timeByInterconnection[route.interconnectionId]
-                            ?.hours || ""
-                        }
-                        onChange={(e) =>
-                          handleChange(e, route.interconnectionId)
-                        }
-                        placeholder="HH"
-                        className="w-14 rounded border border-gray-300 px-2 py-2 text-center"
-                        min="0"
-                        max="23"
-                      />
-                      <span>:</span>
-                      <input
-                        type="number"
-                        name="minutes"
-                        value={
-                          timeByInterconnection[route.interconnectionId]
-                            ?.minutes || ""
-                        }
-                        onChange={(e) =>
-                          handleChange(e, route.interconnectionId)
-                        }
-                        placeholder="MM"
-                        className="w-14 rounded border border-gray-300 px-2 py-2 text-center"
-                        min="0"
-                        max="59"
-                      />
-                    </div>
+                  <td className="flex items-center gap-2 px-4 py-2 text-[9px] text-gray-900">
+                    <input
+                      type="number"
+                      name="hours"
+                      value={
+                        timeByInterconnection[
+                          interconnect[index]?.interconnectionId
+                        ]?.hours || ""
+                      }
+                      onChange={(e) =>
+                        handleChange(e, interconnect[index]?.interconnectionId)
+                      } 
+                      placeholder="HH"
+                      className="w-12 rounded border border-gray-300 px-2 py-2 text-center"
+                      min="0"
+                      max="23"
+                    />
+                    <span>:</span>
+                    <input
+                      type="number"
+                      name="minutes"
+                      value={
+                        timeByInterconnection[
+                          interconnect[index]?.interconnectionId
+                        ]?.minutes || ""
+                      }
+                      onChange={(e) =>
+                        handleChange(e, interconnect[index]?.interconnectionId)
+                      } 
+                      placeholder="MM"
+                      className="w-12 rounded border border-gray-300 px-2 py-2 text-center"
+                      min="0"
+                      max="59"
+                    />
                     <button
-                      onClick={() => handleUpdate(route.interconnectionId)}
+                      onClick={() =>
+                        handleUpdate(interconnect[index]?.interconnectionId)
+                      }
                       className={`rounded px-2 py-2 text-white ${
                         loading
                           ? "cursor-not-allowed bg-gray-500"
@@ -203,9 +311,9 @@ const RouteItem = ({
                       }`}
                       disabled={loading}
                     >
-                      {"Update"}
+                      {loading ? "Đang cập nhật..." : "Update"}
                     </button>
-                  </div>
+                  </td>
                 </TimelineDescription>
               </TimelineItem>
             ))}

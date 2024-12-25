@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from 'react';
 import { Car, Settings, Calendar } from "lucide-react";
 import {
   Card,
@@ -7,6 +7,7 @@ import {
   CardTitle,
 } from "../../../components/ui/card";
 import { Button } from "../../../components/ui/button";
+import { totalDelays, totalVehicles,totalMechanicals,totalAccidents } from "../../../services/apiRequest"; 
 
 const StatCard = ({ title, value, icon: Icon, trend }) => {
   return (
@@ -52,43 +53,98 @@ const StatusItem = ({ icon: Icon, color, title, description }) => {
   );
 };
 
-const OverviewTab = () => (
-  <div className="space-y-4">
-    <div className="grid grid-cols-2 gap-7 md:grid-cols-2 lg:grid-cols-4">
-      <StatCard title="Total Vehicles" value="15" icon={Car} />
-      <StatCard title="Total Accidents" value="3" icon={Settings} />
-      <StatCard title="Total Delay" value="5" icon={Car} />
-      <StatCard title="Total Mechanical" value="125,000" icon={Car} />
-    </div>
+const OverviewTab = () => {
+  const [totalVehicle, setTotalVehicle] = useState(0);
+  const [totalAccident, setTotalAccident] = useState(0);
+  const [totalDelay, setTotalDelay] = useState(0);
+  const [totalMechanical, setTotalMechanical] = useState(0);
 
-    <Card>
-      <CardHeader>
-        <CardTitle>Vehicle Status Overview</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          <StatusItem
-            icon={Car}
-            color="green"
-            title="Active Vehicles"
-            description="12 vehicles ready for operation"
-          />
-          <StatusItem
-            icon={Settings}
-            color="yellow"
-            title="Under Maintenance"
-            description="3 vehicles currently being serviced"
-          />
-          <StatusItem
-            icon={Car}
-            color="red"
-            title="Out of Service"
-            description="1 vehicle requires immediate attention"
-          />
-        </div>
-      </CardContent>
-    </Card>
-  </div>
-);
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const vehicleData = await totalVehicles(); // Gọi API để lấy tổng số xe
+        setTotalVehicle(vehicleData);
+      } catch (error) {
+        console.error("Error fetching vehicle data:", error);
+      }
+    }
+    fetchData();
+  }, []); 
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const vehicleData = await totalAccidents(); // Gọi API để lấy tổng số xe accident
+        setTotalAccident(vehicleData);
+      } catch (error) {
+        console.error("Error fetching vehicle data:", error);
+      }
+    }
+    fetchData();
+  }, []); 
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const vehicleData = await totalDelays(); // Gọi API để lấy tổng số xe accident
+        setTotalDelay(vehicleData);
+      } catch (error) {
+        console.error("Error fetching vehicle data:", error);
+      }
+    }
+    fetchData();
+  }, []); 
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const vehicleData = await totalMechanicals(); // Gọi API để lấy tổng số xe accident
+        setTotalMechanical(vehicleData);
+      } catch (error) {
+        console.error("Error fetching vehicle data:", error);
+      }
+    }
+    fetchData();
+  }, []); 
+
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-2 gap-7 md:grid-cols-2 lg:grid-cols-4">
+        <StatCard title="Total Vehicles" value={totalVehicle} icon={Car} />
+        <StatCard title="Total Accidents" value={totalAccident} icon={Settings} />
+        <StatCard title="Total Delay" value={totalDelay} icon={Car} />
+        <StatCard title="Total Mechanical" value={totalMechanical} icon={Car} />
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Vehicle Status Overview</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <StatusItem
+              icon={Car}
+              color="green"
+              title="Active Vehicles"
+              description="12 vehicles ready for operation"
+            />
+            <StatusItem
+              icon={Settings}
+              color="yellow"
+              title="Under Maintenance"
+              description="3 vehicles currently being serviced"
+            />
+            <StatusItem
+              icon={Car}
+              color="red"
+              title="Out of Service"
+              description="1 vehicle requires immediate attention"
+            />
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
 
 export default OverviewTab;

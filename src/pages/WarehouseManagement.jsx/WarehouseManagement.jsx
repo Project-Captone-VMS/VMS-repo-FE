@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Plus, Package, MapPin, BarChart2,  ClipboardList } from "lucide-react";
-import { useNavigate,Link } from "react-router-dom";
+import { Plus, Package, MapPin, BarChart2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "../../components/ui/button";
 import { WarehouseCard } from "../../components/Warehouse/WarehouseCard";
-import  AddWarehouse  from "../../components/Modals/AddWarehouse";
+import { AddWarehouse } from "../../components/Modals/AddWarehouse";
 import EditWarehouse from "../../components/Modals/EditWarehouse";
 import SearchAndFilter from "../../components/Warehouse/SearchAndFilter";
 import getFilteredWarehouses from "../../components/Warehouse/getFilteredWarehouses";
@@ -290,24 +290,15 @@ const WarehouseManagement = () => {
                 Manage your warehouses and inventory efficiently
               </p>
             </div>
-            
             <div className="flex items-center gap-4">
-              <Link to={`/warehouse/allocation`}>
-                <button
-                  className="bg-yellow-500 text-white px-6 py-2 rounded-md flex items-center justify-center gap-2"
-                >
-                  <ClipboardList className="inline-block" />
-                  Allocation
-                </button>
-              </Link>
-              <button
-                className="bg-black text-white px-6 py-2 rounded-md flex items-center justify-center gap-2 shadow-lg transition-all duration-200 hover:bg-slate-800"
+              <Button
+                className="bg-black text-white shadow-lg transition-all duration-200 hover:bg-slate-800"
                 onClick={() => setIsAddModalOpen(true)}
                 disabled={isLoading}
               >
-                <Plus className="h-4 w-4" />
+                <Plus className="mr-2 h-4 w-4" />
                 Add Warehouse
-              </button>
+              </Button>
             </div>
           </div>
         </div>

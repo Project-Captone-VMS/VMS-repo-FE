@@ -16,7 +16,6 @@ import Swal from "sweetalert2";
 import axios from "axios";
 const token = localStorage.getItem("jwtToken");
 const apiKey = import.meta.env.VITE_HERE_MAP_API_KEY;
-
 const DetailRoute = () => {
   const navigate = useNavigate();
 
@@ -447,47 +446,12 @@ const DetailRoute = () => {
             )}
           </div>
         </div>
-
-        {/* Thay thế */}
-        {/* <div>
-          {listRoute.map((route) => (
-            <CardRoute
-              key={route.route_id}
-              name={`${route.start_location} - ${route.end_location}`}
-              isOpen={openRoute === route}
-              onClick={() => handleRouteClick(route)}
-              locations={route.locations}
-              notifications={route.notifications}
-            />
-          ))}
-        </div> */}
-
         <div className="w-3/5 text-white">
-          {/* Chứa map chỗ này */}
-          {/* <Map /> */}
           <div
             id="mapContainer"
             style={{ width: "100%", height: "500px" }}
             className="rounded-lg border bg-white p-3 shadow-lg"
           ></div>
-
-          {/* {openRoute && (
-            <div className="flex gap-2">
-              <CardItem
-                name={`${openRoute.start_location} - ${openRoute.end_location}`}
-                total_hour={openRoute.estimated_time}
-                distance={openRoute.distance}
-                status={getRouteStatus(openRoute)}
-              />
-              <DriverSuggestion
-                license_plate={openRoute.license_plate}
-                first_name={openRoute.first_name}
-                last_name={openRoute.last_name}
-                phone_number={openRoute.phone_number}
-                capacity={openRoute.capacity}
-              />
-            </div>
-          )} */}
         </div>
       </div>
     </div>

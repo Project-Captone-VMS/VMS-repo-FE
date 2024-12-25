@@ -16,6 +16,7 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import { over } from "stompjs";
 import SockJS from "sockjs-client";
+import { button } from "@material-tailwind/react";
 
 const RouteDetailUser = () => {
   const [position, setPosition] = useState({ lat: 10.8231, lng: 106.6297 });
@@ -41,8 +42,49 @@ const RouteDetailUser = () => {
   const [path, setPath] = useState([]);
   const [startPoint, setStartPoint] = useState({ lat: "", lng: "" });
   const [endPoint, setEndPoint] = useState({ lat: "", lng: "" });
+  const apiKey = import.meta.env.VITE_HERE_MAP_API_KEY;
+
   let socket = null;
   let stompClient = null;
+
+  const convertGeocode = async (lat, lng) => {
+    try {
+      const response = await axios.get(
+        "https://revgeocode.search.hereapi.com/v1/revgeocode",
+        {
+          params: {
+            at: `${lat},${lng}`,
+            lang: "en-US",
+            apiKey: apiKey,
+          },
+        },
+      );
+
+      if (
+        response.data &&
+        response.data.items &&
+        response.data.items.length > 0
+      ) {
+        const addr = response.data.items[0].address;
+
+        return {
+          street: addr.street || "",
+          houseNumber: addr.houseNumber || "",
+          district: addr.district || "",
+          city: addr.city || "",
+          state: addr.state || "",
+          country: addr.countryName || "",
+          postalCode: addr.postalCode || "",
+          label: response.data.items[0].title || "",
+        };
+      } else {
+        return null;
+      }
+    } catch (error) {
+      console.log("Reverse geocoding error:", error);
+      return null;
+    }
+  };
 
   const handleChange = (e, interconnectionId) => {
     const { name, value } = e.target;
@@ -102,7 +144,9 @@ const RouteDetailUser = () => {
       console.error("Lỗi khi cập nhật thời gian:", error);
     }
   };
-
+  function convertM(distance) {
+    return `${(distance / 1000).toFixed(1)} km`;
+  }
   useEffect(() => {
     if (window.H && !mapRef.current) {
       const platform = new window.H.service.Platform({
@@ -133,8 +177,24 @@ const RouteDetailUser = () => {
   const handleViewDetails = async (id) => {
     try {
       const res = await getWayPoint(id);
-      setWayPoints(res);
+      if (res && Array.isArray(res) && res.length > 0) {
+        const validWaypoints = res.filter(
+          (waypoint) => !isNaN(waypoint.lat) && !isNaN(waypoint.lng),
+        );
 
+        const waypointAddresses = [];
+        for (const waypoint of validWaypoints) {
+          const { lat, lng } = waypoint;
+          const address = await convertGeocode(lat, lng);
+          waypointAddresses.push({ ...waypoint, address });
+        }
+
+        setWayPoints(waypointAddresses);
+        setError("");
+      } else {
+        setError("No waypoints found for the given ID.");
+        setWayPoints([]);
+      }
       const response = await getInterConnections(id);
       setInterconnect(response);
       setIsDetailModalVisible(true);
@@ -153,29 +213,31 @@ const RouteDetailUser = () => {
       setLoading(true);
       clearMap();
 
-      res.forEach((wayPoint, index) => {
+      for (const [index, wayPoint] of res.entries()) {
         const marker = new window.H.map.Marker({
           lat: wayPoint.lat,
           lng: wayPoint.lng,
         });
-
-        let label = `Waypoint ${index}: (${wayPoint.lat.toFixed(
-          4,
-        )}, ${wayPoint.lng.toFixed(4)})`;
-        if (index === 0) {
-          label = `Start: (${wayPoint.lat.toFixed(4)}, ${wayPoint.lng.toFixed(
-            4,
-          )})`;
-        } else if (index === res.length - 1) {
-          label = `End: (${wayPoint.lat.toFixed(4)}, ${wayPoint.lng.toFixed(
-            4,
-          )})`;
+    
+        const address = await convertGeocode(wayPoint.lat, wayPoint.lng);
+        let label;
+    
+        if (address) {
+          label = `Waypoint ${index}: ${address.label}`;
+        } else {
+          label = `Waypoint ${index}: (${wayPoint.lat.toFixed(4)}, ${wayPoint.lng.toFixed(4)})`;
         }
-
+    
+        if (index === 0) {
+          label = `Start: ${address ? address.label : `(${wayPoint.lat.toFixed(4)}, ${wayPoint.lng.toFixed(4)})`}`;
+        } else if (index === res.length - 1) {
+          label = `End: ${address ? address.label : `(${wayPoint.lat.toFixed(4)}, ${wayPoint.lng.toFixed(4)})`}`;
+        }
+    
         marker.setData(label);
         mapRef.current.addObject(marker);
         markers.current.push(marker);
-
+    
         marker.addEventListener("tap", function (e) {
           const content = marker.getData();
           Swal.fire({
@@ -186,7 +248,7 @@ const RouteDetailUser = () => {
             timerProgressBar: true,
           });
         });
-      });
+      }
 
       const response = await axios.get(
         "http://localhost:8080/api/route/findRoute",
@@ -210,7 +272,7 @@ const RouteDetailUser = () => {
         setError("No routes found.");
       }
     } catch (error) {
-      console.log("Error fetching route:", error);
+      console.error("Error fetching route:", error);
     } finally {
       setLoading(false);
     }
@@ -265,8 +327,28 @@ const RouteDetailUser = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const listRouteTracking = await getRouteByUserName(usernameLocal);
-        setRoutes(listRouteTracking);
+        const listRoute = await getRouteByUserName(usernameLocal);
+        setRoutes(listRoute);
+
+        if (listRoute && Array.isArray(listRoute) && listRoute.length > 0) {
+          const validRoutes = listRoute.filter(
+            (route) =>
+              !isNaN(route.startLat) &&
+              !isNaN(route.startLng) &&
+              !isNaN(route.endLat) &&
+              !isNaN(route.endLng),
+          );
+
+          const routeAddressPromises = validRoutes.map(async (route) => {
+            const { startLat, startLng, endLat, endLng } = route;
+            const startAddress = await convertGeocode(startLat, startLng);
+            const endAddress = await convertGeocode(endLat, endLng);
+            return { ...route, startAddress, endAddress };
+          });
+
+          const routeAddresses = await Promise.all(routeAddressPromises);
+          setRoutes(routeAddresses);
+        }
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -427,8 +509,52 @@ const RouteDetailUser = () => {
           const distance = section.summary.length; //Quảng đường ước tính đơn vị m
           const travelTime = ((distance / 100) * 100).toFixed(0); //Dựa vào quảng đường ước tính đi để tính ra thời gian fake 0,1s sẽ là 100m
           const s = (distance / 1000).toFixed(2); //Quảng đường ước tính đơn vị km
-          const v = 45; //Vân tốc dự tính một xe đi trung bình là 45km/h
-          const t = Math.ceil((s / v) * 3600);
+          // const v = 50; //Vân tốc dự tính một xe đi trung bình là 50km/h
+
+          let velocity;
+          while (!velocity) {
+            const result = await Swal.fire({
+              title: `Enter the speed for the leg ${i + 1}`,
+              input: "number",
+              inputLabel: "Velocity ​​(km/h)",
+              inputPlaceholder: "Enter velocity",
+              inputAttributes: {
+                min: 1,
+                step: 1,
+              },
+              showCancelButton: true,
+              validationMessage: "The value must be greater than or equal to 1."
+            });
+
+            if (result.isDismissed) {
+              console.log(
+                "User cancels speed entry. Default velocity set to 45 km/h.",
+              );
+              velocity = 50; // Giá trị mặc định
+              break;
+            }
+
+            velocity = parseFloat(result.value);
+
+            if (velocity < 0) {
+              await Swal.fire({
+                icon: "error",
+                title: "Invalid velocity",
+                text: "Velocity cannot be negative. Please enter a valid velocity.",
+              });
+              velocity = null; // Yêu cầu nhập lại
+            } else if (velocity > 90) {
+              await Swal.fire({
+                icon: "error",
+                title: "Velocity must not exceed 90 km/h",
+                text: "Please enter a valid velocity.",
+              });
+              velocity = null; // Yêu cầu nhập lại
+            }
+          }
+
+          console.log("V", velocity);
+          const t = Math.ceil((s / velocity) * 3600);
 
           const resInterConnections = await getInterConnections(id);
           const interData = resInterConnections;
@@ -484,7 +610,7 @@ const RouteDetailUser = () => {
           setElapsedTime(0);
           if (i === 0) {
             Swal.fire({
-              title: "Bắt đầu chặng 1",
+              title: "The leg 1",
               timer: 5000,
               showConfirmButton: false,
               showCloseButton: true,
@@ -492,7 +618,7 @@ const RouteDetailUser = () => {
             });
           } else {
             Swal.fire({
-              title: "Bắt đầu chặng " + (i + 1),
+              title: "Start the leg " + (i + 1),
               timer: 5000,
               showConfirmButton: false,
               showCloseButton: true,
@@ -515,6 +641,7 @@ const RouteDetailUser = () => {
             timerProgressBar: true,
           });
           await updateRoute(id);
+          window.location.reload();
         }
       };
 
@@ -570,55 +697,55 @@ const RouteDetailUser = () => {
           <div className="flex justify-between rounded-t-lg border-b-2 bg-gray-100 px-4 py-2">
             <p>List Route </p>
           </div>
-          <div className="px-2">
+          <div className="w-full">
             {routes.map((route) => (
-              <RouteItem
-                key={route.routeId}
-                routeId={route.routeId}
-                loading={loading}
-                totalTime={route.totalTime}
-                totalDistance={route.totalDistance}
-                startLng={route.startLng}
-                startLat={route.startLat}
-                endLat={route.endLat}
-                endLng={route.endLng}
-                licensePlate={route.vehicle.licensePlate}
-                interconnect={interconnect}
-                status={route.status}
-              />
+              <button
+                type="link"
+                onClick={() => handleViewDetailsInMap(route.routeId)}
+                className="px-2"
+              >
+                <RouteItem
+                  key={route.routeId}
+                  routeId={route.routeId}
+                  loading={loading}
+                  totalTime={route.totalTime}
+                  totalDistance={route.totalDistance}
+                  start={route.startAddress?.label}
+                  end={route.endAddress?.label}
+                  licensePlate={route.vehicle.licensePlate}
+                  interconnect={interconnect}
+                  status={route.status}
+                />
+              </button>
             ))}
           </div>
         </div>
 
         <div className="w-3/4 rounded-lg border-2 bg-white">
-          <div className="mb-2 p-2">
+          <div className="mb-2">
             <table className="w-full rounded-lg text-left text-sm font-normal text-black dark:text-black rtl:text-right">
               <thead className="bg-gray-50 text-xs uppercase text-black dark:bg-gray-700 dark:text-gray-400">
                 <tr>
-                  <th>Input Speed </th>
-                  <th>Action</th>
+                  <th className="mb-2 flex justify-between rounded-t-lg border-b-2 bg-gray-100 px-4 py-3">
+                    Action
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {routes.map((route) => (
-                  <tr
-                    key={route.routeId}
-                    className="border-2 bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-white dark:hover:bg-gray-200"
-                  >
-                    <td className="w-1/2 border-2 px-1 py-1">
-                      <input type="number" name="hours" className="border" />{" "}
-                      KM/h
-                    </td>
-                    <td className="w-1/2 py-4">
+                  <tr key={route.routeId} className="border-2 bg-white">
+                    <td>
                       <Button
                         type="link"
                         onClick={() => handleViewDetailsInMap(route.routeId)}
+                        className="w-1/2 border border-gray-700 py-4"
                       >
                         View
                       </Button>
                       <Button
                         type="link"
                         onClick={() => startMovement(route.routeId)}
+                        className="w-1/2 border border-gray-700 py-4"
                         disabled={isMoving || loading}
                       >
                         Let's go
@@ -637,148 +764,6 @@ const RouteDetailUser = () => {
               className="rounded-lg shadow-lg"
             ></div>
           </div>
-
-          <Modal
-            title="Route Details"
-            open={isDetailModalVisible}
-            onCancel={() => setIsDetailModalVisible(false)}
-            footer={[
-              <Button
-                key="close"
-                onClick={() => setIsDetailModalVisible(false)}
-              >
-                Close
-              </Button>,
-            ]}
-            width={950}
-          >
-            <div className="space-y-6">
-              <div className="rounded-lg bg-gray-200 p-4">
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        {[
-                          "From",
-                          "To",
-                          "Distance (m)",
-                          "Time Waypoint",
-                          "Estimate Time",
-                          "Coordinates",
-                          "Your Estimate ",
-                        ].map((header) => (
-                          <th
-                            key={header}
-                            className="px-4 py-2 text-start text-xs font-medium text-gray-500"
-                          >
-                            {header}
-                          </th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200 bg-white">
-                      {wayPoints.map(
-                        (wayPoint, index) =>
-                          index < wayPoints.length - 1 && (
-                            <tr
-                              key={wayPoint.waypointId}
-                              className="hover:bg-gray-50"
-                            >
-                              <td className="px-4 py-2 text-sm text-gray-900">
-                                {interconnect[index]?.fromWaypoint || ""}
-                              </td>
-                              <td className="px-4 py-2 text-sm text-gray-900">
-                                {interconnect[index]?.toWaypoint || ""}
-                              </td>
-                              <td className="px-4 py-2 text-sm text-gray-900">
-                                {interconnect[index]?.distance || ""}
-                              </td>
-                              <td className="px-4 py-2 text-sm text-gray-900">
-                                {interconnect[index]
-                                  ? formatTime(interconnect[index].timeWaypoint)
-                                  : ""}
-                              </td>
-                              <td className="px-4 py-2 text-sm text-gray-900">
-                                {interconnect[index]
-                                  ? formatTime(interconnect[index].timeEstimate)
-                                  : ""}
-                              </td>
-                              <td className="px-4 py-2 text-sm text-gray-900">
-                                <div>
-                                  {" "}
-                                  From {wayPoint.lat.toFixed(4)},{" "}
-                                  {wayPoint.lng.toFixed(4)}{" "}
-                                </div>
-                                <div>
-                                  To {wayPoints[index + 1].lat.toFixed(4)},{" "}
-                                  {wayPoints[index + 1].lng.toFixed(4)}
-                                </div>
-                              </td>
-                              <td className="flex items-center gap-2 px-4 py-2 text-[9px] text-gray-900">
-                                <input
-                                  type="number"
-                                  name="hours"
-                                  value={
-                                    timeByInterconnection[
-                                      interconnect[index]?.interconnectionId
-                                    ]?.hours || ""
-                                  }
-                                  onChange={(e) =>
-                                    handleChange(
-                                      e,
-                                      interconnect[index]?.interconnectionId,
-                                    )
-                                  }
-                                  placeholder="HH"
-                                  className="w-12 rounded border border-gray-300 px-2 py-2 text-center"
-                                  min="0"
-                                  max="23"
-                                />
-                                <span>:</span>
-                                <input
-                                  type="number"
-                                  name="minutes"
-                                  value={
-                                    timeByInterconnection[
-                                      interconnect[index]?.interconnectionId
-                                    ]?.minutes || ""
-                                  }
-                                  onChange={(e) =>
-                                    handleChange(
-                                      e,
-                                      interconnect[index]?.interconnectionId,
-                                    )
-                                  }
-                                  placeholder="MM"
-                                  className="w-12 rounded border border-gray-300 px-2 py-2 text-center"
-                                  min="0"
-                                  max="59"
-                                />
-                                <button
-                                  onClick={() =>
-                                    handleUpdate(
-                                      interconnect[index]?.interconnectionId,
-                                    )
-                                  }
-                                  className={`rounded px-2 py-2 text-white ${
-                                    loading
-                                      ? "cursor-not-allowed bg-gray-500"
-                                      : "bg-blue-500 hover:bg-blue-600"
-                                  }`}
-                                  disabled={loading}
-                                >
-                                  {loading ? "Đang cập nhật..." : "Update"}
-                                </button>
-                              </td>
-                            </tr>
-                          ),
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          </Modal>
         </div>
       </div>
     </div>

@@ -38,7 +38,7 @@ const Sidebar = ({ isOpen, setIsOpen, role }) => {
     { path: "/indexNotification", icon: BellDot, label: "Notification" },
     { path: "/route", icon: Route, label: "Route" },
     { path: "/chat", icon: MessageSquare, label: "Chat" },
-    { path: "/reports", icon: FileText, label: "Reports" },
+    { path: "/shipment", icon: FileText, label: "Shipment" },
     { path: "/RealtimeTrackingUser", icon: Map, label: "Realtime Tracking" },
     { path: "/showTrackingUser", icon: ChartSpline, label: "Show Tracking" },
   ];
@@ -62,7 +62,6 @@ const Sidebar = ({ isOpen, setIsOpen, role }) => {
       ? sb_menuItems.filter(
           (item) =>
             item.path === "/UserReceiver" ||
-            item.path === "/RealtimeTrackingUser" ||
             item.path === "/showTrackingUser" ||
             item.path === "/routeDetail",
         )
@@ -76,7 +75,7 @@ const Sidebar = ({ isOpen, setIsOpen, role }) => {
               item.path === "/indexNotification" ||
               item.path === "/route" ||
               item.path === "/chat" ||
-              item.path === "/reports",
+              item.path === "/shipment",
           )
         : sb_menuItems;
 

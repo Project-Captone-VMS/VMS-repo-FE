@@ -12,6 +12,7 @@ import {
   LogOut,
   Settings,
   Menu,
+  BellRing,
 } from "lucide-react";
 import User from "../../assets/images/user.png";
 import SockJS from "sockjs-client";
@@ -25,6 +26,8 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
   const [notificationCount, setNotificationCount] = useState(0);
   const [selectedNotification, setSelectedNotification] = useState(null);
   const [hasNewNotification, setHasNewNotification] = useState(false);
+
+  const [ChangePassword, setChangePassword] = [];
 
   const username = localStorage.getItem("username");
   const userRole = localStorage.getItem("userRole");
@@ -89,8 +92,12 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
                 notification.title || "You have a new notification"
               }`,
             );
+          } else if (notification.type === "USER") {
+            toast.success("You have a new message!", {
+              duration: 10000,
+            });
           } else if (notification.type === "ALERT") {
-            toast(
+            toast.success(
               `Warning: ${notification.title || "You have a new message!"}`,
               {
                 icon: "⚠️",
@@ -119,6 +126,23 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
       }
     };
   }, [username]);
+
+  const DeleteItemNotice = (notificationId) => {
+    const updatedNotifications = notifications.filter(
+      (notice) => notice.id !== notificationId,
+    );
+
+    setNotifications(updatedNotifications);
+    localStorage.setItem("notifications", JSON.stringify(updatedNotifications));
+    setSelectedNotification(null);
+  };
+
+  const deleteAllNotifications = () => {
+    setNotifications([]); // Xóa toàn bộ thông báo
+    setNotificationCount(0); // Đặt số lượng thông báo về 0
+    localStorage.removeItem("notifications"); // Xóa khỏi localStorage
+    toast.success("All notifications have been deleted!"); // Thông báo thành công
+  };
 
   const toggleNotifications = () => {
     setShowNotifications(!showNotifications);
@@ -149,14 +173,14 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
   };
 
   return (
-    <header className="sticky top-0 z-50 flex w-full bg-white px-2 border-2 rounded-md">
+    <header className="sticky top-0 z-50 flex w-full rounded-md border-2 bg-white px-2">
       <div className="flex flex-grow items-center justify-between py-2">
         <div className="flex items-center">
           <div className="hidden sm:block">
             <h1 className="text-xl font-bold">
               Hello, <span className="text-text-Default">{fullName}!</span>
             </h1>
-            <p className="text-text-Comment text-sm">
+            <p className="text-sm text-text-Comment">
               Track, manage, and forecast your customers and orders.
             </p>
           </div>
@@ -182,21 +206,29 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
             </div>
 
             {showNotifications && (
-              <div className="absolute right-0 z-50 mt-2 max-h-96 w-80 overflow-y-auto rounded-lg bg-white shadow-lg">
-                <div className="border-b border-gray-100 bg-white px-2 py-2">
+              <div className="absolute right-0 z-50 mt-2 max-h-96 w-80 overflow-y-auto rounded-lg border-2 border-slate-300 bg-white shadow-lg">
+                <div className="sticky top-0 flex justify-between border-b bg-white px-2 py-2">
                   <h2 className="text-xl font-bold text-gray-900">
                     Notifications
                   </h2>
+                  {userRole === "USER" && (
+                    <button
+                      onClick={deleteAllNotifications}
+                      className="hover:none rounded-md border-2 border-slate-100 px-2 text-sm hover:bg-slate-100"
+                    >
+                      Clear all
+                    </button>
+                  )}
                 </div>
                 {notifications.length > 0 ? (
                   <ul className="mt-2 flex flex-col gap-1 px-3 py-1">
-                    {notifications.slice(-5).map((notice) => (
+                    {notifications.map((notice) => (
                       <li
                         key={notice.id}
                         className="mb-2 cursor-pointer rounded-lg border-0 bg-slate-100 px-2 py-1 shadow-md hover:bg-gray-200"
                         onClick={() => handleNotificationClick(notice)}
                       >
-                        <p className="text-sm font-medium text-gray-700">
+                        <p className="flex gap-2 text-sm font-medium text-gray-700">
                           <strong>
                             {notice.notification?.title || "No Title"}
                           </strong>
@@ -245,7 +277,7 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
                 </button>
                 <button className="flex w-full items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                   <Settings className="h-4 w-4" />
-                  Settings
+                  <Link to="/changePassWord">Change Password</Link>
                 </button>
                 <div className="border-t border-gray-100"></div>
                 <button
@@ -270,12 +302,18 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
             <p className="mt-2 text-sm text-gray-700">
               {selectedNotification.notification.content}
             </p>
-            <div className="mt-4 flex justify-end">
+            <div className="mt-4 flex justify-end gap-2">
               <button
                 onClick={handleClosePopUp}
-                className="rounded-lg bg-red-500 px-4 py-2 text-white"
+                className="rounded-lg bg-blue-500 px-3 py-1 text-white"
               >
                 Close
+              </button>
+              <button
+                onClick={() => DeleteItemNotice(selectedNotification.id)}
+                className="rounded-lg bg-red-500 px-3 py-1 text-white"
+              >
+                Delete
               </button>
             </div>
           </div>

@@ -66,7 +66,7 @@ export const ProductTable = ({ products, onEdit, onDelete }) => {
             <TableHead>Product Name</TableHead>
             <TableHead>Price</TableHead>
             <TableHead>Quantity</TableHead>
-            <TableHead>Warehouse</TableHead>
+            <TableHead>Warehouse Name</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -90,7 +90,7 @@ export const ProductTable = ({ products, onEdit, onDelete }) => {
                 {typeof product.quantity === 'number' ? product.quantity : parseInt(product.quantity) || 0}
               </TableCell>
               <TableCell>
-                {product.warehouse?.warehouseId || 'N/A'}
+                {product.warehouse?.warehouseName || 'N/A'}
               </TableCell>
               <TableCell>
                 <div className="flex space-x-2">

@@ -49,6 +49,7 @@ const DialogTitle = React.forwardRef(({ className, ...props }, ref) => (
   />
 ));
 DialogTitle.displayName = "DialogTitle";
+
 const DialogFooter = React.forwardRef(({ className, children, ...props }, ref) => (
   <div
     ref={ref}
@@ -60,4 +61,16 @@ const DialogFooter = React.forwardRef(({ className, children, ...props }, ref) =
 ));
 DialogFooter.displayName = "DialogFooter";
 
-export { Dialog, DialogContent, DialogHeader, DialogTitle,DialogFooter  };
+const DialogTrigger = React.forwardRef(({ children, className, ...props }, ref) => (
+  <button
+    ref={ref}
+    className={cn("text-primary hover:underline", className)}
+    {...props}
+  >
+    {children}
+  </button>
+));
+DialogTrigger.displayName = "DialogTrigger";
+
+
+export { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger };

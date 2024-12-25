@@ -9,29 +9,23 @@ import {
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
 import { Alert, AlertDescription } from "../components/ui/alert";
-import { getUserUsername } from "@/services/apiRequest";
-
+import { getUserUsername, updateUserInfo } from "@/services/apiRequest";
+import toast from "react-hot-toast";
 
 const ProfileInformation = () => {
   const [userInfo, setUserInfo] = useState({
     firstName: "",
     lastName: "",
     email: "",
-    phone: "",
-    address: "",
-    driverLicense: "",
-    vehicleInfo: "",
-    experience: "",
-    birthDate: "",
-    emergencyContact: "",
+    phoneNumber: "",
+    licenseNumber: "",
+    workSchedule: "",
     avatar: null,
   });
 
-
   const [isEditing, setIsEditing] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-  const [dataUser,setDataUser] = useState([])
+  const [dataUser, setDataUser] = useState({});
 
   const userRole = localStorage.getItem("userRole");
   const username = localStorage.getItem("username");
@@ -48,14 +42,16 @@ const ProfileInformation = () => {
     setImage(event.target.files[0]);
   };
 
-  // Giả lập fetch data từ API
   useEffect(() => {
     const fetchUserData = async (username) => {
-      console.log(username)
       const results = await getUserUsername(username);
-      console.log("results", results)
       setDataUser(results);
-    }
+
+      setUserInfo({
+        ...results,
+        avatar: results.avatar || null,
+      });
+    };
     fetchUserData(username);
   }, [username]);
 
@@ -70,16 +66,12 @@ const ProfileInformation = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validation cho driver
     if (userRole === "driver") {
       const requiredFields = [
-        "phone",
-        "address",
-        "driverLicense",
-        "vehicleInfo",
-        "experience",
-        "birthDate",
-        "emergencyContact",
+        "phoneNumber",
+        "licenseNumber",
+        "workSchedule",
+        "email",
       ];
       const emptyFields = requiredFields.filter((field) => !userInfo[field]);
 
@@ -90,9 +82,8 @@ const ProfileInformation = () => {
     }
 
     try {
-      // Thay thế bằng API call thực tế
-      // await updateUserProfile(userInfo);
-      setSuccess("Profile updated successfully");
+      await updateUserInfo(dataUser.driverId, userInfo);
+      toast.success("Profile updated successfully");
       setIsEditing(false);
     } catch (error) {
       setError("Failed to update profile");
@@ -100,7 +91,7 @@ const ProfileInformation = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
+    <div className="container mx-auto max-w-4xl px-4 py-8">
       <Card>
         <CardHeader>
           <CardTitle className="text-2xl font-bold">
@@ -109,24 +100,23 @@ const ProfileInformation = () => {
         </CardHeader>
         <CardContent>
           {/* Avatar Section */}
-          <div className="flex justify-center mb-8">
+          <div className="mb-8 flex justify-center">
             <div className="relative">
               <div onClick={handleImageClick}>
                 {image ? (
-                  <div className="w-32 h-32 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
-                    {" "}
+                  <div className="flex h-32 w-32 items-center justify-center overflow-hidden rounded-full bg-gray-200">
                     <img src={URL.createObjectURL(image)} alt="" />
                   </div>
                 ) : (
-                  <div className="w-32 h-32 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+                  <div className="flex h-32 w-32 items-center justify-center overflow-hidden rounded-full bg-gray-200">
                     {userInfo.avatar ? (
                       <img
                         src={userInfo.avatar}
                         alt="Profile"
-                        className="w-full h-full object-cover"
+                        className="h-full w-full object-cover"
                       />
                     ) : (
-                      <Camera className="w-12 h-12 text-gray-400" />
+                      <Camera className="h-12 w-12 text-gray-400" />
                     )}
                   </div>
                 )}
@@ -144,7 +134,7 @@ const ProfileInformation = () => {
                   size="sm"
                   className="absolute bottom-0 right-0 rounded-full"
                 >
-                  <Camera className="w-4 h-4 mr-2" />
+                  <Camera className="mr-2 h-4 w-4" />
                   Change
                 </Button>
               )}
@@ -153,14 +143,14 @@ const ProfileInformation = () => {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Basic Information */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <div>
                 <label className="block text-sm font-medium text-gray-700">
                   First Name
                 </label>
                 <Input
                   name="firstName"
-                  value={dataUser.firstName}
+                  value={userInfo.firstName}
                   disabled={true}
                   className="mt-1"
                 />
@@ -171,7 +161,7 @@ const ProfileInformation = () => {
                 </label>
                 <Input
                   name="lastName"
-                  value={dataUser.lastName}
+                  value={userInfo.lastName}
                   disabled={true}
                   className="mt-1"
                 />
@@ -183,7 +173,7 @@ const ProfileInformation = () => {
                 <Input
                   type="email"
                   name="email"
-                  value={dataUser.email}
+                  value={userInfo.email}
                   onChange={handleInputChange}
                   disabled={!isEditing}
                   className="mt-1"
@@ -195,8 +185,8 @@ const ProfileInformation = () => {
                 </label>
                 <Input
                   type="tel"
-                  name="phone"
-                  value={dataUser.phoneNumber}
+                  name="phoneNumber"
+                  value={userInfo.phoneNumber}
                   onChange={handleInputChange}
                   disabled={!isEditing}
                   className="mt-1"
@@ -204,43 +194,35 @@ const ProfileInformation = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700">
-                License Number *
+                  License Number *
                 </label>
                 <Input
                   type="text"
-                  name="license_number"
-                  value={dataUser.licenseNumber}
+                  name="licenseNumber"
+                  value={userInfo.licenseNumber}
                   onChange={handleInputChange}
                   disabled={!isEditing}
                   className="mt-1"
                 />
               </div>
-              <div>
+              {/* <div>
                 <label className="block text-sm font-medium text-gray-700">
-                Work schedule*
+                  Work schedule*
                 </label>
                 <Input
                   type="date"
                   name="workSchedule"
-                  value={dataUser.workSchedule}
+                  value={userInfo.workSchedule}
                   onChange={handleInputChange}
                   disabled={!isEditing}
                   className="mt-1"
                 />
-              </div>
+              </div> */}
             </div>
 
-
-
-            {/* Error and Success Messages */}
             {error && (
               <Alert variant="destructive">
                 <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
-            {success && (
-              <Alert>
-                <AlertDescription>{success}</AlertDescription>
               </Alert>
             )}
 

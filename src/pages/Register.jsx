@@ -250,25 +250,30 @@ const Register = () => {
                 )}
             </div>
 
-            <div className="mt-2">
-              <label className="block text-sm font-normal text-gray-500">
-                Confirm Password
-              </label>
-              <input
-                type="password"
-                name="confirmPassword"
-                value={secondFormFormik.values.confirmPassword}
-                onChange={secondFormFormik.handleChange}
-                className="text-black rounded-lg border-2 block w-full p-2"
-              />
-              {secondFormFormik.touched.confirmPassword &&
-                secondFormFormik.errors.confirmPassword && (
-                  <p className="text-red-500 text-sm">
-                    {secondFormFormik.errors.confirmPassword}
-                  </p>
-                )}
-            </div>
-
+            <div className="mt-2 relative">
+  <label className="block text-sm font-normal text-gray-500">
+    Confirm Password
+  </label>
+  <input
+    type={showPassword ? "text" : "password"}
+    name="confirmPassword"
+    value={secondFormFormik.values.confirmPassword}
+    onChange={secondFormFormik.handleChange}
+    className="text-black rounded-lg border-2 block w-full p-2"
+  />
+  <span
+    onClick={() => setShowPassword(!showPassword)}
+    className="absolute right-3 top-9 transform -translate-y-[50%] cursor-pointer"
+  >
+    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+  </span>
+  {secondFormFormik.touched.confirmPassword &&
+    secondFormFormik.errors.confirmPassword && (
+      <p className="text-red-500 text-sm">
+        {secondFormFormik.errors.confirmPassword}
+      </p>
+    )}
+</div>
             <button
               type="submit"
               className="w-full bg-[#0073ff] text-white p-2 rounded-lg mt-4"

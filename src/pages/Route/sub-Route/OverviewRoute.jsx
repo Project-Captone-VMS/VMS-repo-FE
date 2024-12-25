@@ -138,7 +138,6 @@ const Route = () => {
         waypointAddresses.push({ ...waypoint, address });
       }
 
-
       setWayPoints(waypointAddresses);
       setError("");
     } else {
@@ -194,7 +193,7 @@ const Route = () => {
       mapRef.current,
       defaultLayers.vector.normal.map,
       {
-        center: { lat: 16.0583, lng: 108.2210 },
+        center: { lat: 16.0583, lng: 108.221 },
         zoom: 14,
         pixelRatio: window.devicePixelRatio || 1,
       },
@@ -223,7 +222,7 @@ const Route = () => {
         const address = await convertGeocode(coord.lat, coord.lng);
 
         const addressText = address || "Địa chỉ không tìm thấy";
-        console.log(addressText)
+        // console.log(addressText)
         setTextareaValue((prev) => prev + addressText.label + "\n");
         setSelectedCoordinates((prev) => [
           ...prev,
@@ -438,7 +437,7 @@ const Route = () => {
       } else {
         socket = new SockJS("http://localhost:8080/ws");
         stompClient = over(socket);
-        
+
         stompClient.connect({}, () => {
           stompClient.send(
             `/app/chat/${findUserNameByDriverId}`,
@@ -447,9 +446,9 @@ const Route = () => {
             toast.success("Successfully created!"),
           );
           console.log("Notification Sent:", formDataSendNotification);
+          window.location.reload();
         });
       }
-      // window.location.reload();
     } catch (error) {
       if (error.response && error.response.data) {
         setError(`Error: ${error.response.data.message}`);
@@ -644,18 +643,9 @@ const Route = () => {
                 className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-white dark:hover:bg-gray-200"
               >
                 <td className="px-6 py-4">
-                  {/* {route.startAddress.houseNumber} {route.startAddress.street},
-                  {route.startAddress.district}, {route.startAddress.city},{" "}
-                  {route.startAddress.state}
-                  {route.startAddress.country.toUpperCase()} */}
                   {route.startAddress.label}
                 </td>
                 <td className="px-6 py-4">
-                  {/* {route.endAddress.houseNumber} {route.endAddress.street}, 
-                  {route.endAddress.district}, {route.endAddress.city},{" "}
-                  {route.endAddress.state}
-                  {route.endAddress.country.toUpperCase()} */}
-                  {route.endAddress.label}
                 </td>
                 <td className="px-6 py-4">{formatTime(route.totalTime)}</td>
                 <td className="px-6 py-4">{convertM(route.totalDistance)}</td>
@@ -708,7 +698,6 @@ const Route = () => {
                       Total Time
                     </h4>
                     <p className="text-lg">
-                      {/* {selectedRouteDetails.totalTime.toLocaleString()} seconds */}
                     </p>
                   </div>
                 </div>
@@ -718,25 +707,6 @@ const Route = () => {
                 <h3 className="mb-4 text-lg font-semibold">
                   Assignment Details
                 </h3>
-                {/* <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <h4 className="font-medium text-sm text-gray-500">
-                      Driver
-                    </h4>
-                    <p className="text-lg">
-                      {selectedRouteDetails.driver?.firstName}{" "}
-                      {selectedRouteDetails.driver?.lastName}
-                    </p>
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-sm text-gray-500">
-                      Vehicle
-                    </h4>
-                    <p className="text-lg">
-                      {selectedRouteDetails.vehicle?.licensePlate}
-                    </p>
-                  </div>
-                </div> */}
               </div>
             </div>
           )}

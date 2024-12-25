@@ -27,7 +27,7 @@ const AdminSender = () => {
     username: "",
     title: "",
     content: "",
-    type: "ALERT",
+    type: "Alert",
   });
 
   const showModal = () => {
@@ -54,6 +54,7 @@ const AdminSender = () => {
           JSON.stringify(formData),
         );
 
+        
         resetFormData();
         setIsModalVisible(false);
       });
@@ -75,18 +76,11 @@ const AdminSender = () => {
     fetchNotices();
   }, []);
 
-  const handleInputChange = async (key, value) => {
+  const handleInputChange = (key, value) => {
     setFormData((prevFormData) => ({
       ...prevFormData,
       [key]: value,
     }));
-
-    try {
-      await Yup.reach(formSchema, key).validate(value);
-      setErrors((prevErrors) => ({ ...prevErrors, [key]: undefined }));
-    } catch (err) {
-      setErrors((prevErrors) => ({ ...prevErrors, [key]: err.message }));
-    }
   };
 
   const resetFormData = () => {
@@ -101,7 +95,12 @@ const AdminSender = () => {
 
   const showDetailModal = (record) => {
     Modal.info({
-      title: `Details of Notification to ${record.user.username}`,
+      title: (
+        <span>
+          Details of Notification to
+          <span style={{ color: "blue" }}> {record.user.username} </span>{" "}
+        </span>
+      ),
       content: (
         <div>
           <p>
@@ -121,7 +120,7 @@ const AdminSender = () => {
   const confirmDeleteNotification = (record) => {
     Modal.confirm({
       title: "Xác nhận xóa",
-      content: `Bạn chắc chắn xóa thông báo của ${record.user.username} này chứ?`,
+      content: `Bạn chắc chắn xóa thông báo của ${record.user.username}`,
       okText: "Xóa",
       cancelText: "Hủy",
       onOk: () => {
@@ -168,7 +167,9 @@ const AdminSender = () => {
           >
             <Select.Option value="ALL">All</Select.Option>
             <Select.Option value="ALERT">Alert</Select.Option>
-            <Select.Option value="Error">Error</Select.Option>
+            <Select.Option value="REMINDER">Reminder</Select.Option>
+            <Select.Option value="SYSTEM">System</Select.Option>
+            <Select.Option value="USER">User</Select.Option>
           </Select>
           <Button onClick={showModal} className="bg-black text-white">
             Send Notification
@@ -229,7 +230,15 @@ const AdminSender = () => {
 
           <Form.Item
             label="Type"
-            validateStatus={errors.type ? "error" : ""}
+            validateStatus={
+              errors.type
+                ? errors.type === "SYSTEM" ||
+                  errors.type === "USER" ||
+                  errors.type === "REMINDER"
+                  ? "error"
+                  : ""
+                : ""
+            }
             help={errors.type}
           >
             <Select
@@ -237,13 +246,15 @@ const AdminSender = () => {
               onChange={(value) => handleInputChange("type", value)}
             >
               <Select.Option value="ALERT">Alert</Select.Option>
-              <Select.Option value="Error">Error</Select.Option>
+              <Select.Option value="REMINDER">Reminder</Select.Option>
+              <Select.Option value="SYSTEM">System</Select.Option>
+              <Select.Option value="USER">User</Select.Option>
             </Select>
           </Form.Item>
         </Form>
       </Modal>
       <div className="rounded-lg border bg-white p-3">
-        <table className="w-full border-collapse  border border-gray-200">
+        <table className="w-full border-collapse border border-gray-200">
           <thead className="bg-black text-sm text-white">
             <tr>
               <th className="border border-gray-400 px-4 py-2">Username</th>
@@ -302,4 +313,3 @@ const AdminSender = () => {
 };
 
 export default AdminSender;
-

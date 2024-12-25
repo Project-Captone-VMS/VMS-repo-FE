@@ -1,4 +1,4 @@
-import {createBrowserRouter,RouterProvider,Navigate} from "react-router-dom";
+import {createBrowserRouter,RouterProvider,Navigate, Routes, Route} from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import DefaultLayout from "./layout/DefaultLayout";
@@ -17,7 +17,7 @@ import ProfileInformation from "./pages/Profileinformation";
 import IndexRoute from "./pages/Route/IndexRoute";
 import OverviewRoute from "./pages/Route/sub-Route/OverviewRoute";
 import ListRoute from "./pages/Route/sub-Route/ListRoute";
-import AllocationProduct from "./pages/WarehouseManagement.jsx/AllocationProduct";
+import AllocationProduct from "./pages/Shipment/NewAllocationProduct";
 import InvoicePage from "./pages/WarehouseManagement.jsx/InvoicePage";
 import IncidentTab from "./pages/VehicleManegement/sub-pages/IncidentTab";
 import ExpenseManagement from "./pages/ExpenseManagement";
@@ -26,8 +26,10 @@ import UserReceiver from "./pages/SendNotification/UserReceiver";
 import RouteDetailUser from "./pages/RouteDetailUser";
 import RealtimeTrackingUser from "./pages/RealtimeTrackingUser/RealtimeTrackingUser";
 import ShowTrackingUser from "./pages/RealtimeTrackingUser/ShowTrackingUser";
-
+import ShipmentManage from "./pages/Shipment/ShipmentManage";
 import { Toaster } from "react-hot-toast";
+import ChangePassWord from "./pages/ChangePassWord";
+
 
 function App() {
   const router = createBrowserRouter([
@@ -63,16 +65,16 @@ function App() {
               element: <Dashboard />,
             },
             {
-              path: "RealtimeTrackingUser",
-              element: <RealtimeTrackingUser />,
-            },
-            {
               path: "showTrackingUser",
               element: <ShowTrackingUser />,
             },
             {
               path: "profile",
               element: <ProfileInformation />,
+            },
+            {
+              path: "changePassWord",
+              element: <ChangePassWord />,
             },
             {
               path: "UserReceiver",
@@ -139,10 +141,6 @@ function App() {
               element: <WarehouseProduct />,
             },
             {
-              path: "warehouse/allocation",
-              element: <AllocationProduct />,
-            },
-            {
               path: "warehouse/:warehouseId/invoices",
               element: <InvoicePage />,
             },
@@ -154,6 +152,14 @@ function App() {
             {
               path: "indexNotification",
               element: <AdminSender />,
+            },
+            {
+              path: "shipment",
+              element: <ShipmentManage />,
+            },
+            {
+              path: "ship/newallocation",
+              element: <AllocationProduct />,
             },
             {
               path: "route",

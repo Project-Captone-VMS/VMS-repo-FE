@@ -169,8 +169,9 @@ export const totalDrivers = async () => {
   return response.data;
 };
 
+
 export const totalAvailables = async () => {
-  const response = await api.get(`driver/totalAvailable`);
+  const response = await api.get(`vehicle/totalAvailable`);
   return response.data;
 };
 
@@ -206,6 +207,21 @@ export const totalLesss = async () => {
 
 export const totalVehicles = async () => {
   const response = await api.get(`vehicle/totalVehicle`);
+  return response.data;
+};
+
+export const totalAccidents = async () => {
+  const response = await api.get(`vehicle/totalAccident`); 
+  return response.data;
+};
+
+export const totalDelays = async () => {
+  const response = await api.get(`vehicle/totalDelay`); 
+  return response.data;
+};
+
+export const totalMechanicals = async () => {
+  const response = await api.get(`vehicle/totalMechanical`); 
   return response.data;
 };
 
@@ -507,3 +523,48 @@ export const getUserUsername = async (username) => {
   const response = await api.get(`driver/getInfo/${username}`);
   return response.data;
 };
+export const createShipment = async (shipmentData) => {
+  const response = await api.post('shipment/save', shipmentData);
+  return response.data;
+};
+
+export const getAllShipments = async () => {
+  const response = await api.get("shipment/getAll");
+  return response.data;
+};
+
+export const deleteShipment = async (id) => {
+  const response = await api.delete(`shipment/delete/${id}`);
+  return response.data;
+};
+
+export const updateShipmentStatus = async (id, status) => {
+  const response = await api.put(`shipment/update/${id}`, { status });
+  return response.data;
+};
+
+export const saveItem = async (itemRequest) => {
+  const response = await api.post('item/save', itemRequest);
+  return response.data;
+};
+
+export const getAllItems = async (warehouseId) => {
+  const response = await api.get(`item/getAll/${warehouseId}`);
+  return response.data;
+};
+
+
+
+export const changePassword = async (username, passwords) => {
+  const response = await api.post(
+    `user/change-password/${username}`,
+    passwords,
+  );
+  return response.data;
+};
+
+export const updateUserInfo = async (id, updatedData) => {
+  const response = await api.put(`driver/updateInfo/${id}`, updatedData);
+  return response.data;
+};
+
