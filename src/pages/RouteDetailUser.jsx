@@ -47,44 +47,7 @@ const RouteDetailUser = () => {
   let socket = null;
   let stompClient = null;
 
-  const convertGeocode = async (lat, lng) => {
-    try {
-      const response = await axios.get(
-        "https://revgeocode.search.hereapi.com/v1/revgeocode",
-        {
-          params: {
-            at: `${lat},${lng}`,
-            lang: "en-US",
-            apiKey: apiKey,
-          },
-        },
-      );
 
-      if (
-        response.data &&
-        response.data.items &&
-        response.data.items.length > 0
-      ) {
-        const addr = response.data.items[0].address;
-
-        return {
-          street: addr.street || "",
-          houseNumber: addr.houseNumber || "",
-          district: addr.district || "",
-          city: addr.city || "",
-          state: addr.state || "",
-          country: addr.countryName || "",
-          postalCode: addr.postalCode || "",
-          label: response.data.items[0].title || "",
-        };
-      } else {
-        return null;
-      }
-    } catch (error) {
-      console.log("Reverse geocoding error:", error);
-      return null;
-    }
-  };
 
   const handleChange = (e, interconnectionId) => {
     const { name, value } = e.target;
@@ -177,24 +140,8 @@ const RouteDetailUser = () => {
   const handleViewDetails = async (id) => {
     try {
       const res = await getWayPoint(id);
-      if (res && Array.isArray(res) && res.length > 0) {
-        const validWaypoints = res.filter(
-          (waypoint) => !isNaN(waypoint.lat) && !isNaN(waypoint.lng),
-        );
+      setWayPoints(res);
 
-        const waypointAddresses = [];
-        for (const waypoint of validWaypoints) {
-          const { lat, lng } = waypoint;
-          const address = await convertGeocode(lat, lng);
-          waypointAddresses.push({ ...waypoint, address });
-        }
-
-        setWayPoints(waypointAddresses);
-        setError("");
-      } else {
-        setError("No waypoints found for the given ID.");
-        setWayPoints([]);
-      }
       const response = await getInterConnections(id);
       setInterconnect(response);
       setIsDetailModalVisible(true);
@@ -219,19 +166,17 @@ const RouteDetailUser = () => {
           lng: wayPoint.lng,
         });
     
-        const address = await convertGeocode(wayPoint.lat, wayPoint.lng);
-        let label;
-    
-        if (address) {
-          label = `Waypoint ${index}: ${address.label}`;
-        } else {
-          label = `Waypoint ${index}: (${wayPoint.lat.toFixed(4)}, ${wayPoint.lng.toFixed(4)})`;
-        }
-    
+        let label = `Waypoint ${index}: (${wayPoint.lat.toFixed(
+          4,
+        )}, ${wayPoint.lng.toFixed(4)})`;
         if (index === 0) {
-          label = `Start: ${address ? address.label : `(${wayPoint.lat.toFixed(4)}, ${wayPoint.lng.toFixed(4)})`}`;
+          label = `Start: (${wayPoint.lat.toFixed(4)}, ${wayPoint.lng.toFixed(
+            4,
+          )})`;
         } else if (index === res.length - 1) {
-          label = `End: ${address ? address.label : `(${wayPoint.lat.toFixed(4)}, ${wayPoint.lng.toFixed(4)})`}`;
+          label = `End: (${wayPoint.lat.toFixed(4)}, ${wayPoint.lng.toFixed(
+            4,
+          )})`;
         }
     
         marker.setData(label);
@@ -327,28 +272,8 @@ const RouteDetailUser = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const listRoute = await getRouteByUserName(usernameLocal);
-        setRoutes(listRoute);
-
-        if (listRoute && Array.isArray(listRoute) && listRoute.length > 0) {
-          const validRoutes = listRoute.filter(
-            (route) =>
-              !isNaN(route.startLat) &&
-              !isNaN(route.startLng) &&
-              !isNaN(route.endLat) &&
-              !isNaN(route.endLng),
-          );
-
-          const routeAddressPromises = validRoutes.map(async (route) => {
-            const { startLat, startLng, endLat, endLng } = route;
-            const startAddress = await convertGeocode(startLat, startLng);
-            const endAddress = await convertGeocode(endLat, endLng);
-            return { ...route, startAddress, endAddress };
-          });
-
-          const routeAddresses = await Promise.all(routeAddressPromises);
-          setRoutes(routeAddresses);
-        }
+        const listRouteTracking = await getRouteByUserName(usernameLocal);
+        setRoutes(listRouteTracking);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -698,27 +623,30 @@ const RouteDetailUser = () => {
             <p>List Route </p>
           </div>
           <div className="w-full">
+         
             {routes.map((route) => (
               <button
-                type="link"
-                onClick={() => handleViewDetailsInMap(route.routeId)}
-                className="px-2"
-              >
+              type="link"
+              onClick={() => handleViewDetailsInMap(route.routeId)}
+              className="px-2"
+            >
                 <RouteItem
                   key={route.routeId}
                   routeId={route.routeId}
                   loading={loading}
                   totalTime={route.totalTime}
                   totalDistance={route.totalDistance}
-                  start={route.startAddress?.label}
-                  end={route.endAddress?.label}
+                  start={route.startLocationName}
+                  end={route.endLocationName}
                   licensePlate={route.vehicle.licensePlate}
                   interconnect={interconnect}
                   status={route.status}
                 />
               </button>
             ))}
+          
           </div>
+          
         </div>
 
         <div className="w-3/4 rounded-lg border-2 bg-white">

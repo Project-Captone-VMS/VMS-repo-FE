@@ -109,7 +109,7 @@ const UpdateDriver = ({ isOpen, onClose, driver, onDriverUpdated }) => {
       Swal.fire({
         icon: "error",
         title: "Error!",
-        text: "There was an error updating the driver. Please try again.",
+        text: error.response.data.message,
       });
     }
   };

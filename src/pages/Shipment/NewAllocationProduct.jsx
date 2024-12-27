@@ -42,6 +42,11 @@ const AllocationProduct = () => {
     fetchRoutes(); 
   }, []);
 
+  function formatTime(seconds) {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    return `About ${hours}h ${minutes}m`;
+  }
 
   useEffect(() => {
     if (selectedWarehouse) {
@@ -67,27 +72,8 @@ const AllocationProduct = () => {
   const fetchRoutes = async () => {
     try {
       setLoading(true); 
-      const listRoute = await getAllRoute(); 
-
-      if (listRoute && Array.isArray(listRoute) && listRoute.length > 0) {
-        const validRoutes = listRoute.filter(
-          (route) =>
-            !isNaN(route.startLat) &&
-            !isNaN(route.startLng) &&
-            !isNaN(route.endLat) &&
-            !isNaN(route.endLng)
-        );
-
-        const routeAddressPromises = validRoutes.map(async (route) => {
-          const { startLat, startLng, endLat, endLng } = route;
-          const startAddress = await convertGeocode(startLat, startLng); 
-          const endAddress = await convertGeocode(endLat, endLng); 
-          return { ...route, startAddress, endAddress };  
-        });
-
-        const routeAddresses = await Promise.all(routeAddressPromises);
-        setRoutes(routeAddresses); 
-      }
+      const listRoute = await getAllRoute();
+      setRoutes(listRoute);
     } catch (error) {
       toast.error("Failed to fetch routes"); 
       console.error("Error fetching routes:", error); 
@@ -96,30 +82,6 @@ const AllocationProduct = () => {
     }
   };
 
-  const convertGeocode = async (lat, lng) => {
-    try {
-      const response = await axios.get(
-        "https://revgeocode.search.hereapi.com/v1/revgeocode",
-        {
-          params: {
-            at: `${lat},${lng}`, 
-            lang: "en-US",
-            apiKey: apiKey, 
-          },
-        }
-      );
-
-      if (response.data?.items?.[0]) {
-        return {
-          label: response.data.items[0].title || "", 
-        };
-      }
-      return null;
-    } catch (error) {
-      console.error("Reverse geocoding error:", error); 
-      return null;
-    }
-  };
 
   const fetchProducts = async (warehouseId) => {
     try {
@@ -351,8 +313,11 @@ const AllocationProduct = () => {
                                       Route {selectedRoute}
                                     </span>
                                   </div>
-                                  <div className="text-sm text-gray-600 truncate">
-                                    {routes.find(r => r.routeId.toString() === selectedRoute)?.startAddress?.label}
+                                  <div className="text-wrap text-gray-600 truncate">
+                                   🚗: {routes.find(r => r.routeId.toString() === selectedRoute)?.startLocationName}
+                                  </div>
+                                  <div className="text-wrap text-gray-600 truncate">
+                                  🎯: {routes.find(r => r.routeId.toString() === selectedRoute)?.endLocationName}
                                   </div>
                                 </div>
                               )}
@@ -394,20 +359,20 @@ const AllocationProduct = () => {
                                     <div className="flex items-start space-x-2">
                                       <MapPin className="h-4 w-4 text-green-500 flex-shrink-0 mt-1" />
                                       <span className="text-sm">
-                                        From: {route.startAddress?.label || 'Unknown'}
+                                        From: {route.startLocationName || 'Unknown'}
                                       </span>
                                     </div>
                                     <div className="flex items-start space-x-2">
                                       <MapPin className="h-4 w-4 text-red-500 flex-shrink-0 mt-1" />
                                       <span className="text-sm">
-                                        To: {route.endAddress?.label || 'Unknown'}
+                                        To: {route.endLocationName || 'Unknown'}
                                       </span>
                                     </div>
                                   </div>
 
                                   <div className="flex items-center text-sm text-gray-600 pt-2 border-t">
                                     <Clock className="h-4 w-4 mr-2 flex-shrink-0" />
-                                    <span>{route.totalTime} mins</span>
+                                    <span>{formatTime(route.totalTime)}</span>
                                   </div>
                                 </div>
                               </SelectItem>

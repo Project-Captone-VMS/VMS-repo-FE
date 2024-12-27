@@ -568,3 +568,14 @@ export const updateUserInfo = async (id, updatedData) => {
   return response.data;
 };
 
+export const checkEmail = async (email) => {
+  const response = await api.get(`user/checkEmail/${email}`);
+  return response.data;
+};
+
+export const checkPhoneNumber = async (phoneNumber) => {
+  const response = await api.get(`user/checkPhoneNumber/${phoneNumber}`);
+  return response.data;
+};
+
+

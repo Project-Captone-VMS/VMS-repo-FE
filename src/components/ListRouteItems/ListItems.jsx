@@ -32,40 +32,6 @@ const ListItems = ({
   const [wayPoints, setWaypoints] = useState([]);
   const [error, setError] = useState("");
 
-  const convertGeocode = async (lat, lng) => {
-    try {
-      const response = await axios.get(
-        "https://revgeocode.search.hereapi.com/v1/revgeocode",
-        {
-          params: {
-            at: `${lat},${lng}`,
-            lang: "en-US",
-            apiKey: apiKey,
-          },
-        },
-      );
-
-      if (response.data && response.data.items.length > 0) {
-        const addr = response.data.items[0].address;
-
-        return {
-          street: addr.street || "",
-          houseNumber: addr.houseNumber || "",
-          district: addr.district || "",
-          city: addr.city || "",
-          state: addr.state || "",
-          country: addr.countryName || "",
-          postalCode: addr.postalCode || "",
-          label: response.data.items[0].title || "",
-        };
-      } else {
-        return null;
-      }
-    } catch (error) {
-      console.error("Reverse geocoding error:", error);
-      return null;
-    }
-  };
 
   const handleChange = (e, interconnectionId) => {
     const { name, value } = e.target;
@@ -99,25 +65,7 @@ const ListItems = ({
         setInterconnect(response);
 
         const res = await getWayPoint(routeId);
-        if (res && Array.isArray(res) && res.length > 0) {
-          const validWaypoints = res.filter(
-            (waypoint) => !isNaN(waypoint.lat) && !isNaN(waypoint.lng),
-          );
-
-          const waypointAddresses = await Promise.all(
-            validWaypoints.map(async (waypoint) => {
-              const { lat, lng } = waypoint;
-              const address = await convertGeocode(lat, lng);
-              return { ...waypoint, address };
-            }),
-          );
-          console.log(waypointAddresses);
-          setWaypoints(waypointAddresses);
-          setError("");
-        } else {
-          setError("No waypoints found for the given ID.");
-          setWaypoints([]);
-        }
+        setWaypoints(res);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -163,8 +111,8 @@ const ListItems = ({
               <TimelineItem key={wayPoint.waypointId} className="text-start">
                 <TimelineHeader>
                   <TimelineTitle>
-                    {wayPoint.address?.label} -{" "}
-                    {wayPoints[index + 1]?.address?.label}
+                    {wayPoint.locationName} -{" "}
+                    {wayPoints[index + 1].locationName}
                   </TimelineTitle>
                 </TimelineHeader>
                 <TimelineDescription>

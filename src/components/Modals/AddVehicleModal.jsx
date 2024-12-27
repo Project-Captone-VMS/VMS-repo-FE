@@ -89,7 +89,7 @@ const AddVehicleModal = ({ isOpen, onClose }) => {
       onClose();
       window.location.reload();
     } catch (error) {
-      toast.error("Failed to create vehicle");
+      toast.error(error.response.data.message);
     }
   };
 

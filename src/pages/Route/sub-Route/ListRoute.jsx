@@ -37,25 +37,7 @@ const DetailRoute = () => {
     const fetchData = async () => {
       try {
         const listRoute = await getAllRoute();
-        if (listRoute && Array.isArray(listRoute) && listRoute.length > 0) {
-          const validRoutes = listRoute.filter(
-            (route) =>
-              !isNaN(route.startLat) &&
-              !isNaN(route.startLng) &&
-              !isNaN(route.endLat) &&
-              !isNaN(route.endLng),
-          );
-
-          const routeAddressPromises = validRoutes.map(async (route) => {
-            const { startLat, startLng, endLat, endLng } = route;
-            const startAddress = await convertGeocode(startLat, startLng);
-            const endAddress = await convertGeocode(endLat, endLng);
-            return { ...route, startAddress, endAddress };
-          });
-
-          const routeAddresses = await Promise.all(routeAddressPromises);
-          setRoutes(routeAddresses);
-        }
+        setRoutes(listRoute)
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -63,44 +45,6 @@ const DetailRoute = () => {
     fetchData();
   }, []);
 
-  const convertGeocode = async (lat, lng) => {
-    try {
-      const response = await axios.get(
-        "https://revgeocode.search.hereapi.com/v1/revgeocode",
-        {
-          params: {
-            at: `${lat},${lng}`,
-            lang: "en-US",
-            apiKey: apiKey,
-          },
-        },
-      );
-
-      if (
-        response.data &&
-        response.data.items &&
-        response.data.items.length > 0
-      ) {
-        const addr = response.data.items[0].address;
-
-        return {
-          street: addr.street || "",
-          houseNumber: addr.houseNumber || "",
-          district: addr.district || "",
-          city: addr.city || "",
-          state: addr.state || "",
-          country: addr.countryName || "",
-          postalCode: addr.postalCode || "",
-          label: response.data.items[0].title || "",
-        };
-      } else {
-        return null;
-      }
-    } catch (error) {
-      console.error("Reverse geocoding error:", error);
-      return null;
-    }
-  };
 
   // Add this new useEffect hook for filtering routes
   useEffect(() => {
@@ -157,19 +101,11 @@ const DetailRoute = () => {
           lng: wayPoint.lng,
         });
     
-        const address = await convertGeocode(wayPoint.lat, wayPoint.lng);
-        let label;
-    
-        if (address) {
-          label = `Waypoint ${index}: ${address.label}`;
-        } else {
-          label = `Waypoint ${index}: (${wayPoint.lat.toFixed(4)}, ${wayPoint.lng.toFixed(4)})`;
-        }
-    
+        let label = `Waypoint ${index}: (${wayPoint.locationName})`;
         if (index === 0) {
-          label = `Start: ${address ? address.label : `(${wayPoint.lat.toFixed(4)}, ${wayPoint.lng.toFixed(4)})`}`;
+          label = `Start:  (${wayPoint.locationName}`;
         } else if (index === res.length - 1) {
-          label = `End: ${address ? address.label : `(${wayPoint.lat.toFixed(4)}, ${wayPoint.lng.toFixed(4)})`}`;
+          label = `End:  (${wayPoint.locationName}`;
         }
     
         marker.setData(label);
@@ -435,8 +371,8 @@ const DetailRoute = () => {
                     totalTime={route.totalTime}
                     fullname={`${route.driver?.firstName || "Unknown"} ${route.driver?.lastName || "Unknown"}`}
                     totalDistance={route.totalDistance}
-                    start={route.startAddress?.label}
-                    end={route.endAddress?.label}
+                    start={route.startLocationName}
+                    end={route.endLocationName}
                     licensePlate={route.vehicle.licensePlate}
                     interconnect={route.interconnections}
                     status={route.status}

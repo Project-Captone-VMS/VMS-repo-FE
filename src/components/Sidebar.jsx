@@ -38,7 +38,6 @@ const Sidebar = ({ isOpen, setIsOpen, role }) => {
     { path: "/analytics", icon: ChartColumnBig, label: "Analytics" },
     { path: "/indexNotification", icon: BellDot, label: "Notification" },
     { path: "/route", icon: Route, label: "Route" },
-    { path: "/chat", icon: MessageSquare, label: "Chat" },
     { path: "/shipment", icon: FileText, label: "Shipment" },
     { path: "/RealtimeTrackingUser", icon: Map, label: "Realtime Tracking" },
     { path: "/showTrackingUser", icon: ChartSpline, label: "Show Tracking" },
@@ -75,7 +74,6 @@ const Sidebar = ({ isOpen, setIsOpen, role }) => {
               item.path === "/analytics" ||
               item.path === "/indexNotification" ||
               item.path === "/route" ||
-              item.path === "/chat" ||
               item.path === "/shipment",
           )
         : sb_menuItems;

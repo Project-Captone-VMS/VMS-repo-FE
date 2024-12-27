@@ -13,6 +13,7 @@ import {
 import { toast, Toaster } from "react-hot-toast";
 import axios from "axios";
 import SockJS from "sockjs-client";
+import Pagination from "@/components/Pagination";
 
 const Route = () => {
   const [routes, setRoutes] = useState([]);
@@ -37,6 +38,21 @@ const Route = () => {
   let socket = null;
   let stompClient = null;
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 3;
+
+  // Add filtered and paginated routes logic
+  const filteredRoutes = routes;
+  const totalPages = Math.ceil(filteredRoutes.length / itemsPerPage);
+  const paginatedRoutes = filteredRoutes.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -47,26 +63,9 @@ const Route = () => {
         setFormVehicle(vehicleResult);
 
         const listRoute = await listRouteNoActive();
-        if (listRoute && Array.isArray(listRoute) && listRoute.length > 0) {
-          const validRoutes = listRoute.filter(
-            (route) =>
-              !isNaN(route.startLat) &&
-              !isNaN(route.startLng) &&
-              !isNaN(route.endLat) &&
-              !isNaN(route.endLng),
-          );
+        // const routeIds = listRoute.map((route) => route.routeId);
 
-          const routeAddressPromises = validRoutes.map(async (route) => {
-            const { startLat, startLng, endLat, endLng } = route;
-            const startAddress = await convertGeocode(startLat, startLng);
-            const endAddress = await convertGeocode(endLat, endLng);
-            return { ...route, startAddress, endAddress };
-          });
-
-          const routeAddresses = await Promise.all(routeAddressPromises);
-          // console.log(routeAddresses)
-          setRoutes(routeAddresses);
-        }
+        setRoutes(listRoute);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -74,6 +73,62 @@ const Route = () => {
 
     fetchData();
   }, [getDriverNoActive, getVehicleNoActive]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const handleEditChange = (e) => {
+    const { name, value } = e.target;
+    setEditData({ ...editData, [name]: value });
+  };
+
+  const handleViewDetails = async (id) => {
+    const res = await getWayPoint(id);
+    setWayPoints(res);
+
+    const response = await getInterConnections(id);
+    setInterconnect(response);
+
+    setIsDetailModalVisible(true);
+  }
+
+  const handleEdit = (route) => {
+    setEditData(route);
+    setIsModalVisible(true);
+  };
+
+  const handleSave = () => {
+    setRoutes((prevRoutes) =>
+      prevRoutes.map((route) =>
+        route.id === editData.id ? { ...editData } : route,
+      ),
+    );
+    setIsModalVisible(false);
+  };
+
+  function formatTime(seconds) {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    return `About ${hours}h ${minutes}m`;
+  }
+
+  const mapRef = useRef(null);
+  const [map, setMap] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [origin, setOrigin] = useState("");
+  const [destination, setDestination] = useState("");
+  const [routeInfo, setRouteInfo] = useState({ distance: "", duration: "" });
+  const [suggestions, setSuggestions] = useState([]);
+  const routePolylines = useRef([]);
+  const markers = useRef([]);
+  const [textareaValue, setTextareaValue] = useState("");
+  const [selectedCoordinates, setSelectedCoordinates] = useState([]);
+  const token = localStorage.getItem("jwtToken");
+  const apiKey = import.meta.env.VITE_HERE_MAP_API_KEY;
+
 
   const convertGeocode = async (lat, lng) => {
     try {
@@ -114,78 +169,6 @@ const Route = () => {
     }
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
-  const handleEditChange = (e) => {
-    const { name, value } = e.target;
-    setEditData({ ...editData, [name]: value });
-  };
-
-  const handleViewDetails = async (id) => {
-    const res = await getWayPoint(id);
-    if (res && Array.isArray(res) && res.length > 0) {
-      const validWaypoints = res.filter(
-        (waypoint) => !isNaN(waypoint.lat) && !isNaN(waypoint.lng),
-      );
-
-      const waypointAddresses = [];
-      for (const waypoint of validWaypoints) {
-        const { lat, lng } = waypoint;
-        const address = await convertGeocode(lat, lng);
-        waypointAddresses.push({ ...waypoint, address });
-      }
-
-      setWayPoints(waypointAddresses);
-      setError("");
-    } else {
-      setError("No waypoints found for the given ID.");
-      setWayPoints([]);
-    }
-
-    const response = await getInterConnections(id);
-    setInterconnect(response);
-
-    setIsDetailModalVisible(true);
-  };
-
-  const handleEdit = (route) => {
-    setEditData(route);
-    setIsModalVisible(true);
-  };
-
-  const handleSave = () => {
-    setRoutes((prevRoutes) =>
-      prevRoutes.map((route) =>
-        route.id === editData.id ? { ...editData } : route,
-      ),
-    );
-    setIsModalVisible(false);
-  };
-
-  function formatTime(seconds) {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    return `About ${hours}h ${minutes}m`;
-  }
-
-  const mapRef = useRef(null);
-  const [map, setMap] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [origin, setOrigin] = useState("");
-  const [destination, setDestination] = useState("");
-  const [routeInfo, setRouteInfo] = useState({ distance: "", duration: "" });
-  const [suggestions, setSuggestions] = useState([]);
-  const routePolylines = useRef([]);
-  const markers = useRef([]);
-  const [textareaValue, setTextareaValue] = useState("");
-  const [selectedCoordinates, setSelectedCoordinates] = useState([]);
-  const token = localStorage.getItem("jwtToken");
-  const apiKey = import.meta.env.VITE_HERE_MAP_API_KEY;
-
   useEffect(() => {
     const platformInstance = new H.service.Platform({ apikey: apiKey });
     const defaultLayers = platformInstance.createDefaultLayers();
@@ -193,7 +176,7 @@ const Route = () => {
       mapRef.current,
       defaultLayers.vector.normal.map,
       {
-        center: { lat: 16.0583, lng: 108.221 },
+        center: { lat: 16.0583, lng: 108.2210 },
         zoom: 14,
         pixelRatio: window.devicePixelRatio || 1,
       },
@@ -222,7 +205,7 @@ const Route = () => {
         const address = await convertGeocode(coord.lat, coord.lng);
 
         const addressText = address || "Địa chỉ không tìm thấy";
-        // console.log(addressText)
+        console.log(addressText)
         setTextareaValue((prev) => prev + addressText.label + "\n");
         setSelectedCoordinates((prev) => [
           ...prev,
@@ -358,38 +341,38 @@ const Route = () => {
         setError("No routes found.");
       }
     } catch (error) {
-      console.error("Failed to fetch route:", error);
+      console.log("Failed to fetch route:", error);
       setError("Failed to fetch route. Please try again later.");
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchSuggestions = async (query) => {
-    if (!query) {
-      setSuggestions([]);
-      return;
-    }
-    try {
-      const response = await axios.get(
-        "http://localhost:8080/api/route/search-suggestions",
-        {
-          params: {
-            query,
-            lat: 52.5308,
-            lng: 13.3847,
-          },
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
-      setSuggestions(response.data.items || []);
-    } catch (error) {
-      console.log("Failed to fetch suggestions:", error);
-      setSuggestions([]);
-    }
-  };
+  // const fetchSuggestions = async (query) => {
+  //   if (!query) {
+  //     setSuggestions([]);
+  //     return;
+  //   }
+  //   try {
+  //     const response = await axios.get(
+  //       "http://localhost:8080/api/route/search-suggestions",
+  //       {
+  //         params: {
+  //           query,
+  //           lat: 52.5308,
+  //           lng: 13.3847,
+  //         },
+  //         headers: {
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //       },
+  //     );
+  //     setSuggestions(response.data.items || []);
+  //   } catch (error) {
+  //     console.log("Failed to fetch suggestions:", error);
+  //     setSuggestions([]);
+  //   }
+  // };
 
   const handleFindSequence = async () => {
     if (selectedCoordinates.length < 2) {
@@ -501,7 +484,7 @@ const Route = () => {
                     value={origin}
                     onChange={(e) => {
                       setOrigin(e.target.value);
-                      fetchSuggestions(e.target.value);
+                      // fetchSuggestions(e.target.value);
                     }}
                     required
                     className="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300"
@@ -637,16 +620,13 @@ const Route = () => {
             </tr>
           </thead>
           <tbody>
-            {routes.map((route) => (
+            {paginatedRoutes.map((route) => (
               <tr
                 key={route.routeId}
                 className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-white dark:hover:bg-gray-200"
               >
-                <td className="px-6 py-4">
-                  {route.startAddress.label}
-                </td>
-                <td className="px-6 py-4">
-                </td>
+                <td className="px-6 py-4">{route.startLocationName}</td>
+                <td className="px-6 py-4">{route.endLocationName}</td>
                 <td className="px-6 py-4">{formatTime(route.totalTime)}</td>
                 <td className="px-6 py-4">{convertM(route.totalDistance)}</td>
                 <td className="px-6 py-4">
@@ -666,6 +646,17 @@ const Route = () => {
             ))}
           </tbody>
         </table>
+
+        {/* Add pagination */}
+        <div className="mt-4">
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            itemsPerPage={itemsPerPage}
+            totalItems={filteredRoutes.length}
+            onPageChange={handlePageChange}
+          />
+        </div>
       </div>
 
       <Modal
@@ -697,8 +688,7 @@ const Route = () => {
                     <h4 className="text-sm font-medium text-gray-500">
                       Total Time
                     </h4>
-                    <p className="text-lg">
-                    </p>
+                    <p className="text-lg"></p>
                   </div>
                 </div>
               </div>
@@ -739,10 +729,10 @@ const Route = () => {
                           className="hover:bg-gray-50"
                         >
                           <td className="px-4 py-2 text-sm text-gray-900">
-                            {wayPoint.address.label}
+                            {wayPoint.locationName}
                           </td>
                           <td className="px-4 py-2 text-sm text-gray-900">
-                            {wayPoints[index + 1].address.label}
+                            {wayPoints[index + 1].locationName}
                           </td>
                           <td className="px-4 py-2 text-sm text-gray-900">
                             {interconnect[index]
