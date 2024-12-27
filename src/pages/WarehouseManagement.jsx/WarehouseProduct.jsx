@@ -12,6 +12,7 @@ import {
   PercentSquare,
   Calendar,
   FileText,
+  ClipboardList, 
 } from "lucide-react";
 import {
   Card,
@@ -280,6 +281,14 @@ const WarehouseProduct = () => {
                 <Plus className="h-4 w-4 mr-2" />
                 Add Product
               </Button>
+              <Link to={`/warehouse/allocation`}>
+              <Button
+                className="bg-yellow-500 hover:bg-yellow-600 text-white transition-colors duration-200"
+              >
+                <ClipboardList className="h-4 w-4 mr-2" />
+                Allocation
+              </Button>
+            </Link>
               <Link to={`/warehouse/${warehouseId}/invoices`}>
                 <Button
                   className="bg-green-500 hover:bg-green-600 text-white transition-colors duration-200"

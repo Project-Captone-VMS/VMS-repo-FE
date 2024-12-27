@@ -37,7 +37,7 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
       try {
         const response = await getUserByUsername(username);
         const userData = response.result;
-        if (username === "admin") {
+        if (username === "admin123") {
           setFullName("ADMIN");
         } else {
           const { firstName, lastName } = userData;

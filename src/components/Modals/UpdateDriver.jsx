@@ -194,21 +194,8 @@ const UpdateDriver = ({ isOpen, onClose, driver, onDriverUpdated }) => {
             <label className="mb-1 block text-sm font-medium text-gray-700">
               Status
             </label>
-            <select
-              name="status"
-              value={updatedDriver.status ? "true" : "false"} // Convert boolean to string for the select element
-              onChange={handleChange}
-              className="mt-1 block w-full rounded-md border-gray-300 bg-white px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-              readOnly
-            >
-              {STATUS_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
             <div
-              className={`mt-2 rounded-md px-3 py-2 ${
+              className={`mt-1 rounded-md px-3 py-2 ${
                 updatedDriver.status
                   ? "bg-yellow-100 text-yellow-800"
                   : "bg-green-100 text-green-800"

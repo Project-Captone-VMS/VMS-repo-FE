@@ -315,51 +315,6 @@ const WarehouseManagement = () => {
           onFilterChange={handleFilterChange}
         />
 
-        {/* Stats Overview */}
-        {/* <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-4">
-          <div className="flex items-center gap-4 rounded-lg bg-white p-6 shadow-sm">
-            <div className="rounded-lg bg-blue-100 p-3">
-              <Package className="h-6 w-6 text-blue-600" />
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Total Warehouses</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {totalWarehouse}
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-4 rounded-lg bg-white p-6 shadow-sm">
-            <div className="rounded-lg bg-green-100 p-3">
-              <BarChart2 className="h-6 w-6 text-green-600" />
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Capacity over 10000 </p>
-              <p className="text-2xl font-bold text-gray-900">{totalOver}</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-4 rounded-lg bg-white p-6 shadow-sm">
-            <div className="rounded-lg bg-purple-100 p-3">
-              <BarChart2 className="h-6 w-6 text-red-600" />
-            </div>
-
-            <div>
-              <p className="text-sm text-gray-600">Capacity less than 10000 </p>
-              <p className="text-2xl font-bold text-gray-900">{totalLess}</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-4 rounded-lg bg-white p-6 shadow-sm">
-            <div className="rounded-lg bg-purple-100 p-3">
-              <MapPin className="h-6 w-6 text-purple-600" />
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Active Locations</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {totalLocation}
-              </p>
-            </div>
-          </div>
-        </div> */}
-
         <div className="mb-8 grid grid-cols-2 gap-7 md:grid-cols-2 lg:grid-cols-4">
           <StatCard
             title="Total Warehouses"

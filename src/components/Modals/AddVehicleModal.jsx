@@ -4,6 +4,7 @@ import { Check, X, AlertCircle } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
 import { Button } from "../../components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { createVehicle } from "../../services/apiRequest";
@@ -130,16 +131,20 @@ const AddVehicleModal = ({ isOpen, onClose }) => {
             {/* Vehicle Type */}
             <div>
               <Label htmlFor="type">Vehicle Type</Label>
-              <Input
-                id="type"
+              <Select
                 name="type"
                 value={vehicleData.type}
-                onChange={handleChange}
-                className={`${
-                  errors.type ? "border-red-500" : "border-gray-300"
-                }`}
-                placeholder="Enter vehicle type"
-              />
+                onValueChange={(value) => handleChange({ target: { name: "type", value } })}
+              >
+                <SelectTrigger className={`w-full ${errors.type ? "border-red-500" : "border-gray-300"}`}>
+                  <SelectValue placeholder="Select vehicle type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Truck">Truck</SelectItem>
+                  <SelectItem value="Van">Van</SelectItem>
+                  <SelectItem value="Pickup">Pickup</SelectItem>
+                </SelectContent>
+              </Select>
               {errors.type && (
                 <p className="text-red-500 text-sm flex items-center gap-1">
                   <AlertCircle className="h-4 w-4" />

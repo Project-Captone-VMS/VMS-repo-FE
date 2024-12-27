@@ -20,6 +20,7 @@ export default function RealtimeTrackingDashboard() {
   const [position, setPosition] = useState({ lat: 10.8231, lng: 106.6297 });
   const [routes, setRoutes] = useState([]);
   const [wayPoints, setWayPoints] = useState([]);
+  const [error, setError] = useState(null);
   const [interconnect, setInterconnect] = useState([]);
   const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
   const [mapWayPoints, setMapWayPoints] = useState([]);
@@ -31,6 +32,7 @@ export default function RealtimeTrackingDashboard() {
   const mapRef = useRef(null);
   const usernameLocal = localStorage.getItem("username");
   const token = localStorage.getItem("jwtToken");
+  const apiKey = import.meta.env.VITE_HERE_MAP_API_KEY;
 
   const [time, setTime] = useState({ hours: "", minutes: "" });
   const [timeByInterconnection, setTimeByInterconnection] = useState({});
@@ -58,6 +60,44 @@ export default function RealtimeTrackingDashboard() {
       };
     });
   };
+  const convertGeocode = async (lat, lng) => {
+    try {
+      const response = await axios.get(
+        "https://revgeocode.search.hereapi.com/v1/revgeocode",
+        {
+          params: {
+            at: `${lat},${lng}`,
+            lang: "en-US",
+            apiKey: apiKey,
+          },
+        },
+      );
+
+      if (
+        response.data &&
+        response.data.items &&
+        response.data.items.length > 0
+      ) {
+        const addr = response.data.items[0].address;
+
+        return {
+          street: addr.street || "",
+          houseNumber: addr.houseNumber || "",
+          district: addr.district || "",
+          city: addr.city || "",
+          state: addr.state || "",
+          country: addr.countryName || "",
+          postalCode: addr.postalCode || "",
+          label: response.data.items[0].title || "",
+        };
+      } else {
+        return null;
+      }
+    } catch (error) {
+      console.error("Reverse geocoding error:", error);
+      return null;
+    }
+  };
 
   const handleUpdate = async (id) => {
     try {
@@ -84,8 +124,8 @@ export default function RealtimeTrackingDashboard() {
         prev.map((item) =>
           item.interconnectionId === id
             ? { ...item, timeEstimate: timeE }
-            : item
-        )
+            : item,
+        ),
       );
 
       if (res != null) {
@@ -106,26 +146,26 @@ export default function RealtimeTrackingDashboard() {
   useEffect(() => {
     if (window.H && !mapRef.current) {
       const platform = new window.H.service.Platform({
-        apikey: "z4fTmSQepmcgYJASTEaHBjS9zsw4TccWd2oKbT5ubcQ",
+        apikey: "ZQAqfjj5fxNGAZxkQqTnqyX4jz5AUJ6Nul0AJDuYbrg",
       });
       const defaultLayers = platform.createDefaultLayers();
       const mapInstance = new window.H.Map(
         document.getElementById("mapContainer"),
         defaultLayers.vector.normal.map,
         {
-          center: position,
+          center: { lat: 16.0583, lng: 108.221 },
           zoom: 13,
-        }
+        },
       );
 
       new window.H.mapevents.Behavior(
-        new window.H.mapevents.MapEvents(mapInstance)
+        new window.H.mapevents.MapEvents(mapInstance),
       );
       window.H.ui.UI.createDefault(mapInstance, defaultLayers);
       mapRef.current = mapInstance;
 
       mapInstance.addEventListener("resize", () =>
-        mapInstance.getViewPort().resize()
+        mapInstance.getViewPort().resize(),
       );
     }
   }, []);
@@ -133,7 +173,24 @@ export default function RealtimeTrackingDashboard() {
   const handleViewDetails = async (id) => {
     try {
       const res = await getWayPoint(id);
-      setWayPoints(res);
+      if (res && Array.isArray(res) && res.length > 0) {
+        const validWaypoints = res.filter(
+          (waypoint) => !isNaN(waypoint.lat) && !isNaN(waypoint.lng),
+        );
+
+        const waypointAddresses = [];
+        for (const waypoint of validWaypoints) {
+          const { lat, lng } = waypoint;
+          const address = await convertGeocode(lat, lng);
+          waypointAddresses.push({ ...waypoint, address });
+        }
+
+        setWayPoints(waypointAddresses);
+        setError("");
+      } else {
+        setError("No waypoints found for the given ID.");
+        setWayPoints([]);
+      }
       const response = await getInterConnections(id);
       setInterconnect(response);
       setIsDetailModalVisible(true);
@@ -152,23 +209,26 @@ export default function RealtimeTrackingDashboard() {
       setLoading(true);
       clearMap();
 
-      res.forEach((wayPoint, index) => {
+      for (const [index, wayPoint] of res.entries()) {
         const marker = new window.H.map.Marker({
           lat: wayPoint.lat,
           lng: wayPoint.lng,
         });
 
-        let label = `Waypoint ${index}: (${wayPoint.lat.toFixed(
-          4
-        )}, ${wayPoint.lng.toFixed(4)})`;
+        const address = await convertGeocode(wayPoint.lat, wayPoint.lng);
+        console.log("address", address);
+        let label;
+
+        if (address) {
+          label = `Waypoint ${index}: ${address.label}`;
+        } else {
+          label = `Waypoint ${index}: (${wayPoint.lat.toFixed(4)}, ${wayPoint.lng.toFixed(4)})`;
+        }
+
         if (index === 0) {
-          label = `Start: (${wayPoint.lat.toFixed(4)}, ${wayPoint.lng.toFixed(
-            4
-          )})`;
+          label = `Start: ${address ? address.label : `(${wayPoint.lat.toFixed(4)}, ${wayPoint.lng.toFixed(4)})`}`;
         } else if (index === res.length - 1) {
-          label = `End: (${wayPoint.lat.toFixed(4)}, ${wayPoint.lng.toFixed(
-            4
-          )})`;
+          label = `End: ${address ? address.label : `(${wayPoint.lat.toFixed(4)}, ${wayPoint.lng.toFixed(4)})`}`;
         }
 
         marker.setData(label);
@@ -185,7 +245,7 @@ export default function RealtimeTrackingDashboard() {
             timerProgressBar: true,
           });
         });
-      });
+      }
 
       const response = await axios.get(
         "http://localhost:8080/api/route/findRoute",
@@ -199,7 +259,7 @@ export default function RealtimeTrackingDashboard() {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       if (response.data.routes?.length > 0) {
@@ -261,11 +321,34 @@ export default function RealtimeTrackingDashboard() {
     markers.current.push(originMarker, destinationMarker);
   };
 
+  function convertM(distance) {
+    return `${(distance / 1000).toFixed(1)} km`;
+  }
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const listRouteTracking = await getRouteByUserName(usernameLocal);
-        setRoutes(listRouteTracking);
+        const listRoute = await getRouteByUserName(usernameLocal);
+        if (listRoute && Array.isArray(listRoute) && listRoute.length > 0) {
+          const validRoutes = listRoute.filter(
+            (route) =>
+              !isNaN(route.startLat) &&
+              !isNaN(route.startLng) &&
+              !isNaN(route.endLat) &&
+              !isNaN(route.endLng),
+          );
+
+          const routeAddressPromises = validRoutes.map(async (route) => {
+            const { startLat, startLng, endLat, endLng } = route;
+            const startAddress = await convertGeocode(startLat, startLng);
+            const endAddress = await convertGeocode(endLat, endLng);
+            return { ...route, startAddress, endAddress };
+          });
+
+          const routeAddresses = await Promise.all(routeAddressPromises);
+          console.log(routeAddresses);
+          setRoutes(routeAddresses);
+        }
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -276,7 +359,7 @@ export default function RealtimeTrackingDashboard() {
   const formatTime = (seconds) => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
-    return `about ${hours}h ${minutes}m`;
+    return `About ${hours}h ${minutes}m`;
   };
 
   const fetchRoute = async (start, end) => {
@@ -303,7 +386,7 @@ export default function RealtimeTrackingDashboard() {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       if (response.data.routes && response.data.routes.length > 0) {
@@ -373,10 +456,10 @@ export default function RealtimeTrackingDashboard() {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
       const waypointsData = response.data;
-      setWaypoints(waypointsData);
+      setWayPoints(waypointsData);
 
       if (!waypointsData || waypointsData.length < 2) {
         console.log("Không đủ waypoints để xác định điểm đầu và điểm cuối");
@@ -418,7 +501,7 @@ export default function RealtimeTrackingDashboard() {
               headers: {
                 Authorization: `Bearer ${token}`,
               },
-            }
+            },
           );
           const route = response.data.routes[0];
           const section = route.sections[0];
@@ -461,7 +544,7 @@ export default function RealtimeTrackingDashboard() {
               } driven by driver ${getRoute.driver.firstName} ${
                 getRoute.driver.lastName
               } arrived ${formatTime(
-                timeSuccessful
+                timeSuccessful,
               )} earlier than the expected time`,
               type: "SYSTEM",
             };
@@ -561,7 +644,7 @@ export default function RealtimeTrackingDashboard() {
   };
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
+    <div className="min-h-screen bg-gray-100 p-6">
       <div className="mb-6">
         <h1 className="text-2xl font-bold">Real-time Vehicle Tracking</h1>
       </div>
@@ -573,8 +656,8 @@ export default function RealtimeTrackingDashboard() {
           className="rounded-lg shadow-lg"
         ></div>
 
-        <table className="w-full text-sm text-left rtl:text-right text-black dark:text-black font-normal rounded-lg">
-          <thead className="text-xs text-black uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+        <table className="w-full rounded-lg text-left text-sm font-normal text-black dark:text-black rtl:text-right">
+          <thead className="bg-gray-50 text-xs uppercase text-black dark:bg-gray-700 dark:text-gray-400">
             <tr>
               {[
                 "Start",
@@ -595,16 +678,12 @@ export default function RealtimeTrackingDashboard() {
             {routes.map((route) => (
               <tr
                 key={route.routeId}
-                className="bg-white border-b dark:bg-white dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-200"
+                className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-white dark:hover:bg-gray-200"
               >
-                <td className="px-6 py-4">
-                  {route.startLat}, {route.startLng}
-                </td>
-                <td className="px-6 py-4">
-                  {route.endLat}, {route.endLng}
-                </td>
-                <td className="px-6 py-4">{route.totalTime} s</td>
-                <td className="px-6 py-4">{route.totalDistance} m</td>
+                <td className="px-6 py-4">{route.startAddress.label}</td>
+                <td className="px-6 py-4">{route.endAddress.label}</td>
+                <td className="px-6 py-4">{formatTime(route.totalTime)}</td>
+                <td className="px-6 py-4">{convertM(route.totalDistance)}</td>
                 <td className="px-6 py-4">{`${route.driver.firstName} ${route.driver.lastName}`}</td>
                 <td className="px-6 py-4">{route.vehicle.licensePlate}</td>
                 <td className="px-2 py-4">
@@ -646,7 +725,7 @@ export default function RealtimeTrackingDashboard() {
         width={950}
       >
         <div className="space-y-6">
-          <div className="bg-gray-200 p-4 rounded-lg">
+          <div className="rounded-lg bg-gray-200 p-4">
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
@@ -654,22 +733,21 @@ export default function RealtimeTrackingDashboard() {
                     {[
                       "From",
                       "To",
-                      "Distance (m)",
+                      "Distance",
                       "Time Waypoint",
                       "Estimate Time",
-                      "Coordinates",
                       "Your Estimate ",
                     ].map((header) => (
                       <th
                         key={header}
-                        className="px-4 py-2 text-xs font-medium text-gray-500 text-start "
+                        className="px-4 py-2 text-start text-xs font-medium text-gray-500"
                       >
                         {header}
                       </th>
                     ))}
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="divide-y divide-gray-200 bg-white">
                   {wayPoints.map(
                     (wayPoint, index) =>
                       index < wayPoints.length - 1 && (
@@ -678,13 +756,15 @@ export default function RealtimeTrackingDashboard() {
                           className="hover:bg-gray-50"
                         >
                           <td className="px-4 py-2 text-sm text-gray-900">
-                            {interconnect[index]?.fromWaypoint || ""}
+                            {wayPoint.address?.label}
                           </td>
                           <td className="px-4 py-2 text-sm text-gray-900">
-                            {interconnect[index]?.toWaypoint || ""}
+                            {wayPoints[index + 1]?.address?.label}
                           </td>
                           <td className="px-4 py-2 text-sm text-gray-900">
-                            {interconnect[index]?.distance || ""}
+                            {interconnect[index]
+                              ? convertM(interconnect[index].distance)
+                              : ""}
                           </td>
                           <td className="px-4 py-2 text-sm text-gray-900">
                             {interconnect[index]
@@ -696,18 +776,7 @@ export default function RealtimeTrackingDashboard() {
                               ? formatTime(interconnect[index].timeEstimate)
                               : ""}
                           </td>
-                          <td className="px-4 py-2 text-sm text-gray-900">
-                            <div>
-                              {" "}
-                              From {wayPoint.lat.toFixed(4)},{" "}
-                              {wayPoint.lng.toFixed(4)}{" "}
-                            </div>
-                            <div>
-                              To {wayPoints[index + 1].lat.toFixed(4)},{" "}
-                              {wayPoints[index + 1].lng.toFixed(4)}
-                            </div>
-                          </td>
-                          <td className="px-4 py-2 text-[9px] text-gray-900 flex gap-2 items-center ">
+                          <td className="flex items-center gap-2 px-4 py-2 text-[9px] text-gray-900">
                             <input
                               type="number"
                               name="hours"
@@ -719,11 +788,11 @@ export default function RealtimeTrackingDashboard() {
                               onChange={(e) =>
                                 handleChange(
                                   e,
-                                  interconnect[index]?.interconnectionId
+                                  interconnect[index]?.interconnectionId,
                                 )
                               }
                               placeholder="HH"
-                              className="border border-gray-300 rounded px-2 py-2 w-12 text-center"
+                              className="w-12 rounded border border-gray-300 px-2 py-2 text-center"
                               min="0"
                               max="23"
                             />
@@ -739,23 +808,23 @@ export default function RealtimeTrackingDashboard() {
                               onChange={(e) =>
                                 handleChange(
                                   e,
-                                  interconnect[index]?.interconnectionId
+                                  interconnect[index]?.interconnectionId,
                                 )
                               }
                               placeholder="MM"
-                              className="border border-gray-300 rounded px-2 py-2 w-12 text-center"
+                              className="w-12 rounded border border-gray-300 px-2 py-2 text-center"
                               min="0"
                               max="59"
                             />
                             <button
                               onClick={() =>
                                 handleUpdate(
-                                  interconnect[index]?.interconnectionId
+                                  interconnect[index]?.interconnectionId,
                                 )
                               }
-                              className={`px-2 py-2 text-white rounded ${
+                              className={`rounded px-2 py-2 text-white ${
                                 loading
-                                  ? "bg-gray-500 cursor-not-allowed"
+                                  ? "cursor-not-allowed bg-gray-500"
                                   : "bg-blue-500 hover:bg-blue-600"
                               }`}
                               disabled={loading}
@@ -764,7 +833,7 @@ export default function RealtimeTrackingDashboard() {
                             </button>
                           </td>
                         </tr>
-                      )
+                      ),
                   )}
                 </tbody>
               </table>

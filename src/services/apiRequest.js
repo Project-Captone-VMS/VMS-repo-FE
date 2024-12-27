@@ -306,7 +306,7 @@ export const getIncidentById = async (id) => {
 
 export const addIncident = async (incidentData) => {
   try {
-    const response = await api.post("incidents", incidentData);
+    const response = await api.post("incidents/add", incidentData);
     return response.data;
   } catch (error) {
     throw error;
@@ -489,5 +489,16 @@ export const getRouteById = async (id) => {
 
 export const updateRoute = async (id) => {
   const response = await api.put(`route/update/${id}`);
+  return response.data;
+};
+
+export const getAlRouteByUsername = async (username) => {
+  const response = await api.get(`route/allRoute/${username}`);
+  return response.data;
+};
+
+
+export const getAllRoute = async () => {
+  const response = await api.get(`route/all`);
   return response.data;
 };

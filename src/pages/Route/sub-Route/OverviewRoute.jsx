@@ -110,7 +110,7 @@ const Route = () => {
   const [textareaValue, setTextareaValue] = useState("");
   const [selectedCoordinates, setSelectedCoordinates] = useState([]);
   const token = localStorage.getItem("jwtToken");
-  const apiKey = "jlBGGMAGg54YwZpieijupQwJpNMeGd9uwXDfRbjf-ag";
+  const apiKey = import.meta.env.VITE_HERE_MAP_API_KEY;
 
   useEffect(() => {
     const platformInstance = new H.service.Platform({ apikey: apiKey });
@@ -467,29 +467,29 @@ const Route = () => {
                 </label>
               </div>
 
-              <div className="mb-4 px-1">
-                <label className="block text-sm font-medium text-gray-700">
-                  Select Vehicle:
-                  <select
-                    value={selectedVehicle}
-                    onChange={(e) => setSelectedVehicle(e.target.value)}
-                    className="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300"
-                  >
-                    <option value="" disabled>
-                      Select a vehicle
-                    </option>
-                    {formVehicle && formVehicle.length > 0 ? (
-                      formVehicle.map((vehicle) => (
-                        <option key={vehicle.id} value={vehicle.vehicleId}>
-                          {vehicle.licensePlate}
-                        </option>
-                      ))
-                    ) : (
-                      <option disabled>Loading drivers...</option>
-                    )}
-                  </select>
-                </label>
-              </div>
+                <div className="mb-4 px-1">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Select Vehicle:
+                    <select
+                      value={selectedVehicle}
+                      onChange={(e) => setSelectedVehicle(e.target.value)}
+                      className="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300"
+                    >
+                      <option value="" disabled>
+                        Select a vehicle
+                      </option>
+                      {formVehicle && formVehicle.length > 0 ? (
+                        formVehicle.map((vehicle) => (
+                          <option key={vehicle.id} value={vehicle.vehicleId}>
+                            {vehicle.licensePlate}
+                          </option>
+                        ))
+                      ) : (
+                        <option disabled>Loading drivers...</option>
+                      )}
+                    </select>
+                  </label>
+                </div>
 
               <div
                 className="w-full"

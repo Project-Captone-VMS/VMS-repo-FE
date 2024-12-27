@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { Alert, AlertDescription } from "../ui/alert";
 import toast from "react-hot-toast";
-import { createExpense } from "../../services/apiRequest";
+import { createExpense, getAllDrivers, getAllVehicle } from "../../services/apiRequest";
 
 const validateExpenseData = (data) => {
   const errors = {};
@@ -25,10 +25,6 @@ const validateExpenseData = (data) => {
     errors.date = "Date is required";
   }
 
-  if (!data.category) {
-    errors.category = "Category is required";
-  }
-
   if (!data.vehicle) {
     errors.vehicle = "Vehicle ID is required";
   }
@@ -45,7 +41,6 @@ const AddExpense = ({ isOpen, onClose, onExpenseAdded }) => {
     description: "",
     amount: "",
     date: "",
-    category: "",
     vehicle: "",
     driver: "",
   });
@@ -53,6 +48,26 @@ const AddExpense = ({ isOpen, onClose, onExpenseAdded }) => {
   const [touchedFields, setTouchedFields] = useState({});
   const [alertMessage, setAlertMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [dataDriver, setDataDriver] = useState([]);
+  const [dataVehicle, setDataVehicle] = useState([]);
+  const [selectedVehicle, setSelectedVehicle] = useState("");
+  const [selectedDriver, setSelectedDriver] = useState("");
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const driverResult = await getAllDrivers();
+        setDataDriver(driverResult);
+
+        const vehicleResult = await getAllVehicle();
+        setDataVehicle(vehicleResult);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({
@@ -86,7 +101,7 @@ const AddExpense = ({ isOpen, onClose, onExpenseAdded }) => {
 
     const allTouched = Object.keys(formData).reduce(
       (acc, key) => ({ ...acc, [key]: true }),
-      {},
+      {}
     );
     setTouchedFields(allTouched);
 
@@ -103,8 +118,8 @@ const AddExpense = ({ isOpen, onClose, onExpenseAdded }) => {
       const expenseData = {
         ...formData,
         amount: parseFloat(formData.amount),
-        vehicle: { vehicleId: parseInt(formData.vehicle) },
-        driver: { driverId: parseInt(formData.driver) },
+        vehicle: { vehicleId: parseInt(selectedVehicle) },
+        driver: { driverId: parseInt(selectedDriver) },
       };
       await createExpense(expenseData);
       toast.success("Expense added successfully!");
@@ -112,7 +127,7 @@ const AddExpense = ({ isOpen, onClose, onExpenseAdded }) => {
       handleClose();
     } catch (error) {
       setAlertMessage(
-        error.message || "An error occurred while saving the expense",
+        error.message || "An error occurred while saving the expense"
       );
       toast.error(error.message || "Failed to save expense");
     } finally {
@@ -132,12 +147,9 @@ const AddExpense = ({ isOpen, onClose, onExpenseAdded }) => {
     setFieldErrors({});
     setTouchedFields({});
     setAlertMessage("");
+    setSelectedVehicle("");
+    setSelectedDriver("");
     onClose();
-  };
-
-  const getInputStatus = (fieldName) => {
-    if (!touchedFields[fieldName]) return "default";
-    return fieldErrors[fieldName] ? "error" : "success";
   };
 
   return (
@@ -216,39 +228,31 @@ const AddExpense = ({ isOpen, onClose, onExpenseAdded }) => {
             )}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="category">Category *</Label>
-            <Input
-              id="category"
-              value={formData.category}
-              onChange={(e) => handleInputChange("category", e.target.value)}
-              onBlur={() => handleBlur("category")}
-              className={
-                fieldErrors.category && touchedFields.category
-                  ? "border-red-500"
-                  : ""
-              }
-            />
-            {fieldErrors.category && touchedFields.category && (
-              <Alert variant="destructive">
-                <AlertDescription>{fieldErrors.category}</AlertDescription>
-              </Alert>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="vehicle">Vehicle ID *</Label>
-            <Input
-              id="vehicle"
-              value={formData.vehicle}
-              onChange={(e) => handleInputChange("vehicle", e.target.value)}
-              onBlur={() => handleBlur("vehicle")}
-              className={
-                fieldErrors.vehicle && touchedFields.vehicle
-                  ? "border-red-500"
-                  : ""
-              }
-            />
+          <div className="space-y-2 mb-4 px-1">
+            <label className="block text-sm font-medium text-gray-700">
+              Select Vehicle:
+              <select
+                value={selectedVehicle}
+                onChange={(e) => {
+                  setSelectedVehicle(e.target.value);
+                  handleInputChange("vehicle", e.target.value);
+                }}
+                className="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300"
+              >
+                <option value="" disabled>
+                  Select a vehicle
+                </option>
+                {dataVehicle && dataVehicle.length > 0 ? (
+                  dataVehicle.map((vehicle) => (
+                    <option key={vehicle.vehicleId} value={vehicle.vehicleId}>
+                      {vehicle.licensePlate}
+                    </option>
+                  ))
+                ) : (
+                  <option disabled>Loading vehicles...</option>
+                )}
+              </select>
+            </label>
             {fieldErrors.vehicle && touchedFields.vehicle && (
               <Alert variant="destructive">
                 <AlertDescription>{fieldErrors.vehicle}</AlertDescription>
@@ -256,19 +260,31 @@ const AddExpense = ({ isOpen, onClose, onExpenseAdded }) => {
             )}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="driver">Driver ID *</Label>
-            <Input
-              id="driver"
-              value={formData.driver}
-              onChange={(e) => handleInputChange("driver", e.target.value)}
-              onBlur={() => handleBlur("driver")}
-              className={
-                fieldErrors.driver && touchedFields.driver
-                  ? "border-red-500"
-                  : ""
-              }
-            />
+          <div className="space-y-2 mb-4 px-1">
+            <label className="block text-sm font-medium text-gray-700">
+              Select Driver:
+              <select
+                value={selectedDriver}
+                onChange={(e) => {
+                  setSelectedDriver(e.target.value);
+                  handleInputChange("driver", e.target.value);
+                }}
+                className="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300"
+              >
+                <option value="" disabled>
+                  Select a driver
+                </option>
+                {dataDriver && dataDriver.length > 0 ? (
+                  dataDriver.map((driver) => (
+                    <option key={driver.driverId} value={driver.driverId}>
+                      {driver.firstName} {driver.lastName}
+                    </option>
+                  ))
+                ) : (
+                  <option disabled>Loading drivers...</option>
+                )}
+              </select>
+            </label>
             {fieldErrors.driver && touchedFields.driver && (
               <Alert variant="destructive">
                 <AlertDescription>{fieldErrors.driver}</AlertDescription>
@@ -286,7 +302,7 @@ const AddExpense = ({ isOpen, onClose, onExpenseAdded }) => {
               Cancel
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Saving..." : "Add Expense"}
+              {isSubmitting ? "Submitting..." : "Submit"}
             </Button>
           </div>
         </form>

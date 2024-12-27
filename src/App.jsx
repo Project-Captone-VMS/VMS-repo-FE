@@ -17,6 +17,7 @@ import ProfileInformation from "./pages/Profileinformation";
 import IndexRoute from "./pages/Route/IndexRoute";
 import OverviewRoute from "./pages/Route/sub-Route/OverviewRoute";
 import ListRoute from "./pages/Route/sub-Route/ListRoute";
+import AllocationProduct from "./pages/WarehouseManagement.jsx/AllocationProduct";
 import InvoicePage from "./pages/WarehouseManagement.jsx/InvoicePage";
 import IncidentTab from "./pages/VehicleManegement/sub-pages/IncidentTab";
 import ExpenseManagement from "./pages/ExpenseManagement";
@@ -136,6 +137,10 @@ function App() {
             {
               path: "warehouse/:warehouseId",
               element: <WarehouseProduct />,
+            },
+            {
+              path: "warehouse/allocation",
+              element: <AllocationProduct />,
             },
             {
               path: "warehouse/:warehouseId/invoices",
