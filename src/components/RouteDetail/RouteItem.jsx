@@ -186,7 +186,7 @@ const RouteItem = ({
             {wayPoints.slice(0, -1).map((route, index) => (
               <TimelineItem
                 key={index}
-                className="text-start"
+                className="text-start "
               >
                 <TimelineHeader>
                   <TimelineTitle>

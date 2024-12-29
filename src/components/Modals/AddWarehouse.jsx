@@ -13,10 +13,11 @@ import { Input } from "../../components/ui/input";
 import { Button } from "../../components/ui/button";
 import { Alert, AlertDescription } from "../../components/ui/alert";
 
+// Hàm validate với regex cho phép tiếng Việt và dấu phẩy
 const validateWarehouseData = (data, existingWarehouses) => {
   const errors = {};
 
-  // Check for duplicate name or location
+  // Kiểm tra tên kho hoặc địa điểm bị trùng lặp
   const isDuplicate = existingWarehouses?.some(
     (warehouse) =>
       warehouse.warehouseName.toLowerCase() === data.warehouseName.trim().toLowerCase() ||
@@ -26,25 +27,25 @@ const validateWarehouseData = (data, existingWarehouses) => {
     errors.duplicate = "A warehouse with the same name or location already exists";
   }
 
-   // Warehouse Name validation
-   if (!data.warehouseName?.trim()) {
+  // Kiểm tra Warehouse Name
+  if (!data.warehouseName?.trim()) {
     errors.warehouseName = "Warehouse name is required";
   } else if (data.warehouseName.length > 50) {
     errors.warehouseName = "Warehouse name cannot exceed 50 characters";
-  } else if (!/^[a-zA-Z\s]+$/.test(data.warehouseName)) {
-    errors.warehouseName = "Warehouse name cannot contain special characters or numbers";
+  } else if (!/^[a-zA-ZÀ-ỹ0-9\s,]+$/.test(data.warehouseName)) {
+    errors.warehouseName = "Warehouse name cannot contain special characters";
   }
 
-  // Location validation
+  // Kiểm tra Location
   if (!data.location?.trim()) {
     errors.location = "Location is required";
   } else if (data.location.length > 100) {
     errors.location = "Location cannot exceed 100 characters";
-  } else if (!/^[a-zA-Z0-9\s]+$/.test(data.location)) {
+  } else if (!/^[a-zA-ZÀ-ỹ0-9\s,]+$/.test(data.location)) {
     errors.location = "Location cannot contain special characters";
   }
 
-  // Capacity validation
+  // Kiểm tra Capacity
   const capacity = Number(data.capacity);
   if (!data.capacity) {
     errors.capacity = "Capacity is required";
@@ -56,16 +57,15 @@ const validateWarehouseData = (data, existingWarehouses) => {
     errors.capacity = "Capacity cannot exceed 1,000,000";
   }
 
-
   return errors;
 };
+
 export const AddWarehouse = ({ isOpen, onClose, onAdd }) => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     warehouseName: "",
     location: "",
     capacity: "",
-    // currentStock: "",
   });
 
   const [fieldErrors, setFieldErrors] = useState({});
@@ -104,7 +104,7 @@ export const AddWarehouse = ({ isOpen, onClose, onAdd }) => {
     // Mark all fields as touched
     const allTouched = Object.keys(formData).reduce(
       (acc, key) => ({ ...acc, [key]: true }),
-      {},
+      {}
     );
     setTouchedFields(allTouched);
 
@@ -121,14 +121,12 @@ export const AddWarehouse = ({ isOpen, onClose, onAdd }) => {
       const warehouseData = {
         ...formData,
         capacity: Number(formData.capacity),
-        // currentStock: Number(formData.currentStock),
         utilizationRate: Math.round(
-          (Number(formData.currentStock) / Number(formData.capacity)) * 100,
+          (Number(formData.currentStock) / Number(formData.capacity)) * 100
         ),
       };
 
       await onAdd(warehouseData);
-      // toast.success("Warehouse added successfully!");
       handleCancel();
     } catch (error) {
       toast.error("Failed to create warehouse");
@@ -142,7 +140,6 @@ export const AddWarehouse = ({ isOpen, onClose, onAdd }) => {
       warehouseName: "",
       location: "",
       capacity: "",
-      // currentStock: "",
     });
     setFieldErrors({});
     setTouchedFields({});
@@ -262,41 +259,6 @@ export const AddWarehouse = ({ isOpen, onClose, onAdd }) => {
                   </Alert>
                 )}
               </div>
-
-              {/*<div className="space-y-2">*/}
-              {/*  <Label htmlFor="currentStock">Current Stock</Label>*/}
-              {/*  <div className="relative">*/}
-              {/*    <Input*/}
-              {/*      id="currentStock"*/}
-              {/*      type="number"*/}
-              {/*      value={formData.currentStock}*/}
-              {/*      onChange={(e) =>*/}
-              {/*        handleInputChange("currentStock", e.target.value)*/}
-              {/*      }*/}
-              {/*      onBlur={() => handleBlur("currentStock")}*/}
-              {/*      required*/}
-              {/*      min="0"*/}
-              {/*      className={`pr-10 ${fieldErrors.currentStock && touchedFields.currentStock ? "border-red-500" : ""}`}*/}
-              {/*    />*/}
-              {/*    {touchedFields.currentStock && (*/}
-              {/*      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">*/}
-              {/*        {getInputStatus("currentStock") === "error" ? (*/}
-              {/*          <X className="h-5 w-5 text-red-500" />*/}
-              {/*        ) : (*/}
-              {/*          <Check className="h-5 w-5 text-green-500" />*/}
-              {/*        )}*/}
-              {/*      </div>*/}
-              {/*    )}*/}
-              {/*  </div>*/}
-              {/*  {fieldErrors.currentStock && touchedFields.currentStock && (*/}
-              {/*    <Alert variant="destructive">*/}
-              {/*      <AlertCircle className="h-4 w-4" />*/}
-              {/*      <AlertDescription>*/}
-              {/*        {fieldErrors.currentStock}*/}
-              {/*      </AlertDescription>*/}
-              {/*    </Alert>*/}
-              {/*  )}*/}
-              {/*</div>*/}
             </div>
 
             <div className="flex justify-end space-x-2 pt-4">

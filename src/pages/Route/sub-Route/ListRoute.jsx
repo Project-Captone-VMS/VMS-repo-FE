@@ -300,35 +300,6 @@ const DetailRoute = () => {
 
   return (
     <div>
-      {/* <div className="space-y-2">
-        <label className="block text-sm">Route</label>
-        <input
-          type="text"
-          placeholder="Route"
-          className="w-full rounded-md border p-1"
-        />
-        <div className="flex justify-between gap-2">
-          <div className="w-full">
-            <label className="mt-2 block text-sm">Start</label>
-            <input
-              type="text"
-              placeholder="Start"
-              className="w-full rounded-md border p-1"
-            />
-          </div>
-          <div className="w-full">
-            <label className="mt-2 block text-sm">End</label>
-            <input
-              type="text"
-              placeholder="End"
-              className="w-full rounded-md border p-1"
-            />
-          </div>
-        </div>
-        <button className="bg-custom-teal w-full rounded-md bg-black p-2 text-white">
-          Find
-        </button>
-      </div> */}
 
       <div className="mb-3 flex items-center gap-4 rounded-lg bg-white p-4 shadow-sm">
         <div className="relative flex-1">

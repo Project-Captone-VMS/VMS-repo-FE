@@ -41,6 +41,33 @@ const UpdateDriver = ({ isOpen, onClose, driver, onDriverUpdated }) => {
     let errors = { ...fieldErrors };
 
     switch (name) {
+      case "email":
+        // Email validation regex
+        const emailRegex =
+          /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!value) {
+          errors.email = "Email is required.";
+        } else if (!emailRegex.test(value)) {
+          errors.email = "Please enter a valid email address.";
+        } else {
+          delete errors.email;
+        }
+        break;
+
+      case "phoneNumber":
+        // Phone number validation regex - allows starting with 0 or with country code (+xx)
+        const phoneRegex =
+          /^(?:\+?\d{1,4}[\s\-]?)?(\(?0?\d{1,4}\)?[\s\-]?)?[\d\s\-]{7,15}$/;
+        if (!value) {
+          errors.phoneNumber = "Phone number is required.";
+        } else if (!phoneRegex.test(value)) {
+          errors.phoneNumber =
+            "Please enter a valid phone number (e.g. 0123456789 or (012) 345-6789).";
+        } else {
+          delete errors.phoneNumber;
+        }
+        break;
+
       case "licenseNumber":
         if (!value) {
           errors.licenseNumber = "License number is required.";
@@ -73,7 +100,7 @@ const UpdateDriver = ({ isOpen, onClose, driver, onDriverUpdated }) => {
 
   const handleSave = async () => {
     let hasErrors = false;
-    const fieldsToValidate = ["licenseNumber", "workSchedule"];
+    const fieldsToValidate = ["email", "phoneNumber", "licenseNumber", "workSchedule"];
 
     fieldsToValidate.forEach((field) => {
       validateField(field, updatedDriver[field]);

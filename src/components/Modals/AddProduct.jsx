@@ -124,10 +124,10 @@ export const AddProduct = ({ isOpen, onClose, warehouseId, onSubmit }) => {
       onSubmit(productData);
       handleClose();
     } catch (error) {
-      setAlertMessage(
-        error.message || "An error occurred while saving the product"
-      );
-      toast.error(error.message || "Failed to save product");
+      // setAlertMessage(
+      //   error.message || "An error occurred while saving the product"
+      // );
+      toast.error(error.response.data.message);
     } finally {
       setIsSubmitting(false);
     }

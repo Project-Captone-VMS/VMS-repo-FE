@@ -83,7 +83,7 @@ const WarehouseManagement = () => {
       const data = await getAllWarehouses();
       setWarehouses(data);
     } catch (error) {
-      console.error("Error fetching warehouses:", error);
+      console.log("Error fetching warehouses:", error);
       Swal.fire({
         icon: "error",
         title: "Error!",

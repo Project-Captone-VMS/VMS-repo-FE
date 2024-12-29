@@ -8,7 +8,7 @@ const ExpenseList = ({ expenses, onEdit, onDelete }) => {
                 <thead>
                     <tr>
                         <th className="px-4 py-2 border text-left">Description</th>
-                        <th className="px-4 py-2 border text-left">Amount</th>
+                        <th className="px-4 py-2 border text-left">Price</th>
                         <th className="px-4 py-2 border text-left">Date</th>
                         <th className="px-4 py-2 border text-left">Actions</th>
                     </tr>
@@ -21,7 +21,6 @@ const ExpenseList = ({ expenses, onEdit, onDelete }) => {
                                 <td className="px-4 py-2">{expense.amount}</td>
                                 <td className="px-4 py-2">{expense.date}</td>
                                 <td className="px-4 py-2">
-                                    <button onClick={() => onEdit(expense)} className="bg-blue-500 text-white px-4 py-2 rounded-md mr-2">Edit</button>
                                     <button onClick={() => onDelete(expense.expenseId)} className="bg-red-500 text-white px-4 py-2 rounded-md">Delete</button>
                                 </td>
                             </tr>

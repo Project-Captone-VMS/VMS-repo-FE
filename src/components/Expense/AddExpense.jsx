@@ -187,7 +187,7 @@ const AddExpense = ({ isOpen, onClose, onExpenseAdded }) => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="amount">Amount *</Label>
+            <Label htmlFor="amount">Price *</Label>
             <Input
               id="amount"
               type="number"

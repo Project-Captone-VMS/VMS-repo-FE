@@ -14,6 +14,7 @@ import {
   getAllWarehouses,
   getAllRoute,
   getAllItems,
+  getAllShipments,
 } from "../../services/apiRequest";
 import axios from "axios";
 import Pagination from "@/components/Pagination";
@@ -26,6 +27,7 @@ const ShipmentTable = ({ shipments, onDelete, onUpdateStatus }) => {
   const [routesData, setRoutesData] = useState({});
   const [itemsData, setItemsData] = useState({});
   const [loading, setLoading] = useState(true);
+  const [shipmentData,setShipmentData] = useState([]);
 
   // Calculate pagination
   const filteredShipments = shipments; // Add filters if needed
@@ -43,39 +45,17 @@ const ShipmentTable = ({ shipments, onDelete, onUpdateStatus }) => {
     fetchRelatedData();
   }, [shipments]);
 
-  const convertGeocode = async (lat, lng) => {
-    try {
-      const response = await axios.get(
-        "https://revgeocode.search.hereapi.com/v1/revgeocode",
-        {
-          params: {
-            at: `${lat},${lng}`,
-            lang: "en-US",
-            apiKey: apiKey,
-          },
-        },
-      );
 
-      if (response.data?.items?.[0]) {
-        return {
-          label: response.data.items[0].title || "",
-        };
-      }
-      return null;
-    } catch (error) {
-      console.log("Reverse geocoding error:", error);
-      return null;
-    }
-  };
 
-  const fetchItems = async (warehouseId) => {
+  const fetchItems = async (routeId) => {
     try {
-      const items = await getAllItems(warehouseId);
-      console.log(`Items for warehouse ${warehouseId}:`, items);
+      const items = await getAllItems(routeId);
+      console.log(`Items for warehouse ${routeId}:`, items);
+      const dataItems = await getAllItems();
       return items;
     } catch (error) {
       console.error(
-        `Error fetching items for warehouse ${warehouseId}:`,
+        `Error fetching items for warehouse ${routeId}:`,
         error,
       );
       return [];
@@ -85,40 +65,8 @@ const ShipmentTable = ({ shipments, onDelete, onUpdateStatus }) => {
   const fetchRelatedData = async () => {
     try {
       setLoading(true);
-
-      // Fetch warehouses data
-      const warehousesResponse = await getAllWarehouses();
-      // console.log("Warehouses Response:", warehousesResponse);
-      const warehousesMap = {};
-      warehousesResponse.forEach((warehouse) => {
-        warehousesMap[warehouse.warehouseId] = warehouse;
-      });
-      setWarehousesData(warehousesMap);
-
-      // Fetch routes data and use stored location names
-      const routesResponse = await getAllRoute();
-      const routesMap = {};
-      routesResponse.forEach(route => {
-        routesMap[route.routeId] = {
-          ...route,
-          startAddress: { label: route.startLocationName },
-          endAddress: { label: route.endLocationName }
-        };
-      });
-      console.log("Routes Map:", routesMap);
-      setRoutesData(routesMap);
-
-      // Fetch items for each warehouse
-      const itemsMap = {};
-      for (const shipment of shipments) {
-        if (shipment.warehouse?.warehouseId) {
-          const warehouseItems = await fetchItems(
-            shipment.warehouse.warehouseId,
-          );
-          itemsMap[shipment.warehouse.warehouseId] = warehouseItems;
-        }
-      }
-      setItemsData(itemsMap);
+      const shipmentData = await getAllShipments();
+      setShipmentData(shipmentData);
     } catch (error) {
       console.error("Error fetching related data:", error);
       toast.error("Failed to fetch complete data");
@@ -132,7 +80,6 @@ const ShipmentTable = ({ shipments, onDelete, onUpdateStatus }) => {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Warehouse</TableHead>
             <TableHead>Route Details</TableHead>
             <TableHead>Driver Info</TableHead>
             <TableHead>Items</TableHead>
@@ -148,74 +95,82 @@ const ShipmentTable = ({ shipments, onDelete, onUpdateStatus }) => {
             return (
               <TableRow key={shipment.shipmentId}>
                 <TableCell>
-                  <div className="flex items-center space-x-2">
-                    <Package className="h-4 w-4 text-gray-500" />
-                    <span>{warehouse?.warehouseName || "N/A"}</span>
-                  </div>
-                </TableCell>
-                <TableCell>
                   <div className="flex flex-col space-y-1">
                     <div className="flex items-center text-sm">
-                      <MapPin className="mr-1 h-4 w-4 text-green-500" />
                       <span className="text-gray-600">
-                        From: {route?.startLocationName|| "Loading..."}
+                        🏢 From: {shipment.route?.startLocationName || "Loading..."}
                       </span>
                     </div>
                     <div className="flex items-center text-sm">
-                      <MapPin className="mr-1 h-4 w-4 text-red-500" />
                       <span className="text-gray-600">
-                        To: {route?.endLocationName || "Loading..."}
+                        🎯 To: {shipment.route?.endLocationName || "Loading..."}
                       </span>
                     </div>
                   </div>
                 </TableCell>
+                
                 <TableCell>
                   <div className="flex flex-col space-y-1">
                     <div className="flex items-center">
-                      <User className="mr-2 h-4 w-4" />
                       <span>
-                        {route?.driver?.firstName} {route?.driver?.lastName}
+                        🙎 {shipment.route?.driver?.firstName} {shipment.route?.driver?.lastName}
                       </span>
                     </div>
                     <div className="flex items-center text-sm text-gray-500">
-                      <Truck className="mr-2 h-4 w-4" />
-                      <span>{route?.vehicle?.licensePlate}</span>
+                      <span>
+                        🛻 {shipment.route?.vehicle?.licensePlate}
+                      </span>
                     </div>
                   </div>
                 </TableCell>
+
                 <TableCell>
                   <div className="flex flex-col gap-2">
-                    {itemsData[shipment.warehouse?.warehouseId]?.map((item) => (
-                      <div
-                        key={item.itemId}
-                        className="border-b pb-2 last:border-0"
-                      >
-                        <div className="flex items-center justify-between">
-                          <span className="font-medium">{item.itemName}</span>
-                          {/* <span className="text-gray-500">ID: {item.itemId}</span> */}
+                    {/* Items List */}
+                    {shipment.items?.map((item) => (
+                      <div key={item.itemId} className="border-b pb-2 last:border-0">
+                        <div className="flex justify-between items-center">
+                          <span className="font-medium text-gray-700">{item.itemName}</span>
                         </div>
-                        <div className="flex justify-between text-sm text-gray-600">
-                          <span>Quantity: {item.quantity}</span>
-                          <span>Price: ${item.price.toFixed(2)}</span>
+                        <div className="flex justify-between items-center mt-1">
+                          <span className="text-sm text-gray-600">Quantity: {item.quantity}</span>
+                          <span className="text-sm text-gray-600">
+                            Price: ${item.price.toFixed(2)}
+                          </span>
                         </div>
-                        <div className="text-right text-sm font-medium text-blue-600">
-                          Total: ${(item.price * item.quantity).toFixed(2)}
+                        <div className="text-right text-sm text-blue-600 mt-1">
+                          Subtotal: ${(item.price * item.quantity).toFixed(2)}
                         </div>
                       </div>
                     ))}
+                    
+                    {/* Total Summary */}
+                    {shipment.items && shipment.items.length > 0 && (
+                      <div className="mt-2 pt-2 border-t border-gray-200">
+                        <div className="flex justify-between items-center">
+                          <span className="font-semibold text-gray-700">Total Order:</span>
+                          <span className="font-bold text-green-600">
+                            ${shipment.items.reduce((sum, item) => 
+                              sum + (item.price * item.quantity), 0).toFixed(2)}
+                          </span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </TableCell>
+
                 <TableCell>
                   <Badge className={shipment.status ? "Complete" : "No Complete"}>
                     {shipment.status ? "Complete" : "No Complete"}
                   </Badge>
                 </TableCell>
+
                 <TableCell>
                   <Button
-                    variant="ghost"
+                    variant="outline"
                     size="sm"
+                    className="mr-2"
                     onClick={() => onDelete(shipment.shipmentId)}
-                    className="text-red-500 hover:text-red-700"
                   >
                     <Trash className="h-4 w-4" />
                   </Button>

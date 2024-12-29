@@ -126,7 +126,7 @@ const Register = () => {
         }}
       >
         <div className="z-[2] absolute text-[white] left-[10%] top-[20%]">
-          <h1 className="text-3xl lg:text-5xl font-bold">GoFinance</h1>
+          <h1 className="text-[red] italic text-3xl lg:text-5xl font-bold">VMS</h1>
           <p className="text-sm lg:text-xl">
             Vehicle Monitoring System for Logistics Operations
           </p>

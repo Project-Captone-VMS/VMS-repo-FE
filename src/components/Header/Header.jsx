@@ -71,7 +71,7 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
       if (res) {
         setNotifications(res);
         setNotificationCount(res.length);
-        setHasNewNotification(true); // ++
+        setHasNewNotification(true); 
       }
     };
     getNotice();
@@ -138,10 +138,10 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
   };
 
   const deleteAllNotifications = () => {
-    setNotifications([]); // Xóa toàn bộ thông báo
-    setNotificationCount(0); // Đặt số lượng thông báo về 0
-    localStorage.removeItem("notifications"); // Xóa khỏi localStorage
-    toast.success("All notifications have been deleted!"); // Thông báo thành công
+    setNotifications([]); 
+    setNotificationCount(0);
+    localStorage.removeItem("notifications"); 
+    toast.success("All notifications have been deleted!"); 
   };
 
   const toggleNotifications = () => {
@@ -269,9 +269,11 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
               <ChevronDown className="h-4 w-4 text-gray-400" />
             </button>
 
-            {isDropdownOpen && (
+            { isDropdownOpen && (
               <div className="absolute right-0 z-50 mt-2 w-48 rounded-lg bg-white py-1 shadow-lg">
-                <button className="flex w-full items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                {userRole === "USER" && (
+                  <div>
+                      <button className="flex w-full items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                   <UserCircle className="h-4 w-4" />
                   <Link to="/profile">Profile Information</Link>
                 </button>
@@ -279,6 +281,9 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
                   <Settings className="h-4 w-4" />
                   <Link to="/changePassWord">Change Password</Link>
                 </button>
+                  </div>
+                )}
+              
                 <div className="border-t border-gray-100"></div>
                 <button
                   onClick={handleLogout}

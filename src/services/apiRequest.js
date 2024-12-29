@@ -503,6 +503,11 @@ export const getRouteById = async (id) => {
   return response.data;
 };
 
+export const getRouteNoAcitve = async () => {
+  const response = await api.get(`route`);
+  return response.data;
+};
+
 export const updateRoute = async (id) => {
   const response = await api.put(`route/update/${id}`);
   return response.data;
@@ -548,8 +553,8 @@ export const saveItem = async (itemRequest) => {
   return response.data;
 };
 
-export const getAllItems = async (warehouseId) => {
-  const response = await api.get(`item/getAll/${warehouseId}`);
+export const getAllItems = async (routeId) => {
+  const response = await api.get(`item/getAll/${routeId}`);
   return response.data;
 };
 
@@ -579,3 +584,7 @@ export const checkPhoneNumber = async (phoneNumber) => {
 };
 
 
+export const getAllShipmentByRouteId = async (routeId) => {
+  const response = await api.get(`shipment/getRoute/${routeId}`);
+  return response.data;
+};

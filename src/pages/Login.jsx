@@ -108,10 +108,10 @@ const Login = () => {
       >
         <div className="z-[2] absolute text-[white] left-[10%] top-[20%]">
           <h1
-            className="text-[color:var(--White,#fff)] text-3xl lg:text-5xl not-italic font-bold leading-[normal]"
+            className="text-[red] italic text-3xl lg:text-5xl font-bold leading-[normal]"
             style={{ fontFamily: "Poppins" }}
           >
-            GoFinance
+            VMS
           </h1>
           <p
             className="not-italic text-sm lg:text-xl font-medium leading-[normal] text-[white]"

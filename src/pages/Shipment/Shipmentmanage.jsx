@@ -24,7 +24,7 @@ export default function ShipmentManage() {
     try {
       setLoading(true);
       const data = await getAllShipments();
-      console.log("data",data)
+      // console.log("data",data)
       setShipments(data);
     } catch (error) {
       console.log('Failed to fetch shipments:', error);

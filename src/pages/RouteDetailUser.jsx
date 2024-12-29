@@ -623,13 +623,13 @@ const RouteDetailUser = () => {
             <p>List Route </p>
           </div>
           <div className="w-full">
-         
-            {routes.map((route) => (
-              <button
+          <button
               type="link"
               onClick={() => handleViewDetailsInMap(route.routeId)}
               className="px-2"
             >
+            {routes.map((route) => (
+          
                 <RouteItem
                   key={route.routeId}
                   routeId={route.routeId}
@@ -642,9 +642,9 @@ const RouteDetailUser = () => {
                   interconnect={interconnect}
                   status={route.status}
                 />
-              </button>
+            
             ))}
-          
+            </button>
           </div>
           
         </div>
@@ -687,9 +687,9 @@ const RouteDetailUser = () => {
 
           <div className="px-4 text-sm font-bold">
             <div
-              id="mapContainer"
+              id="mapContainer" 
               style={{ width: "100%", height: "500px" }}
-              className="rounded-lg shadow-lg"
+              className ="lg:w-full lg:h-[500px]"
             ></div>
           </div>
         </div>

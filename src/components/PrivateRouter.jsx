@@ -16,7 +16,7 @@ const PrivateRouter = ({ allowedRoles }) => {
   }
 
   if (allowedRoles && !allowedRoles.includes(userRole)) {
-    return <Navigate to="/realtime" />;
+    return <Navigate to="/driveuser" />;
   }
 
   return <Outlet />;

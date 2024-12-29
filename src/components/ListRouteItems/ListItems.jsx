@@ -85,13 +85,13 @@ const ListItems = ({
             <p className="mb-2 rounded-lg border bg-white text-black">
               {fullname}
             </p>
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-betwee gap-2">
               <div className="flex flex-col">
                 <p className="text-start text-[0.8vw]">Start: {start}</p>
                 <p className="text-start text-[0.8vw]">End: {end}</p>
               </div>
               <p
-                className={`text-[0.8vw] font-extrabold text-white ${status === true ? "rounded-full border-2 border-green-700 bg-green-500" : "rounded-full border-2 border-yellow-700 bg-yellow-500"} p-2`}
+                className={`text-[0.7vw] text-white ${status === true ? "rounded-lg border-2 border-green-700 bg-green-500" : "rounded-lg border-2 border-yellow-700 bg-yellow-500"} p-2`}
               >
                 {status === true ? "Complete" : "No Complete"}
               </p>

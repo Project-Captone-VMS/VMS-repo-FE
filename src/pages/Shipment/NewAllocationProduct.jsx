@@ -18,7 +18,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { getAllWarehouses, getAllProducts, getAllRoute, createShipment, saveItem } from "../../services/apiRequest";
+import { getAllWarehouses, getAllProducts, listRouteNoActive, createShipment, saveItem } from "../../services/apiRequest";
 import toast from "react-hot-toast";
 import axios from 'axios';
 import { useNavigate } from "react-router-dom";
@@ -72,7 +72,7 @@ const AllocationProduct = () => {
   const fetchRoutes = async () => {
     try {
       setLoading(true); 
-      const listRoute = await getAllRoute();
+      const listRoute = await listRouteNoActive();
       setRoutes(listRoute);
     } catch (error) {
       toast.error("Failed to fetch routes"); 
@@ -207,7 +207,8 @@ const AllocationProduct = () => {
           itemName: allocation.productName,
           price: parseFloat(allocation.price),
           quantity: parseInt(allocation.quantity),
-          warehouse: { warehouseId: parseInt(selectedWarehouse) }
+          warehouse: { warehouseId: parseInt(selectedWarehouse) },
+          shipment: { shipmentId: createdShipment.shipmentId },
         };
         return saveItem(itemRequest);
       });
@@ -287,8 +288,7 @@ const AllocationProduct = () => {
                                 className="p-2"
                               >
                                 <div className="flex items-center space-x-2">
-                                  <Package className="h-4 w-4 text-gray-500" />
-                                  <span>{warehouse.warehouseName}</span>
+                                  <span>🏡 {warehouse.warehouseName} - {warehouse.location} </span>
                                 </div>
                               </SelectItem>
                             ))}

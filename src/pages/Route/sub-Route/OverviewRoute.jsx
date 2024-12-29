@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Button, Input, Modal } from "antd";
+import { Button, Input, Modal, Select } from "antd";
 import { over } from "stompjs";
 import {
   getInterConnections,
@@ -9,11 +9,14 @@ import {
   listRouteNoActive,
   getUsernameByDriverId,
   getWayPoint,
+  getAllWarehouses,
 } from "../../../services/apiRequest";
 import { toast, Toaster } from "react-hot-toast";
 import axios from "axios";
 import SockJS from "sockjs-client";
 import Pagination from "@/components/Pagination";
+
+const { Option } = Select;
 
 const Route = () => {
   const [routes, setRoutes] = useState([]);
@@ -129,6 +132,9 @@ const Route = () => {
   const token = localStorage.getItem("jwtToken");
   const apiKey = import.meta.env.VITE_HERE_MAP_API_KEY;
 
+  const [warehouseLocations, setWarehouseLocations] = useState([]);
+  const [customOrigin, setCustomOrigin] = useState('');
+  const [customDestination, setCustomDestination] = useState('');
 
   const convertGeocode = async (lat, lng) => {
     try {
@@ -220,6 +226,19 @@ const Route = () => {
       mapInstance.dispose();
     };
   }, [apiKey]);
+
+  useEffect(() => {
+    const fetchWarehouseLocations = async () => {
+      try {
+        const warehousesData = await getAllWarehouses();
+        setWarehouseLocations(warehousesData);
+      } catch (error) {
+        console.error("Error fetching warehouses:", error);
+        toast.error("Failed to fetch warehouse locations");
+      }
+    };
+    fetchWarehouseLocations();
+  }, []);
 
   const handleTextareaChange = (e) => {
     const value = e.target.value;
@@ -400,7 +419,7 @@ const Route = () => {
       };
 
       const headers = {
-        Authorization: `Bearer eyJhbGciOiJSUzUxMiIsImN0eSI6IkpXVCIsImlzcyI6IkhFUkUiLCJhaWQiOiJZcDgxNk96UkI4M1BWTHM5UzZYZiIsImlhdCI6MTczMzI0MjA0MSwiZXhwIjoxNzMzMzI4NDQxLCJraWQiOiJqMSJ9.ZXlKaGJHY2lPaUprYVhJaUxDSmxibU1pT2lKQk1qVTJRMEpETFVoVE5URXlJbjAuLnQ1MjRxRk1CNERiVTY3c21FRVYzYUEuaWMwQWlmcUtIUHQ0WFZucS05X1JvYWkzU0ozTWxDbHBNYWtOZXJvdHRzU3VxQk9xRWRFYTh5aWZVMEpoYzBWcVdOa2VSUXAwZzhjVkxUSzVwemRVWkFvaEdyWFFkd2NNcGVqNVdubGd5U0h6YmtmQzlicEVnOWM1TWdsSEg4TjJrQVUzTjRPLTJQOFpUVjAwMkdVMGI4MndlTld5Zk9LeTlDb2l4QVJFdXlRLmJHX2F5Nk5MWFZidGs0UVdfRE1RRC1tNllDSE1yekVxU2dfVG1mM051c0k.AR1Lb6fw2fvHSONXgsHAbo_SIZ5OsXv4rrpNq98okB30JH_tG9oDasU5vLXOz1fjJDA4tuUCGUupTODkOU_pbg9TndIqgILOQARIkHibp8vtyubSjZUoiEWPFhQmRUMepuoU_m11OxUTavcet4EBynYaAU8o2_SpA8oSDBVUg6szJMfeQq6FSFKax4YQ-IEQaS9FakhfgPtRhqMFYjv66gwIB767o17s_Z2rkhI-D7qvpOi9m3NojlRO4X4wF_u7gLvTaBLlInG-6oKi3IneFdCf_vmeZSnVBo0nVKgGV67oLA7Wk880SwXblLViYhRjLI8yCnLLiIMcqEpRaIl_rQ`,
+        Authorization: `Bearer eyJhbGciOiJSUzUxMiIsImN0eSI6IkpXVCIsImlzcyI6IkhFUkUiLCJhaWQiOiJZcDgxNk96UkI4M1BWTHM5UzZYZiIsImlhdCI6MTczMzI0MjA0MSwiZXhwIjoxNzMzMzI4NDQxLCJraWQiOiJqMSJ9.ZXlKaGJHY2lPaUprYVhJaUxDSmxFRVYzYUEuaWMwQWlmcUtIUHQ0WFZucS05X1JvYWkzU0ozTWxDbHBNYWtOZXJvdHRzU3VxQk9xRWRFYTh5aWZVMEpoYzBWcVdOa2VSUXAwZzhjVkxUSzVwemRVWkFvaEdyWFFkd2NNcGVqNVdubGd5U0h6YmtmQzlicEVnOWM1TWdsSEg4TjJrQVUzTjRPLTJQOFpUVjAwMkdVMGI4MndlTld5Zk9LeTlDb2l4QVJFdXlRLmJHX2F5Nk5MWFZidGs0UVdfRE1RRC1tNllDSE1yekVxU2dfVG1mM051c0k.AR1Lb6fw2fvHSONXgsHAbo_SIZ5OsXv4rrpNq98okB30JH_tG9oDasU5vLXOz1fjJDA4tuUCGUupTODkOU_pbg9TndIqgILOQARIkHibp8vtyubSjZUoiEWPFhQmRUMepuoU_m11OxUTavcet4EBynYaAU8o2_SpA8oSDBVUg6szJMfeQq6FSFKax4YQ-IEQaS9FakhfgPtRhqMFYjv66gwIB767o17s_Z2rkhI-D7qvpOi9m3NojlRO4X4wF_u7gLvTaBLlInG-6oKi3IneFdCf_vmeZSnVBo0nVKgGV67oLA7Wk880SwXblLViYhRjLI8yCnLLiIMcqEpRaIl_rQ`,
       };
 
       const results = await findSequence({
@@ -479,28 +498,64 @@ const Route = () => {
               <div className="mb-4 px-1">
                 <label className="block text-sm font-medium text-gray-700">
                   Start:
-                  <input
-                    type="text"
+                  <Select
+                    className="mt-1 w-full"
                     value={origin}
-                    onChange={(e) => {
-                      setOrigin(e.target.value);
-                      // fetchSuggestions(e.target.value);
+                    onChange={(value) => {
+                      setOrigin(value);
+                      // Reset destination if it matches new origin
+                      if (value === destination) {
+                        setDestination('');
+                      }
                     }}
-                    required
-                    className="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300"
-                  />
+                    onSearch={(value) => setCustomOrigin(value)}
+                    showSearch
+                    allowClear
+                    mode="combobox"
+                    placeholder="Select or enter start location"
+                    filterOption={false}
+                  >
+                    {warehouseLocations.map((warehouse) => (
+                      <Option key={warehouse.warehouseId} value={warehouse.location}>
+                        {warehouse.warehouseName} - {warehouse.location}
+                      </Option>
+                    ))}
+                    {customOrigin && (
+                      <Option key="custom" value={customOrigin}>
+                        {customOrigin}
+                      </Option>
+                    )}
+                  </Select>
                 </label>
               </div>
+
               <div className="mb-4 px-1">
                 <label className="block text-sm font-medium text-gray-700">
                   End:
-                  <input
-                    type="text"
+                  <Select
+                    className="mt-1 w-full"
                     value={destination}
-                    onChange={(e) => setDestination(e.target.value)}
-                    required
-                    className="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-300"
-                  />
+                    onChange={(value) => setDestination(value)}
+                    onSearch={(value) => setCustomDestination(value)}
+                    showSearch
+                    allowClear
+                    mode="combobox"
+                    placeholder="Select or enter end location"
+                    filterOption={false}
+                  >
+                    {warehouseLocations.filter(
+                      warehouse => warehouse.location !== origin
+                    ).map((warehouse) => (
+                      <Option key={warehouse.warehouseId} value={warehouse.location}>
+                        {warehouse.warehouseName} - {warehouse.location}
+                      </Option>
+                    ))}
+                    {customDestination && (
+                      <Option key="custom" value={customDestination}>
+                        {customDestination}
+                      </Option>
+                    )}
+                  </Select>
                 </label>
               </div>
 

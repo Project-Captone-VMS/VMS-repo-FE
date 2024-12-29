@@ -9,7 +9,7 @@ const OverviewRoute = () => {
           to="overviewRoute"
           className="px-4 py-2 hover:bg-slate-400 focus:bg-slate-300"
         >
-          OverviewRoute
+          Overview Route
         </Link>
         <Link
           to="listRoute"
