@@ -565,6 +565,17 @@ const RouteDetailUser = () => {
             showCloseButton: true,
             timerProgressBar: true,
           });
+
+          const formSend = {
+            title: "You have a new notification about successful delivery",
+            content: `The vehicle with license plate number ${
+              getRoute.vehicle.licensePlate
+            } driven by driver ${getRoute.driver.firstName} ${
+              getRoute.driver.lastName
+            } complete the shipment`,
+            type: "USER",
+          };
+          sentNoti(formSend);
           await updateRoute(id);
           window.location.reload();
         }

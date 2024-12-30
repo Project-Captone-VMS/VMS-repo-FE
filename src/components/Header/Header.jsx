@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { logout } from "../../redux/authSlice";
 import toast from "react-hot-toast";
-import { getUserByUsername, getNoti } from "../../services/apiRequest";
+import { getUserByUsername, getNoti,logoutSystem } from "../../services/apiRequest";
 import { over } from "stompjs";
 import {
   Bell,
@@ -31,6 +31,7 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
 
   const username = localStorage.getItem("username");
   const userRole = localStorage.getItem("userRole");
+  const jwtToken = localStorage.getItem("jwtToken")
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -156,9 +157,14 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
   };
 
   const handleLogout = () => {
+    const formData={
+      "token": `${jwtToken}`
+    }
+    logoutSystem(formData)
     localStorage.removeItem("username");
     localStorage.removeItem("userRole");
     localStorage.removeItem("jwtToken");
+
     dispatch(logout());
     navigate("/login");
   };

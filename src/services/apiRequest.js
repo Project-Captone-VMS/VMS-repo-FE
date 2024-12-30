@@ -588,3 +588,8 @@ export const getAllShipmentByRouteId = async (routeId) => {
   const response = await api.get(`shipment/getRoute/${routeId}`);
   return response.data;
 };
+
+export const logoutSystem = async (formData) => {
+  const response = await api.post(`auth/logout`,formData);
+  return response.data;
+};
